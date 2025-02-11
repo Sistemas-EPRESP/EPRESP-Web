@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const LogIn = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const isLogged = login(username, password);
-    if (isLogged) {
-      // Redireccionar a la página principal o a la ruta deseada
-      navigate('/');
+    const isValid = login(email, password);
+    if (isValid) {
+      // Redirige al formulario de rendición tras iniciar sesión
+      navigate('/formulario_rendicion');
     } else {
       setError('Credenciales inválidas');
     }
@@ -22,28 +22,28 @@ const LogIn = () => {
 
   return (
     <div>
-      <h1>Log In</h1>
+      <h1>Iniciar Sesión</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+          <label htmlFor="email">Email:</label>
+          <input 
+            type="email" 
+            id="email" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
+          <label htmlFor="password">Contraseña:</label>
+          <input 
+            type="password" 
+            id="password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
         { error && <p style={{ color: 'red' }}>{error}</p> }
-        <button type="submit">Log In</button>
+        <button type="submit">Ingresar</button>
       </form>
     </div>
   );
