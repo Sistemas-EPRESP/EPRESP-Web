@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database/db');
 
-const Cooperativa = sequelize.define(
-  'Cooperativa',
+const Administrador = sequelize.define(
+  'Administrador',
   {
     nombre: {
       type: DataTypes.STRING,
@@ -11,21 +11,19 @@ const Cooperativa = sequelize.define(
         notEmpty: true,
       },
     },
-    cuit: {
+    apellido: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
-        isNumeric: true,
-        len: [8, 15], // Mínimo 8 y máximo 15 dígitos
+        notEmpty: true,
       },
     },
   },
   {
     timestamps: true,
     paranoid: true, // Soft deletes (eliminación lógica)
-    tableName: 'cooperativas',
+    tableName: 'administradores',
   },
 );
 
-module.exports = Cooperativa;
+module.exports = Administrador;

@@ -1,21 +1,27 @@
-const express = require("express");
+const express = require('express');
+const { sequelize } = require('./models'); // Importamos la conexión y modelos
+//const rutasUsuario = require('./routes/UsuarioRoutes');
+
 const app = express();
-const port = 3000;
-const sequelize = require("./config/database/db");
+
+app.use(express.json());
+//app.use('/usuarios', rutasUsuario);
+
+const PORT = process.env.PORT || 3000;
 
 sequelize
-  // .sync({ alter: true }) // Si se crean nuevas tablas descomentar esta linea y comentar la de "autenticar"
-  // .then(() => {
-  //   console.log('Base de datos y tablas creadas');
-  .authenticate()
+  .sync({ alter: true }) // Si se crean nuevas tablas descomentar esta linea y comentar la de "autenticar"
   .then(() => {
-    console.log("Conexión establecida con la base de datos");
+    console.log('Base de datos y tablas creadas');
+    // .authenticate()
+    // .then(() => {
+    //   console.log('Conexión establecida con la base de datos');
 
     // Iniciar el servidor
-    app.listen(port, () => {
-      console.log(`Servidor inicializado en el puerto ${port}`);
+    app.listen(PORT, () => {
+      console.log(`Servidor inicializado en el puerto ${PORT}`);
     });
   })
   .catch((error) => {
-    console.error("Error al crear la base de datos y tablas:", error);
+    console.error('Error al crear la base de datos y tablas:', error);
   });
