@@ -1,17 +1,17 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-// Importa tus páginas desde la carpeta pages
+import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
+import FormularioRendicion from '../pages/FormularioRendicion';
+import LogIn from '../pages/LogIn';
 
 const AppRouter = () => {
+  const cooperativa = { distribuidor: 'Cooperativa de Trelew', cuit: '30-12345678-9' };
+
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Ruta principal */}
-        <Route path="/" element={<Home />} />
-        {/* Ruta de ejemplo para otra página */}
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<LogIn/>} />
+      <Route path="/formulario_rendicion" element={<FormularioRendicion {...cooperativa} />} />
+    </Routes>
   );
 };
 
