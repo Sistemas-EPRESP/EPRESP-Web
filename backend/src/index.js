@@ -1,6 +1,8 @@
 const express = require('express');
 const { sequelize } = require('./models'); // Importamos la conexión y modelos
-//const rutasUsuario = require('./routes/UsuarioRoutes');
+const cookieParser = require('cookie-parser');
+const authRoutes = require('./routes/authRoutes');
+//const protectedRoutes = require('./routes/protectedRoutes');
 
 const app = express();
 
