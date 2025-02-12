@@ -8,5 +8,55 @@
     "tasa_fiscalizacion_letras": "Cero",
     "tasa_fiscalizacion_numero": 0,
     "total_trasnferencia_letras": "Cero",
-    "total_trasnferencia_numero": 0
+    "total_trasnferencia_numero": 0,
+    "demandas" :{
+        "residencial":
+        {
+            "facturacion": 1,
+            "total_tasa_fiscalizacion": 1,
+            "total_percibido": 1,
+            "total_transferido": 1,
+            "observaciones": "Ninguna"
+        },
+        "comercial":
+        {
+            "facturacion": 1,
+            "total_tasa_fiscalizacion": 1,
+            "total_percibido": 1,
+            "total_transferido": 1,
+            "observaciones": "Ninguna"
+        },
+        "industrial":
+        {
+            "facturacion": 1,
+            "total_tasa_fiscalizacion": 1,
+            "total_percibido": 1,
+            "total_transferido": 1,
+            "observaciones": "Ninguna"
+        },
+        "grandes_usuarios":
+        {
+            "facturacion": 1,
+            "total_tasa_fiscalizacion": 1,
+            "total_percibido": 1,
+            "total_transferido": 1,
+            "observaciones": "Ninguna"
+        },
+        "contratos":
+        {
+            "facturacion": 1,
+            "total_tasa_fiscalizacion": 1,
+            "total_percibido": 1,
+            "total_transferido": 1,
+            "observaciones": "Ninguna"
+        },
+        "otros":
+        {
+            "facturacion": 1,
+            "total_tasa_fiscalizacion": 1,
+            "total_percibido": 1,
+            "total_transferido": 1,
+            "observaciones": "Ninguna"
+        }
+    }
 }
