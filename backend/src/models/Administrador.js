@@ -6,16 +6,25 @@ const Administrador = sequelize.define(
   {
     nombre: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true,
       },
     },
     apellido: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true,
+      },
+    },
+    cuit: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isNumeric: true,
+        len: [8, 15], // Mínimo 8 y máximo 15 dígitos
       },
     },
   },

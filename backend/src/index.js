@@ -1,27 +1,38 @@
 const express = require('express');
-const { sequelize } = require('./models'); // Importamos la conexión y modelos
-//const rutasUsuario = require('./routes/UsuarioRoutes');
+const { sequelize } = require('./models'); // Importamos la conexión a la BD
+const cookieParser = require('cookie-parser');
+const authRoutes = require('./routes/authRoutes');
+require('dotenv').config(); // Cargar variables de entorno
 
 const app = express();
-
-app.use(express.json());
-//app.use('/usuarios', rutasUsuario);
-
 const PORT = process.env.PORT || 3000;
 
+// Middlewares
+app.use(express.json());
+app.use(cookieParser());
+
+// Rutas
+app.use('/api', authRoutes);
+
+// Conectar con la base de datos
 sequelize
-  .sync({ alter: true }) // Si se crean nuevas tablas descomentar esta linea y comentar la de "autenticar"
+  .authenticate()
   .then(() => {
-    console.log('Base de datos y tablas creadas');
-    // .authenticate()
-    // .then(() => {
-    //   console.log('Conexión establecida con la base de datos');
+    console.log('✅ Conexión establecida con la base de datos');
+
+    // Solo sincronizar la base en desarrollo
+    if (process.env.NODE_ENV === 'development') {
+      return sequelize.sync({ alter: true });
+    }
+  })
+  .then(() => {
+    console.log('📦 Base de datos sincronizada');
 
     // Iniciar el servidor
     app.listen(PORT, () => {
-      console.log(`Servidor inicializado en el puerto ${PORT}`);
+      console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     });
   })
   .catch((error) => {
-    console.error('Error al crear la base de datos y tablas:', error);
+    console.error('❌ Error al conectar la base de datos:', error);
   });
