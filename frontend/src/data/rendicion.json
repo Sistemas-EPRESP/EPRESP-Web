@@ -1,0 +1,12 @@
+{
+    "id": 1, 
+    "fecha_rendicion": "2021-09-01",
+    "fecha_transferencia": "2021-09-01",
+    "cooperativa": 1,
+    "periodo_mes": 8,
+    "periodo_anio": 2021,
+    "tasa_fiscalizacion_letras": "Cero",
+    "tasa_fiscalizacion_numero": 0,
+    "total_trasnferencia_letras": "Cero",
+    "total_trasnferencia_numero": 0
+}
