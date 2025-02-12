@@ -1,14 +1,24 @@
 const PeriodoRendiciones = () => {
     return (
-        <table>
-            <thead>
-            <tr>
-                <th>Período de Rendición</th>
-                <th>Período de Facturación</th>
-                <th>Período de Percepción de Facturación</th>
-                <th>Período de Rendición y Pago</th>
-            </tr>
-            </thead>
+      <>
+      <div>
+        {/** Aclaraciones, lista ordenadas */}
+        <h3>Aclaraciones</h3>
+        <ol type="a">
+          <li>El "Periodo de Rendicion" se corresponde con el mes de percepción de la factura, de acuerdo con el articulo 7° del Anexo de la Res.N°38/2024 - EPRESP.</li>
+          <li>La "Facturación" considerada como base e imponible es la correspondiente al mes anterior al "Periodo de Rendición".</li>
+          <li>El importe en columna "Total Transferido" puede ser mayor que el de la columna "Total Percibido" debido a cobros de deudores morosos.</li>
+        </ol>
+      </div>
+      <table>
+        <thead>
+        <tr>
+            <th>Período de Rendición</th>
+            <th>Período de Facturación</th>
+            <th>Período de Percepción de Facturación</th>
+            <th>Período de Rendición y Pago</th>
+        </tr>
+        </thead>
         <tbody>
           <tr>
             <td>Enero</td>
@@ -84,6 +94,7 @@ const PeriodoRendiciones = () => {
           </tr>
         </tbody>
       </table>
+      </>
     );
 }
 
