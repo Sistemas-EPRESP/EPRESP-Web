@@ -5,15 +5,13 @@ const bcrypt = require('bcrypt');
 const Usuario = sequelize.define(
   'Usuario',
   {
-    email: {
-      type: DataTypes.STRING,
+    cuit: {
+      type: DataTypes.BIGINT,
       allowNull: false,
       unique: true,
       validate: {
-        isEmail: true,
-      },
-      set(value) {
-        this.setDataValue('email', value.toLowerCase().trim()); // Normaliza email
+        isNumeric: true,
+        len: [8, 15], // Mínimo 8 y máximo 15 dígitos
       },
     },
     password: {
