@@ -66,6 +66,7 @@ const FormularioRendicion = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    // Se obtiene la fecha actual para rendición
     const fechaActual = new Date().toISOString().split("T")[0];
     const data = new FormData(event.target);
 
@@ -101,129 +102,232 @@ const FormularioRendicion = () => {
 
   // Renderizamos condicionalmente según si se tiene cooperativa.
   return (
-    <div>
+    <div className="bg-white shadow-sm rounded-lg p-6 sm:p-8">
       {!cooperativa ? (
         <p>
           No se encontró la cooperativa asociada o no se ha iniciado sesión.
         </p>
       ) : (
         <>
-          <h2>Formulario de rendición de la Tasa de Fiscalización y Control</h2>
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="fecha_transferencia">
-              Fecha de Transferencia:{" "}
-            </label>
-            <input
-              type="date"
-              id="fecha_transferencia"
-              name="fecha_transferencia"
-              required
-            />
-            <br />
+          <h2 className="text-2xl font-semibold text-gray-900 mb-8 pb-2 border-b">
+            Formulario de Rendición de la Tasa de Fiscalización y Control
+          </h2>
 
-            <label htmlFor="distribuidor">
-              Distribuidor: {cooperativa.nombre}
-            </label>
-            <br />
-            <label htmlFor="cuit">CUIT: {cooperativa.cuit}</label>
-            <br />
+          <div className="bg-gray-100 p-4 rounded-md mb-8">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">
+                  Distribuidor
+                </h3>
+                <p className="text-lg font-semibold text-gray-900">
+                  {cooperativa.nombre}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">CUIT</h3>
+                <p className="text-lg font-semibold text-gray-900">
+                  {cooperativa.cuit}
+                </p>
+              </div>
+            </div>
+          </div>
 
-            <label htmlFor="periodo_rendicion">
-              Período de Rendición de la Tasa de Fiscalización y Control (1):
-            </label>
-            <select id="periodo_rendicion" name="periodo_rendicion" required>
-              <option value="01">Enero</option>
-              <option value="02">Febrero</option>
-              <option value="03">Marzo</option>
-              <option value="04">Abril</option>
-              <option value="05">Mayo</option>
-              <option value="06">Junio</option>
-              <option value="07">Julio</option>
-              <option value="08">Agosto</option>
-              <option value="09">Septiembre</option>
-              <option value="10">Octubre</option>
-              <option value="11">Noviembre</option>
-              <option value="12">Diciembre</option>
-            </select>
-            <br />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {/* Campo de Fecha de Rendición: se asigna la fecha actual y se deshabilita */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="fecha_rendicion"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Fecha de Rendición
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    id="fecha_rendicion"
+                    name="fecha_rendicion"
+                    value={new Date().toISOString().split("T")[0]}
+                    disabled
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="fecha_transferencia"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Fecha de Transferencia
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    id="fecha_transferencia"
+                    name="fecha_transferencia"
+                    required
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                  />
+                </div>
+              </div>
+            </div>
 
-            <label htmlFor="anio">Año: </label>
-            <select
-              id="anio"
-              name="anio"
-              value={selectedYear}
-              onChange={handleYearChange}
-              required
-            >
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-            <br />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label
+                  htmlFor="periodo_rendicion"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Período de Rendición Mes
+                </label>
+                <select
+                  id="periodo_rendicion"
+                  name="periodo_rendicion"
+                  required
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                >
+                  <option value="01">Enero</option>
+                  <option value="02">Febrero</option>
+                  <option value="03">Marzo</option>
+                  <option value="04">Abril</option>
+                  <option value="05">Mayo</option>
+                  <option value="06">Junio</option>
+                  <option value="07">Julio</option>
+                  <option value="08">Agosto</option>
+                  <option value="09">Septiembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="12">Diciembre</option>
+                </select>
+              </div>
 
-            <label htmlFor="total_tasa_letras">
-              Total Tasa de Fiscalización y Control: Pesos (en letras):
-            </label>
-            <input
-              type="text"
-              id="total_tasa_letras"
-              name="total_tasa_letras"
-              placeholder="Mil doscientos treinta y cuatro"
-              required
-            />
-            <br />
-            <label htmlFor="total_tasa">Total Tasa ($):</label>
-            <input
-              type="number"
-              id="total_tasa"
-              name="total_tasa"
-              min={0}
-              step={0.01}
-              required
-            />
-            <br />
+              <div className="space-y-2">
+                <label
+                  htmlFor="anio"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Periodo de Rendición Año
+                </label>
+                <select
+                  id="anio"
+                  name="anio"
+                  value={selectedYear}
+                  onChange={handleYearChange}
+                  required
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                >
+                  {years.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-            <label htmlFor="total_transferencia_letras">
-              Total Transferencia: Pesos (en letras):
-            </label>
-            <input
-              type="text"
-              id="total_transferencia_letras"
-              name="total_transferencia_letras"
-              placeholder="Mil doscientos treinta y cuatro"
-              required
-            />
-            <br />
-            <label htmlFor="total_transferencia">
-              Total Transferencia ($):
-            </label>
-            <input
-              type="number"
-              id="total_transferencia"
-              name="total_transferencia"
-              value={0}
-              min={0}
-              step={0.01}
-              required
-            />
-            <br />
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="total_tasa_letras"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Total Tasa de Fiscalización y Control (en letras)
+                  </label>
+                  <input
+                    type="text"
+                    id="total_tasa_letras"
+                    name="total_tasa_letras"
+                    defaultValue="Dos millones cuarenta y cinco mil"
+                    required
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="total_tasa"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Total Tasa ($)
+                  </label>
+                  <input
+                    type="number"
+                    id="total_tasa"
+                    name="total_tasa"
+                    defaultValue={2045000}
+                    min={0}
+                    step={0.01}
+                    required
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="total_transferencia_letras"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Total Transferencia (en letras)
+                  </label>
+                  <input
+                    type="text"
+                    id="total_transferencia_letras"
+                    name="total_transferencia_letras"
+                    defaultValue="Un millón novecientos noventa mil"
+                    required
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="total_transferencia"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Total Transferencia ($)
+                  </label>
+                  <input
+                    type="number"
+                    id="total_transferencia"
+                    name="total_transferencia"
+                    defaultValue={1990000}
+                    min={0}
+                    step={0.01}
+                    required
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                  />
+                </div>
+              </div>
+            </div>
 
             <TablaDemandas
               demandas={demandas}
               handleDemandaChange={handleDemandaChange}
             />
 
-            <button type="submit">Enviar</button>
+            <div className="pt-6 border-t">
+              <button
+                type="submit"
+                className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                Enviar Formulario
+              </button>
+            </div>
           </form>
 
-          {mensaje && <p className="mensaje-exito">{mensaje}</p>}
+          {mensaje && (
+            <div className="mt-6 p-4 bg-green-50 rounded-md">
+              <p className="text-green-700">{mensaje}</p>
+            </div>
+          )}
 
-          <small className="disclaimer">
+          <p className="mt-6 text-sm text-gray-500 italic">
             La información suministrada en este formulario tiene carácter de
             declaración jurada.
-          </small>
+          </p>
 
           <PeriodoRendiciones />
         </>
