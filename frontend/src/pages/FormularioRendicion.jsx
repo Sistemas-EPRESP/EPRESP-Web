@@ -1,10 +1,22 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import PeriodoRendiciones from "../components/PeriodoRendiciones";
 import TablaDemandas from "../components/TablaDemandas";
 
 const FormularioRendicion = () => {
   const { cooperativa } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Suponiendo que la información de la cooperativa se obtiene asíncronamente
+    if (cooperativa !== null) {
+      setLoading(false);
+    }
+  }, [cooperativa]);
+
+  if (loading) {
+    return <p>Cargando información...</p>;
+  }
 
   if (!cooperativa) {
     return (

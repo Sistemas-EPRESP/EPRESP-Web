@@ -1,22 +1,28 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
 
 const LogIn = () => {
-  const [email, setEmail] = useState("");
+  const [cuit, setCuit] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const isValid = login(email, password);
-    if (isValid) {
-      // Redirige al formulario de rendición tras iniciar sesión
-      navigate("/formulario/formulario_rendicion");
-    } else {
-      setError("Credenciales inválidas");
+    try {
+      const response = await axios.post(
+        "http://192.168.0.151:3000/api/auth/login",
+        { cuit, password },
+        { withCredentials: true } // Asegura que las cookies se envíen y reciban
+      );
+      if (response.status === 200) {
+        navigate("/formulario/formulario_rendicion");
+      } else {
+        setError("Credenciales inválidas");
+      }
+    } catch (error) {
+      setError("Error al iniciar sesión");
     }
   };
 
@@ -25,12 +31,12 @@ const LogIn = () => {
       <h1>Iniciar Sesión</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="email">Email:</label>
+          <label htmlFor="cuit">CUIT:</label>
           <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="number"
+            id="cuit"
+            value={cuit}
+            onChange={(e) => setCuit(e.target.value)}
           />
         </div>
         <div>
