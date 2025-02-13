@@ -17,6 +17,8 @@ const LogIn = () => {
         { withCredentials: true } // Asegura que las cookies se envíen y reciban
       );
       if (response.status === 200) {
+        console.log(response);
+
         navigate("/formulario/formulario_rendicion");
       } else {
         setError("Credenciales inválidas");

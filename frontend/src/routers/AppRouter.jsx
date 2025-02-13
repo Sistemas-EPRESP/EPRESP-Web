@@ -12,9 +12,9 @@ const AppRouter = () => {
       <Route
         path="formulario/formulario_rendicion"
         element={
-          <ProtectedRoute>
-            <FormularioRendicion />
-          </ProtectedRoute>
+          // <ProtectedRoute>
+          <FormularioRendicion />
+          // </ProtectedRoute>
         }
       />
     </Routes>
