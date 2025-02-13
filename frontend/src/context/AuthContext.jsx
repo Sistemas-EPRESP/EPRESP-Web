@@ -1,16 +1,16 @@
-import React, { createContext, useState, useEffect } from 'react';
-import usuariosData from '../data/usuario.json';
-import cooperativasData from '../data/cooperativa.json';
+import { createContext, useState, useEffect } from "react";
+import usuariosData from "../data/usuario.json";
+import cooperativasData from "../data/cooperativa.json";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
   const [cooperativa, setCooperativa] = useState(() => {
-    const storedCoop = localStorage.getItem('cooperativa');
+    const storedCoop = localStorage.getItem("cooperativa");
     return storedCoop ? JSON.parse(storedCoop) : null;
   });
 
@@ -21,14 +21,14 @@ export const AuthProvider = ({ children }) => {
 
     if (foundUser) {
       setUser(foundUser);
-      localStorage.setItem('user', JSON.stringify(foundUser));
+      localStorage.setItem("user", JSON.stringify(foundUser));
 
-      if (foundUser.tipo === 'cooperativa') {
+      if (foundUser.tipo === "cooperativa") {
         const coop = cooperativasData.find(
           (c) => c.id_usuario === foundUser.id
         );
         setCooperativa(coop);
-        localStorage.setItem('cooperativa', JSON.stringify(coop));
+        localStorage.setItem("cooperativa", JSON.stringify(coop));
       }
       return true;
     }
@@ -38,8 +38,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setCooperativa(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('cooperativa');
+    localStorage.removeItem("user");
+    localStorage.removeItem("cooperativa");
   };
 
   // Opcional: limpiar localStorage si la sesión expira o por otras razones
