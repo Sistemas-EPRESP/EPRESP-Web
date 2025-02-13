@@ -1,8 +1,8 @@
 const MainLayout = ({ children }) => {
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       {/* <Header /> */}
-      <main>{children}</main>
+      <main className="container mx-auto px-4 py-8 max-w-7xl">{children}</main>
       {/* <Footer /> */}
     </div>
   );
