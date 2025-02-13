@@ -1,13 +1,15 @@
-import { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import PeriodoRendiciones from '../components/PeriodoRendiciones';
-import TablaDemandas from '../components/TablaDemandas';
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import PeriodoRendiciones from "../components/PeriodoRendiciones";
+import TablaDemandas from "../components/TablaDemandas";
 
 const FormularioRendicion = () => {
   const { cooperativa } = useContext(AuthContext);
-  
+
   if (!cooperativa) {
-    return <p>No se encontró la cooperativa asociada o no se ha iniciado sesión.</p>;
+    return (
+      <p>No se encontró la cooperativa asociada o no se ha iniciado sesión.</p>
+    );
   }
 
   // Genera un array de años desde 2000 hasta el año actual
@@ -20,16 +22,41 @@ const FormularioRendicion = () => {
   // Estado para el año seleccionado (por defecto el año actual)
   const [selectedYear, setSelectedYear] = useState(currentYear.toString());
   // Estado para mostrar un mensaje de envío exitoso
-  const [mensaje, setMensaje] = useState('');
+  const [mensaje, setMensaje] = useState("");
 
   // Estado para los datos de demandas; se usa el mismo nombre de clave que en el ejemplo (grandes_usuarios)
   const [demandas, setDemandas] = useState({
-    residencial: { facturacion: 0, percibido: 0, transferido: 0, observaciones: '' },
-    comercial: { facturacion: 0, percibido: 0, transferido: 0, observaciones: '' },
-    industrial: { facturacion: 0, percibido: 0, transferido: 0, observaciones: '' },
-    grandes_usuarios: { facturacion: 0, percibido: 0, transferido: 0, observaciones: '' },
-    contratos: { facturacion: 0, percibido: 0, transferido: 0, observaciones: '' },
-    otros: { facturacion: 0, percibido: 0, transferido: 0, observaciones: '' },
+    residencial: {
+      facturacion: 0,
+      percibido: 0,
+      transferido: 0,
+      observaciones: "",
+    },
+    comercial: {
+      facturacion: 0,
+      percibido: 0,
+      transferido: 0,
+      observaciones: "",
+    },
+    industrial: {
+      facturacion: 0,
+      percibido: 0,
+      transferido: 0,
+      observaciones: "",
+    },
+    grandes_usuarios: {
+      facturacion: 0,
+      percibido: 0,
+      transferido: 0,
+      observaciones: "",
+    },
+    contratos: {
+      facturacion: 0,
+      percibido: 0,
+      transferido: 0,
+      observaciones: "",
+    },
+    otros: { facturacion: 0, percibido: 0, transferido: 0, observaciones: "" },
   });
 
   const handleYearChange = (event) => {
@@ -43,49 +70,50 @@ const FormularioRendicion = () => {
       [categoria]: {
         ...prev[categoria],
         // Si el campo es observaciones, se guarda el texto; en otro caso se transforma a número
-        [campo]: campo === "observaciones" ? valor : Number(valor)
+        [campo]: campo === "observaciones" ? valor : Number(valor),
       },
     }));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-  
+
     // Obtener la fecha actual en formato YYYY-MM-DD
-    const fechaActual = new Date().toISOString().split('T')[0];
+    const fechaActual = new Date().toISOString().split("T")[0];
     // Utilizar FormData para obtener los datos de los inputs controlados por el formulario
     const data = new FormData(event.target);
-  
+
     // Construir el objeto de demandas, calculando la tasa de fiscalización (1% de la facturación)
     const demandasPayload = {};
     Object.keys(demandas).forEach((categoria) => {
       demandasPayload[categoria] = {
         facturacion: demandas[categoria].facturacion,
-        total_tasa_fiscalizacion: Number(demandas[categoria].facturacion) * 0.01,
+        total_tasa_fiscalizacion:
+          Number(demandas[categoria].facturacion) * 0.01,
         total_percibido: demandas[categoria].percibido,
         total_transferido: demandas[categoria].transferido,
         observaciones: demandas[categoria].observaciones || "Ninguna",
       };
     });
-  
+
     // Construir el objeto de rendición a enviar, incluyendo los datos de demandas
     const rendicion = {
       fecha_rendicion: fechaActual,
-      fecha_transferencia: data.get('fecha_transferencia'),
+      fecha_transferencia: data.get("fecha_transferencia"),
       cooperativa: parseInt(cooperativa.id, 10),
-      periodo_mes: parseInt(data.get('periodo_rendicion'), 10),
+      periodo_mes: parseInt(data.get("periodo_rendicion"), 10),
       periodo_anio: parseInt(selectedYear, 10),
-      tasa_fiscalizacion_letras: data.get('total_tasa_letras'),
-      tasa_fiscalizacion_numero: parseFloat(data.get('total_tasa')),
-      total_transferencia_letras: data.get('total_transferencia_letras'),
-      total_transferencia_numero: parseFloat(data.get('total_transferencia')),
+      tasa_fiscalizacion_letras: data.get("total_tasa_letras"),
+      tasa_fiscalizacion_numero: parseFloat(data.get("total_tasa")),
+      total_transferencia_letras: data.get("total_transferencia_letras"),
+      total_transferencia_numero: parseFloat(data.get("total_transferencia")),
       demandas: demandasPayload,
     };
-  
-    console.log('Datos del formulario:', rendicion);
+
+    console.log("Datos del formulario:", rendicion);
     // Opcional: restablecer el formulario
     event.target.reset();
-    setMensaje('Formulario enviado correctamente.');
+    setMensaje("Formulario enviado correctamente.");
   };
 
   return (
@@ -126,7 +154,13 @@ const FormularioRendicion = () => {
         <br />
 
         <label htmlFor="anio">Año: </label>
-        <select id="anio" name="anio" value={selectedYear} onChange={handleYearChange} required>
+        <select
+          id="anio"
+          name="anio"
+          value={selectedYear}
+          onChange={handleYearChange}
+          required
+        >
           {years.map((year) => (
             <option key={year} value={year}>
               {year}
@@ -180,10 +214,9 @@ const FormularioRendicion = () => {
         />
         <br />
 
-        {/* Se descomenta e integra la tabla de demandas */}
-        <TablaDemandas 
-          demandas={demandas} 
-          handleDemandaChange={handleDemandaChange} 
+        <TablaDemandas
+          demandas={demandas}
+          handleDemandaChange={handleDemandaChange}
         />
 
         <button type="submit">Enviar</button>
@@ -192,10 +225,11 @@ const FormularioRendicion = () => {
       {mensaje && <p className="mensaje-exito">{mensaje}</p>}
 
       <small className="disclaimer">
-        La información suministrada en este formulario tiene carácter de declaración jurada.
+        La información suministrada en este formulario tiene carácter de
+        declaración jurada.
       </small>
 
-      {/* <PeriodoRendiciones/> */}
+      <PeriodoRendiciones />
     </div>
   );
 };
