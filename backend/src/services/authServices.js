@@ -20,19 +20,16 @@ const generarRefreshToken = (usuario) => {
 
 // Función de login
 const login = async (cuit, password) => {
-  // 1) Buscar el usuario por CUIT
   const usuario = await Usuario.findOne({ where: { cuit } });
   if (!usuario) {
     throw new Error('CUIT o contraseña incorrectos');
   }
 
-  // 2) (Opcional) Verificar contraseña
   const isMatch = await bcrypt.compare(password, usuario.password);
   if (!isMatch) {
     throw new Error('CUIT o contraseña incorrectos');
   }
 
-  // 3) Obtener información adicional según el tipo de usuario
   let userData = {};
   if (usuario.tipo === 'cooperativa') {
     // Buscar la cooperativa asociada
@@ -61,11 +58,9 @@ const login = async (cuit, password) => {
     };
   }
 
-  // 4) Generar los tokens
   const accessToken = generarAccessToken(usuario); // Lógica tuya para firmar un Access Token
   const refreshToken = generarRefreshToken(usuario); // Lógica tuya para firmar un Refresh Token
 
-  // 5) Retornar todo junto
   return {
     accessToken,
     refreshToken,
