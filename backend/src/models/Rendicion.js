@@ -36,6 +36,11 @@ const Rendicion = sequelize.define(
       type: DataTypes.DECIMAL(10, 2), // Garantiza dos decimales
       allowNull: false,
     },
+    codigo_seguimiento: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+    },
   },
   {
     timestamps: true,
