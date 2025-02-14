@@ -7,7 +7,7 @@ const createUser = async (req, res) => {
 
   try {
     // Llamamos al servicio que se encarga de la lógica de base de datos
-    const usuario = await userServices.createUser(email, password, tipo, cuit);
+    const usuario = await userServices.createUser(cuit, password, tipo);
     if (usuario.tipo === 'administrador') {
       await adminServices.createAdministrador(cuit, usuario.id);
     }
@@ -22,7 +22,7 @@ const createUser = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    //ELIMINAR EL USUARIO SI NO SE PUDO CREAR POR ALGUN ERROR
+    await userServices.deleteUser(cuit);
     res.status(500).json({
       message: 'Error en el servidor',
       error: error.message,

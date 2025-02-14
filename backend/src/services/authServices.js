@@ -27,10 +27,10 @@ const login = async (cuit, password) => {
   }
 
   // 2) (Opcional) Verificar contraseña
-  // const isMatch = await bcrypt.compare(password, usuario.password);
-  // if (!isMatch) {
-  //   throw new Error('CUIT o contraseña incorrectos');
-  // }
+  const isMatch = await bcrypt.compare(password, usuario.password);
+  if (!isMatch) {
+    throw new Error('CUIT o contraseña incorrectos');
+  }
 
   // 3) Obtener información adicional según el tipo de usuario
   let userData = {};
@@ -45,7 +45,7 @@ const login = async (cuit, password) => {
       idCooperativa: cooperativa?.id || null,
       nombre: cooperativa?.nombre || null,
       cuit: usuario.cuit,
-      email: usuario.email, // Asumiendo que tienes un campo email en la tabla Usuario
+      email: cooperativa.email, // Asumiendo que tienes un campo email en la tabla Usuario
       tipo: usuario.tipo,
     };
   } else if (usuario.tipo === 'administrador') {
@@ -80,7 +80,7 @@ const refreshAccessToken = (refreshToken) => {
     const nuevoAccessToken = generarAccessToken({ id: decoded.id });
     return nuevoAccessToken;
   } catch (error) {
-    throw new Error('Refresh Token inválido o expirado');
+    throw new Error('Refresh Token inválido o expirado', error);
   }
 };
 
