@@ -49,26 +49,31 @@ const logoutController = async (req, res) => {
 
 // Endpoint para refrescar el Access Token
 const refreshTokenController = async (req, res) => {
-  const { refreshToken } = req.cookies;
-  if (!refreshToken) {
-    return res.status(403).json({ message: 'No hay Refresh Token' });
-  }
-
   try {
-    const newAccessToken = authService.refreshAccessToken(refreshToken);
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'No autorizado, token faltante' });
+    }
 
-    res.cookie('accessToken', newAccessToken, {
+    const result = await authService.refreshAccessToken(refreshToken);
+    if (!result || !result.nuevoAccessToken) {
+      return res.status(403).json({ message: 'Token inválido o expirado' });
+    }
+
+    // Establecer nuevo AccessToken en cookie
+    res.cookie('accessToken', result.nuevoAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 3600000, // 1 hora
       sameSite: 'Strict',
+      secure: process.env.NODE_ENV === 'production',
     });
 
-    return res.status(200).json({ accessToken: newAccessToken });
-  } catch (error) {
     return res
-      .status(403)
-      .json({ message: 'Refresh Token inválido o expirado' });
+      .status(200)
+      .json({ message: 'Token renovado', userData: result.userData });
+  } catch (error) {
+    console.error('Error al renovar token:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
 module.exports = { loginController, logoutController, refreshTokenController };
