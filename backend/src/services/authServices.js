@@ -68,14 +68,58 @@ const login = async (cuit, password) => {
   };
 };
 
-// Verificar y renovar Access Token con Refresh Token
-const refreshAccessToken = (refreshToken) => {
+// // Verificar y renovar Access Token con Refresh Token
+// const refreshAccessToken = (refreshToken) => {
+//   try {
+//     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+//     const nuevoAccessToken = generarAccessToken({ id: decoded.id });
+//     return nuevoAccessToken;
+//   } catch (error) {
+//     throw new Error('Refresh Token inválido o expirado', error);
+//   }
+// };
+
+const refreshAccessToken = async (refreshToken) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    const nuevoAccessToken = generarAccessToken({ id: decoded.id });
-    return nuevoAccessToken;
+    const usuario = await Usuario.findByPk(decoded.id);
+    if (!usuario) return null;
+
+    const nuevoAccessToken = generarAccessToken(usuario);
+
+    let userData = {};
+    if (usuario.tipo === 'cooperativa') {
+      // Buscar la cooperativa asociada
+      const cooperativa = await Cooperativa.findOne({
+        where: { usuarioId: usuario.id },
+      });
+
+      userData = {
+        idUsuario: usuario.id,
+        idCooperativa: cooperativa?.id || null,
+        nombre: cooperativa?.nombre || null,
+        cuit: usuario.cuit,
+        email: cooperativa.email, // Asumiendo que tienes un campo email en la tabla Usuario
+        tipo: usuario.tipo,
+      };
+    } else if (usuario.tipo === 'administrador') {
+      // Buscar el administrador asociado
+      const administrador = await Administrador.findOne({
+        where: { usuarioId: usuario.id },
+      });
+
+      userData = {
+        idUsuario: usuario.id,
+        idAdministrador: administrador?.id || null,
+        tipo: usuario.tipo,
+      };
+    }
+    // Devolver también datos del usuario
+    //const userData = { cuit: usuario.cuit, tipo: usuario.tipo };
+    return { nuevoAccessToken, userData };
   } catch (error) {
-    throw new Error('Refresh Token inválido o expirado', error);
+    console.error('Refresh Token inválido o expirado:', error);
+    return null;
   }
 };
 
