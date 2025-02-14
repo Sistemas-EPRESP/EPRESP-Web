@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
-import FormularioRendicion from "../pages/FormularioRendicion";
 import LogIn from "../pages/LogIn";
 import ProtectedRoute from "./ProtectedRoute";
+import RendicionPage from "../pages/RendicionPage";
 
 const AppRouter = () => {
   return (
@@ -12,9 +12,9 @@ const AppRouter = () => {
       <Route
         path="formulario/formulario_rendicion"
         element={
-          // <ProtectedRoute>
-          <FormularioRendicion />
-          // </ProtectedRoute>
+          <ProtectedRoute>
+            <RendicionPage />
+          </ProtectedRoute>
         }
       />
     </Routes>
