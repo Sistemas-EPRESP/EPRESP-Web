@@ -71,13 +71,14 @@ export const AuthProvider = ({ children }) => {
     setCooperativa(null);
   };
 
+  // Mientras se verifica la sesión, mostramos un loader global
   if (loading) {
     return <div>Cargando...</div>;
   }
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, cooperativa, login, logout }}
+      value={{ isAuthenticated, cooperativa, login, logout, loading }}
     >
       {children}
     </AuthContext.Provider>
