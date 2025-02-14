@@ -11,7 +11,6 @@ const router = express.Router();
 router.post('/auth/login', authController.loginController); // Cualquier usuario puede loguearse
 router.post('/refresh', authController.refreshTokenController);
 router.post('/auth/logout', authController.logoutController);
-//router.post('/auth/register', authController.registerController); // Solo si permites registro abierto
 //router.post('/auth/reset-password', authController.resetPasswordController); // Restablecer contraseña
 
 module.exports = router;

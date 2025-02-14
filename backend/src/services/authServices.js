@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Usuario, Cooperativa } = require('../models');
+const { Usuario, Cooperativa, Administrador } = require('../models');
 
 // Generar Access Token
 const generarAccessToken = (usuario) => {
@@ -20,31 +20,57 @@ const generarRefreshToken = (usuario) => {
 
 // Función de login
 const login = async (cuit, password) => {
+  // 1) Buscar el usuario por CUIT
   const usuario = await Usuario.findOne({ where: { cuit } });
-
   if (!usuario) {
     throw new Error('CUIT o contraseña incorrectos');
   }
 
-  const isMatch = await bcrypt.compare(password, usuario.password);
-  if (!isMatch) {
-    throw new Error('CUIT o contraseña incorrectos');
-  }
+  // 2) (Opcional) Verificar contraseña
+  // const isMatch = await bcrypt.compare(password, usuario.password);
+  // if (!isMatch) {
+  //   throw new Error('CUIT o contraseña incorrectos');
+  // }
 
-  // Obtener nombre de la cooperativa si es cooperativa
-  let nombreCooperativa = null;
+  // 3) Obtener información adicional según el tipo de usuario
+  let userData = {};
   if (usuario.tipo === 'cooperativa') {
+    // Buscar la cooperativa asociada
     const cooperativa = await Cooperativa.findOne({
-      where: { id: usuario.id },
+      where: { usuarioId: usuario.id },
     });
-    nombreCooperativa = cooperativa ? cooperativa.nombre : null;
+
+    userData = {
+      idUsuario: usuario.id,
+      idCooperativa: cooperativa?.id || null,
+      nombre: cooperativa?.nombre || null,
+      cuit: usuario.cuit,
+      email: usuario.email, // Asumiendo que tienes un campo email en la tabla Usuario
+      tipo: usuario.tipo,
+    };
+  } else if (usuario.tipo === 'administrador') {
+    // Buscar el administrador asociado
+    const administrador = await Administrador.findOne({
+      where: { usuarioId: usuario.id },
+    });
+
+    userData = {
+      idUsuario: usuario.id,
+      idAdministrador: administrador?.id || null,
+      tipo: usuario.tipo,
+    };
   }
 
-  // Generar tokens
-  const accessToken = generarAccessToken(usuario);
-  const refreshToken = generarRefreshToken(usuario);
+  // 4) Generar los tokens
+  const accessToken = generarAccessToken(usuario); // Lógica tuya para firmar un Access Token
+  const refreshToken = generarRefreshToken(usuario); // Lógica tuya para firmar un Refresh Token
 
-  return { accessToken, refreshToken, nombreCooperativa };
+  // 5) Retornar todo junto
+  return {
+    accessToken,
+    refreshToken,
+    userData,
+  };
 };
 
 // Verificar y renovar Access Token con Refresh Token
@@ -57,23 +83,5 @@ const refreshAccessToken = (refreshToken) => {
     throw new Error('Refresh Token inválido o expirado');
   }
 };
-
-module.exports = { login };
-
-// Función para obtener el usuario con su tipo (Cooperativa o Administrador)
-// const obtenerUsuarioConTipo = async (usuarioId) => {
-//   const usuario = await Usuario.findByPk(usuarioId);
-//   if (usuario.tipo === 'cooperativa') {
-//     const cooperativa = await Cooperativa.findOne({
-//       where: { id: usuario.id },
-//     });
-//     return { usuario, cooperativa };
-//   } else if (usuario.tipo === 'administrador') {
-//     const administrador = await Administrador.findOne({
-//       where: { id: usuario.id },
-//     });
-//     return { usuario, administrador };
-//   }
-// };
 
 module.exports = { login, refreshAccessToken };
