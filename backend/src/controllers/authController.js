@@ -10,8 +10,10 @@ const loginController = async (req, res) => {
   }
 
   try {
-    const { accessToken, refreshToken, nombreCooperativa } =
-      await authService.login(cuit, password);
+    const { accessToken, refreshToken, userData } = await authService.login(
+      cuit,
+      password,
+    );
 
     // Guardamos ambos tokens en cookies httpOnly
     res.cookie('accessToken', accessToken, {
@@ -27,10 +29,7 @@ const loginController = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
       sameSite: 'Strict',
     });
-
-    return res
-      .status(200)
-      .json({ message: 'Inicio de sesión exitoso', nombreCooperativa });
+    return res.status(200).json({ userData });
   } catch (error) {
     return res.status(401).json({ message: error.message });
   }
