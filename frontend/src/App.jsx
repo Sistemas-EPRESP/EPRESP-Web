@@ -1,10 +1,13 @@
-import AppRouter from './routers/AppRouter';
-import { AuthProvider } from './context/AuthContext';
+import AppRouter from "./routers/AppRouter";
+import { AuthProvider } from "./context/AuthContext";
+import MainLayout from "./layouts/MainLayout";
 
 function App() {
   return (
     <AuthProvider>
-      <AppRouter />
+      <MainLayout>
+        <AppRouter />
+      </MainLayout>
     </AuthProvider>
   );
 }

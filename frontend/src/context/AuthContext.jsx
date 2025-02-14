@@ -1,51 +1,53 @@
-import React, { createContext, useState, useEffect } from 'react';
-import usuariosData from '../data/usuario.json';
-import cooperativasData from '../data/cooperativa.json';
+import { createContext, useState, useEffect } from "react";
+import axios from "axios";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
+  // Para testeo: siempre autenticado y con cooperativa dummy
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [cooperativa, setCooperativa] = useState({
+    id: 1,
+    nombre: "Cooperativa de Testeo",
+    cuit: "12345678901",
   });
-  const [cooperativa, setCooperativa] = useState(() => {
-    const storedCoop = localStorage.getItem('cooperativa');
-    return storedCoop ? JSON.parse(storedCoop) : null;
-  });
 
-  const login = (email, password) => {
-    const foundUser = usuariosData.find(
-      (u) => u.email === email && u.password === password && u.activo
-    );
-
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem('user', JSON.stringify(foundUser));
-
-      if (foundUser.tipo === 'cooperativa') {
-        const coop = cooperativasData.find(
-          (c) => c.id_usuario === foundUser.id
-        );
-        setCooperativa(coop);
-        localStorage.setItem('cooperativa', JSON.stringify(coop));
+  useEffect(() => {
+    // Para producción o cuando esté listo el backend, descomenta y utiliza la verificación real
+    /*
+    const checkSession = async () => {
+      try {
+        const response = await axios.get("URL_DEL_BACKEND/estado-sesion", {
+          withCredentials: true,
+        });
+        if (response.status === 200 && response.data) {
+          setIsAuthenticated(true);
+          setCooperativa(response.data);
+        } else {
+          setIsAuthenticated(false);
+          setCooperativa(null);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        setCooperativa(null);
       }
-      return true;
+    };
+    checkSession();
+    */
+  }, []);
+
+  const logout = async () => {
+    try {
+      await axios.post("URL_DEL_BACKEND/logout", {}, { withCredentials: true });
+    } catch (error) {
+      console.error("Error al cerrar sesión", error);
     }
-    return false;
-  };
-
-  const logout = () => {
-    setUser(null);
+    setIsAuthenticated(false);
     setCooperativa(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('cooperativa');
   };
-
-  // Opcional: limpiar localStorage si la sesión expira o por otras razones
 
   return (
-    <AuthContext.Provider value={{ user, cooperativa, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, cooperativa, logout }}>
       {children}
     </AuthContext.Provider>
   );
