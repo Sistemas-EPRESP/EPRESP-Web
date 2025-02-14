@@ -10,7 +10,7 @@ const { Cooperativa } = require('../models');
  * @param {number} idUsuario - ID del usuario asociado
  * @returns {Promise<object>} - La cooperativa creada
  */
-async function createCooperativa(nombre, cuit, email, idUsuario) {
+async function createCooperativa(cuit, nombre, email, idUsuario) {
   // 1. Verificar si ya existe una cooperativa con el mismo CUIT o email
   const cooperativaExistente = await Cooperativa.findOne({
     where: {
