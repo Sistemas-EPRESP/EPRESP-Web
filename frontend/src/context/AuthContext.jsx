@@ -1,5 +1,6 @@
+// src/context/AuthContext.js
 import { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import axios from "../config/AxiosConfig";
 
 export const AuthContext = createContext();
 
@@ -8,13 +9,10 @@ export const AuthProvider = ({ children }) => {
   const [cooperativa, setCooperativa] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Verifica la sesión actual al montar el componente
+  // Verifica la sesión actual (por ejemplo, con un endpoint de estado de sesión)
   const checkSession = async () => {
     try {
-      const response = await axios.get(
-        "http://192.168.0.151:3000/api/auth/estado-sesion", // Actualiza con tu URL real
-        { withCredentials: true }
-      );
+      const response = await axios.post("/auth/refresh");
       if (response.status === 200 && response.data) {
         setIsAuthenticated(true);
         setCooperativa(response.data);
@@ -37,14 +35,9 @@ export const AuthProvider = ({ children }) => {
   // Función para iniciar sesión
   const login = async (cuit, password) => {
     try {
-      const response = await axios.post(
-        "http://192.168.0.151:3000/api/auth/login", // Actualiza con tu URL real
-        { cuit, password },
-        { withCredentials: true }
-      );
+      const response = await axios.post("/auth/login", { cuit, password });
       if (response.status === 200 && response.data) {
         setIsAuthenticated(true);
-        // Se guarda la información del usuario, incluyendo el campo "tipo"
         setCooperativa(response.data.userData);
         return response.data.userData;
       } else {
@@ -59,11 +52,7 @@ export const AuthProvider = ({ children }) => {
   // Función para cerrar sesión
   const logout = async () => {
     try {
-      await axios.post(
-        "http://192.168.0.151:3000/api/auth/logout", // Actualiza con tu URL real
-        {},
-        { withCredentials: true }
-      );
+      await axios.post("/auth/logout", {});
     } catch (error) {
       console.error("Error al cerrar sesión", error);
     }
@@ -71,7 +60,6 @@ export const AuthProvider = ({ children }) => {
     setCooperativa(null);
   };
 
-  // Mientras se verifica la sesión, mostramos un loader global
   if (loading) {
     return <div>Cargando...</div>;
   }
