@@ -1,30 +1,26 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { AuthContext } from "../context/AuthContext";
 
 const LogIn = () => {
   const [cuit, setCuit] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    try {
-      const response = await axios.post(
-        "http://192.168.0.151:3000/api/auth/login",
-        { cuit, password },
-        { withCredentials: true } // Asegura que las cookies se envíen y reciban
-      );
-      if (response.status === 200) {
-        console.log(response);
-
+    const userData = await login(cuit, password);
+    if (userData) {
+      // Redirige según el tipo de usuario
+      if (userData.tipo === "cooperativa") {
         navigate("/formulario/formulario_rendicion");
-      } else {
-        setError("Credenciales inválidas");
+      } else if (userData.tipo === "administrador") {
+        navigate("/rendicion_admin");
       }
-    } catch (error) {
-      setError("Error al iniciar sesión");
+    } else {
+      setError("Credenciales inválidas");
     }
   };
 
