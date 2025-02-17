@@ -20,7 +20,7 @@ axiosInstance.interceptors.response.use(
         await axiosInstance.get("/auth/refresh");
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        console.error("No se pudo refrescar el token", refreshError);
+        //console.error("No se pudo refrescar el token", refreshError);
         return Promise.reject(refreshError);
       }
     }
