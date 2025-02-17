@@ -33,10 +33,12 @@ export const AuthProvider = ({ children }) => {
     const checkSession = async () => {
       try {
         const response = await axios.post("/auth/refresh");
+
         if (isMounted) {
           if (response.status === 200 && response.data) {
             setIsAuthenticated(true);
-            setCooperativa(response.data);
+            //ASI ESTABA ANTES setCooperativa(response.data);
+            setCooperativa(response.data.userData);
           } else {
             setIsAuthenticated(false);
             setCooperativa(null);
