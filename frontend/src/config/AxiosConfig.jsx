@@ -10,6 +10,15 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Si la solicitud es a /auth/refresh o /auth/login, no se intenta refrescar
+    if (
+      originalRequest.url === "/auth/refresh" ||
+      originalRequest.url === "/auth/login"
+    ) {
+      return Promise.reject(error);
+    }
+
     if (
       error.response &&
       error.response.status === 401 &&
@@ -17,10 +26,10 @@ axiosInstance.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        await axiosInstance.get("/auth/refresh");
+        // Usamos POST para refrescar el token
+        await axiosInstance.post("/auth/refresh");
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        //console.error("No se pudo refrescar el token", refreshError);
         return Promise.reject(refreshError);
       }
     }

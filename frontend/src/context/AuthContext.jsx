@@ -1,5 +1,6 @@
 // src/context/AuthContext.js
 import { createContext, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "../config/AxiosConfig";
 import PropTypes from "prop-types";
 
@@ -10,35 +11,57 @@ export const AuthProvider = ({ children }) => {
   const [cooperativa, setCooperativa] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Verifica la sesión actual (por ejemplo, con un endpoint de estado de sesión)
-  const checkSession = async () => {
-    try {
-      const response = await axios.post("/auth/refresh");
-      if (response.status === 200 && response.data) {
-        setIsAuthenticated(true);
-        setCooperativa(response.data);
-      } else {
-        setIsAuthenticated(false);
-        setCooperativa(null);
-      }
-    } catch (error) {
-      //console.error("Error al verificar la sesión", error);
-      setIsAuthenticated(false);
-      setCooperativa(null);
-    } finally {
-      setLoading(false);
-    }
-
-    AuthProvider.propTypes = {
-      children: PropTypes.node.isRequired,
-    };
-  };
+  const location = useLocation();
+  // Define las rutas públicas en las que no necesitas verificar la sesión
+  const publicRoutes = ["/", "/login"];
 
   useEffect(() => {
-    checkSession();
-  }, []);
+    let isMounted = true;
 
-  // Función para iniciar sesión
+    // Si la ruta actual es pública, omite el checkSession
+    if (publicRoutes.includes(location.pathname)) {
+      if (isMounted) setLoading(false);
+      return;
+    }
+
+    // Si ya estás autenticado, no es necesario llamar a checkSession
+    if (isAuthenticated) {
+      if (isMounted) setLoading(false);
+      return;
+    }
+
+    const checkSession = async () => {
+      try {
+        const response = await axios.post("/auth/refresh");
+        if (isMounted) {
+          if (response.status === 200 && response.data) {
+            setIsAuthenticated(true);
+            setCooperativa(response.data);
+          } else {
+            setIsAuthenticated(false);
+            setCooperativa(null);
+          }
+        }
+      } catch (error) {
+        if (isMounted) {
+          // Aquí, si refresh falla, se considera que no hay sesión válida
+          setIsAuthenticated(false);
+          setCooperativa(null);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    checkSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [location.pathname, isAuthenticated]);
+
   const login = async (cuit, password) => {
     try {
       const response = await axios.post("/auth/login", { cuit, password });
@@ -50,17 +73,15 @@ export const AuthProvider = ({ children }) => {
         return false;
       }
     } catch (error) {
-      //console.error("Error al iniciar sesión", error);
       return false;
     }
   };
 
-  // Función para cerrar sesión
   const logout = async () => {
     try {
       await axios.post("/auth/logout", {});
     } catch (error) {
-      //console.error("Error al cerrar sesión", error);
+      // Manejo del error si es necesario
     }
     setIsAuthenticated(false);
     setCooperativa(null);
@@ -77,4 +98,8 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
