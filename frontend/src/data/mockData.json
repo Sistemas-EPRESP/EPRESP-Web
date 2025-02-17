@@ -1,0 +1,76 @@
+{
+    "cooperatives": [
+        {
+            "id": "1",
+            "name": "Cooperativa San Martín",
+            "renditions": [
+                {
+                    "month": 1,
+                    "year": 2024,
+                    "approved": true,
+                    "submitted": true
+                },
+                {
+                    "month": 2,
+                    "year": 2024,
+                    "approved": false,
+                    "submitted": true
+                },
+                {
+                    "month": 5,
+                    "year": 2024,
+                    "approved": true,
+                    "submitted": true
+                },
+                {
+                    "month": 1,
+                    "year": 2023,
+                    "approved": true,
+                    "submitted": true
+                },
+                {
+                    "month": 3,
+                    "year": 2023,
+                    "approved": true,
+                    "submitted": true
+                },
+                {
+                    "month": 12,
+                    "year": 2023,
+                    "approved": true,
+                    "submitted": true
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "name": "Cooperativa Los Andes",
+            "renditions": [
+                {
+                    "month": 1,
+                    "year": 2024,
+                    "approved": false,
+                    "submitted": true
+                },
+                {
+                    "month": 3,
+                    "year": 2024,
+                    "approved": true,
+                    "submitted": true
+                },
+                {
+                    "month": 2,
+                    "year": 2023,
+                    "approved": true,
+                    "submitted": true
+                },
+                {
+                    "month": 6,
+                    "year": 2023,
+                    "approved": false,
+                    "submitted": true
+                }
+            ]
+        }
+    ]
+}
