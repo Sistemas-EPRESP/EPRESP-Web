@@ -20,16 +20,16 @@ const loginController = async (req, res) => {
     // Guardamos ambos tokens en cookies httpOnly
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: false, //process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production', //process.env.NODE_ENV === 'production',
       maxAge: 3600000, // 1 hora
-      sameSite: 'none',
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: false, //process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production', //process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
-      sameSite: 'none',
     });
 
     return res.status(200).json({ userData });
@@ -41,9 +41,9 @@ const loginController = async (req, res) => {
 const logoutController = async (req, res) => {
   res.cookie('token', '', {
     httpOnly: true,
-    //secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
     expires: new Date(0), // Expirar la cookie inmediatamente
-    sameSite: 'Strict',
   });
 
   return res.status(200).json({ message: 'Logout exitoso' });
@@ -53,7 +53,6 @@ const logoutController = async (req, res) => {
 const refreshTokenController = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
-    console.log(refreshToken);
 
     if (!refreshToken) {
       return res.status(401).json({ message: 'No autorizado, token faltante' });
@@ -68,7 +67,7 @@ const refreshTokenController = async (req, res) => {
     res.cookie('accessToken', result.nuevoAccessToken, {
       httpOnly: true,
       sameSite: 'none',
-      secure: false, //process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
     });
 
     return res
