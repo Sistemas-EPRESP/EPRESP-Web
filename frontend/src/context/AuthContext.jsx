@@ -1,6 +1,7 @@
 // src/context/AuthContext.js
 import { createContext, useState, useEffect } from "react";
 import axios from "../config/AxiosConfig";
+import PropTypes from "prop-types";
 
 export const AuthContext = createContext();
 
@@ -21,11 +22,16 @@ export const AuthProvider = ({ children }) => {
         setCooperativa(null);
       }
     } catch (error) {
+      //console.error("Error al verificar la sesión", error);
       setIsAuthenticated(false);
       setCooperativa(null);
     } finally {
       setLoading(false);
     }
+
+    AuthProvider.propTypes = {
+      children: PropTypes.node.isRequired,
+    };
   };
 
   useEffect(() => {
@@ -44,7 +50,7 @@ export const AuthProvider = ({ children }) => {
         return false;
       }
     } catch (error) {
-      console.error("Error al iniciar sesión", error);
+      //console.error("Error al iniciar sesión", error);
       return false;
     }
   };
@@ -54,7 +60,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await axios.post("/auth/logout", {});
     } catch (error) {
-      console.error("Error al cerrar sesión", error);
+      //console.error("Error al cerrar sesión", error);
     }
     setIsAuthenticated(false);
     setCooperativa(null);
