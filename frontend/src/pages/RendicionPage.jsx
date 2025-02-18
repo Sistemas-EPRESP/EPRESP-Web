@@ -1,7 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import FormularioRendicion from "../components/forms/FormularioRendicion";
-import TablaDemandas from "../components/TablaDemandas";
 import PeriodoRendiciones from "../components/PeriodoRendiciones";
 
 const RendicionPage = () => {
@@ -106,7 +105,6 @@ const RendicionPage = () => {
         </p>
       ) : (
         <>
-          {/* Componente del formulario */}
           <FormularioRendicion
             cooperativa={cooperativa}
             currentYear={currentYear}
@@ -115,15 +113,9 @@ const RendicionPage = () => {
             handleYearChange={handleYearChange}
             handleSubmit={handleSubmit}
             mensaje={mensaje}
+            demandas={demandas} // <--- Se pasa el estado de demandas
+            handleDemandaChange={handleDemandaChange} // <--- Se pasa la función para actualizar demandas
           />
-
-          {/* Componente de la tabla de demandas */}
-          <TablaDemandas
-            demandas={demandas}
-            handleDemandaChange={handleDemandaChange}
-          />
-
-          {/* Componente con información de periodos */}
           <PeriodoRendiciones />
         </>
       )}
