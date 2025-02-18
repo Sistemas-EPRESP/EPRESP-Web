@@ -16,7 +16,7 @@ app.use(
   cors({
     origin: [
       'http://localhost:5173',
-      'http://192.168.0.151:3000',
+      'http://192.168.0.93:5173',
       'http://localhost:3000',
       'http://192.168.0.151:5173',
     ],
@@ -43,14 +43,14 @@ sequelize
     console.log('📦 Base de datos sincronizada');
 
     // Iniciar el servidor
-    // app.listen(PORT, () => {
-    //   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-    // });
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    });
 
     // Escuchar en 0.0.0.0 para que sea accesible desde la red
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Servidor corriendo en http://192.168.0.151:${PORT}`);
-    });
+    // app.listen(PORT, '0.0.0.0', () => {
+    //   console.log(`🚀 Servidor corriendo en http://192.168.0.151:${PORT}`);
+    // });
   })
   .catch((error) => {
     console.error('❌ Error al conectar la base de datos:', error);
