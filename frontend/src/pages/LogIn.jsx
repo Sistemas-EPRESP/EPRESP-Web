@@ -1,14 +1,27 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-const LoginForm = () => {
+const LogIn = () => {
   const [cuit, setCuit] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { isAuthenticated, login, user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Redirige según el rol del usuario
+      if (user.role === "administrador") {
+        navigate("/cooperativa/rendiciones");
+      } else if (user.role === "cooperativa") {
+        navigate("/cooperativa/rendiciones");
+      } else {
+        navigate("/"); // Ruta por defecto para otros roles
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -24,11 +37,10 @@ const LoginForm = () => {
 
     try {
       const userData = await login(cuitWithoutDashes, password);
-      if (userData) {
-        navigate("/rendiciones");
-      } else {
+      if (!userData) {
         setError("Credenciales inválidas. Por favor, intente nuevamente.");
       }
+      // La redirección se maneja en el useEffect basado en isAuthenticated
     } catch (err) {
       setError(
         "Ocurrió un error al iniciar sesión. Por favor, intente más tarde."
@@ -95,7 +107,9 @@ const LoginForm = () => {
                 type="button"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 onClick={() => setShowPassword(!showPassword)}
-              ></button>
+              >
+                {/* Aquí puedes agregar un ícono para mostrar/ocultar la contraseña */}
+              </button>
             </div>
           </div>
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
@@ -113,4 +127,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default LogIn;

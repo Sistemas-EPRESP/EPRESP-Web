@@ -1,36 +1,51 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "../pages/Home";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import LogIn from "../pages/LogIn";
+import Home from "../pages/Home";
+import AdminRoutes from "./AdminRoutes";
+import CooperativaRoutes from "./CooperativaRoutes";
 import ProtectedRoute from "./ProtectedRoute";
-import RendicionPage from "../pages/RendicionPage";
-import ControlResolucionPage from "../pages/ControlResolucionPage";
-import RendicionesRoute from "./RendicionesRoute";
 
 const AppRouter = () => {
+  const { isAuthenticated, user } = useContext(AuthContext);
+
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      {/* Ruta pública */}
       <Route path="/login" element={<LogIn />} />
-      <Route path="/control_resolucion" element={<ControlResolucionPage />} />
 
-      {/* Ruta única para rendiciones, donde se decide qué componente mostrar */}
+      {/* Ruta protegida para administradores */}
       <Route
-        path="/rendiciones"
+        path="/admin/*"
         element={
-          <ProtectedRoute>
-            <RendicionesRoute />
+          <ProtectedRoute
+            isAuthenticated={isAuthenticated}
+            allowedRoles={["administrador"]}
+          >
+            <AdminRoutes />
           </ProtectedRoute>
         }
       />
 
+      {/* Ruta protegida para cooperativas */}
       <Route
-        path="/formulario/formulario_rendicion"
+        path="/cooperativa/*"
         element={
-          <ProtectedRoute>
-            <RendicionPage />
+          <ProtectedRoute
+            isAuthenticated={isAuthenticated}
+            allowedRoles={["cooperativa"]}
+          >
+            <CooperativaRoutes />
           </ProtectedRoute>
         }
       />
+
+      {/* Ruta para la página de inicio */}
+      <Route path="/" element={<Home />} />
+
+      {/* Ruta para manejar rutas no encontradas */}
+      {/* <Route path="*" element={<NotFound />} /> */}
     </Routes>
   );
 };
