@@ -25,11 +25,7 @@ const LoginForm = () => {
     try {
       const userData = await login(cuitWithoutDashes, password);
       if (userData) {
-        if (userData.tipo === "cooperativa") {
-          navigate("/formulario/formulario_rendicion");
-        } else if (userData.tipo === "administrador") {
-          navigate("/rendiciones");
-        }
+        navigate("/rendiciones");
       } else {
         setError("Credenciales inválidas. Por favor, intente nuevamente.");
       }
