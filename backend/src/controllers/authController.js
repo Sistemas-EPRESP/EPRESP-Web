@@ -1,5 +1,6 @@
 const authService = require('../services/authServices');
 const { Usuario, Administrador, Cooperativa } = require('../models');
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 const loginController = async (req, res) => {
@@ -66,7 +67,7 @@ const refreshTokenController = async (req, res) => {
     // Establecer nuevo AccessToken en cookie
     res.cookie('accessToken', result.nuevoAccessToken, {
       httpOnly: true,
-      sameSite: 'none',
+      sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
     });
 
