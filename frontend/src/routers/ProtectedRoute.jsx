@@ -3,13 +3,15 @@ import { Navigate, Outlet } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 const ProtectedRoute = ({ allowedRoles }) => {
-  const { isAuthenticated, user } = useContext(AuthContext);
+  const { isAuthenticated, cooperativa } = useContext(AuthContext);
+
+  console.log(isAuthenticated, cooperativa);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  if (!allowedRoles.includes(cooperativa?.tipo)) {
     return <Navigate to="/no-autorizado" replace />;
   }
 

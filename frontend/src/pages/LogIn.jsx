@@ -8,20 +8,20 @@ const LogIn = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated, login, user } = useContext(AuthContext);
+  const { isAuthenticated, login, cooperativa } = useContext(AuthContext);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && cooperativa) {
       // Redirige según el rol del usuario
-      if (user.role === "administrador") {
-        navigate("/cooperativa/rendiciones");
-      } else if (user.role === "cooperativa") {
-        navigate("/cooperativa/rendiciones");
+      if (cooperativa.tipo === "administrador") {
+        navigate("/administrador/rendiciones");
+      } else if (cooperativa.tipo === "cooperativa") {
+        navigate("/rendiciones");
       } else {
         navigate("/"); // Ruta por defecto para otros roles
       }
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, cooperativa, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -37,6 +37,7 @@ const LogIn = () => {
 
     try {
       const userData = await login(cuitWithoutDashes, password);
+
       if (!userData) {
         setError("Credenciales inválidas. Por favor, intente nuevamente.");
       }
