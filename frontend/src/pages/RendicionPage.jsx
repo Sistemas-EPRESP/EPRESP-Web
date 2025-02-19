@@ -1,5 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import axiosInstance from "../config/AxiosConfig";
 import FormularioRendicion from "../components/forms/FormularioRendicion";
 import PeriodoRendiciones from "../components/PeriodoRendiciones";
 
@@ -61,8 +62,13 @@ const RendicionPage = () => {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!cooperativa || !cooperativa.idCooperativa) {
+      setMensaje("Error: No se encontró la cooperativa.");
+      return;
+    }
 
     const fechaActual = new Date().toISOString().split("T")[0];
     const data = new FormData(event.target);
@@ -82,17 +88,33 @@ const RendicionPage = () => {
     const rendicion = {
       fecha_rendicion: fechaActual,
       fecha_transferencia: data.get("fecha_transferencia"),
-      cooperativa: cooperativa ? parseInt(cooperativa.id, 10) : null,
       periodo_mes: parseInt(data.get("periodo_rendicion"), 10),
       periodo_anio: parseInt(selectedYear, 10),
-      tasa_fiscalizacion_letras: data.get("total_tasa_letras"),
-      tasa_fiscalizacion_numero: parseFloat(data.get("total_tasa")),
-      total_transferencia_letras: data.get("total_transferencia_letras"),
-      total_transferencia_numero: parseFloat(data.get("total_transferencia")),
+      tasa_fiscalizacion_letras: data.get("total_tasa_letras") || "",
+      tasa_fiscalizacion_numero: parseFloat(data.get("total_tasa")) || 0,
+      total_transferencia_letras: data.get("total_transferencia_letras") || "",
+      total_transferencia_numero:
+        parseFloat(data.get("total_transferencia")) || 0,
       demandas: demandasPayload,
     };
-    event.target.reset();
-    setMensaje("Formulario enviado correctamente.");
+
+    try {
+      const response = await axiosInstance.post(
+        `/formulario-rendicion/${cooperativa.idCooperativa}`,
+        { rendicion }
+      );
+
+      if (response.status === 201 || response.status === 200) {
+        setMensaje("Formulario enviado correctamente.");
+        event.target.reset();
+      }
+    } catch (error) {
+      console.log(error);
+
+      setMensaje(
+        error.response?.data?.message || "Error al enviar la rendición."
+      );
+    }
   };
 
   return (
@@ -111,8 +133,8 @@ const RendicionPage = () => {
             handleYearChange={handleYearChange}
             handleSubmit={handleSubmit}
             mensaje={mensaje}
-            demandas={demandas} // <--- Se pasa el estado de demandas
-            handleDemandaChange={handleDemandaChange} // <--- Se pasa la función para actualizar demandas
+            demandas={demandas}
+            handleDemandaChange={handleDemandaChange}
           />
           <PeriodoRendiciones />
         </>
