@@ -2,7 +2,7 @@
     "cooperatives": [
         {
             "id": "1",
-            "name": "Cooperativa San Martín",
+            "name": "Cooperativa Trelew",
             "renditions": [
                 {
                     "month": 1,
@@ -44,7 +44,7 @@
         },
         {
             "id": "2",
-            "name": "Cooperativa Los Andes",
+            "name": "Cooperativa Rawson",
             "renditions": [
                 {
                     "month": 1,

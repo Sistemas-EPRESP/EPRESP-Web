@@ -28,7 +28,7 @@ const LoginForm = () => {
         if (userData.tipo === "cooperativa") {
           navigate("/formulario/formulario_rendicion");
         } else if (userData.tipo === "administrador") {
-          navigate("/rendicion_admin");
+          navigate("/rendiciones");
         }
       } else {
         setError("Credenciales inválidas. Por favor, intente nuevamente.");

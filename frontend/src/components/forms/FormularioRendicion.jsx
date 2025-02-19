@@ -1,4 +1,5 @@
 import React from "react";
+import TablaDemandas from "../TablaDemandas"; // Ajusta la ruta según tu estructura
 
 const FormularioRendicion = ({
   cooperativa,
@@ -8,15 +9,17 @@ const FormularioRendicion = ({
   handleYearChange,
   handleSubmit,
   mensaje,
+  demandas, // Recibimos las demandas
+  handleDemandaChange, // Recibimos la función para actualizar demandas
 }) => {
   const formatCUIT = (cuit) => {
-    const cuitStr = cuit.toString(); // Convertir el número a string
+    const cuitStr = cuit.toString();
     if (cuitStr.length === 11) {
       return `${cuitStr.slice(0, 2)}-${cuitStr.slice(2, 10)}-${cuitStr.slice(
         10
       )}`;
     }
-    return cuitStr; // Si no tiene el largo correcto, devolvemos el cuit tal cual está
+    return cuitStr;
   };
 
   return (
@@ -36,7 +39,7 @@ const FormularioRendicion = ({
           <div>
             <h3 className="text-sm font-medium text-gray-500">CUIT</h3>
             <p className="text-lg font-semibold text-gray-900">
-              {formatCUIT(cooperativa.cuit)} {/* Formateamos el CUIT aquí */}
+              {formatCUIT(cooperativa.cuit)}
             </p>
           </div>
         </div>
@@ -44,7 +47,7 @@ const FormularioRendicion = ({
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {/* Fecha de Rendición (actual y deshabilitada) */}
+          {/* Fecha de Rendición */}
           <div className="space-y-2">
             <label
               htmlFor="fecha_rendicion"
@@ -135,7 +138,11 @@ const FormularioRendicion = ({
           </div>
         </div>
 
-        {/* Resto del formulario... */}
+        {/* Aquí se integra la Tabla de Demandas dentro del formulario */}
+        <TablaDemandas
+          demandas={demandas}
+          handleDemandaChange={handleDemandaChange}
+        />
 
         <div className="pt-6 border-t">
           <button
