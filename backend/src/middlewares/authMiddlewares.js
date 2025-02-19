@@ -18,23 +18,23 @@ const verificarToken = (req, res, next) => {
 };
 
 // Middleware para verificar si el usuario es administrador
-const verificarAdmin = (req, res, next) => {
-  if (!req.usuario || req.usuario.tipo !== 'administrador') {
-    return res
-      .status(403)
-      .json({ message: 'Acceso denegado. Se requiere rol de administrador' });
-  }
-  next();
-};
+// const verificarAdmin = (req, res, next) => {
+//   if (!req.usuario || req.usuario.tipo !== 'administrador') {
+//     return res
+//       .status(403)
+//       .json({ message: 'Acceso denegado. Se requiere rol de administrador' });
+//   }
+//   next();
+// };
 
-// Middleware para verificar si el usuario es cooperativa
-const verificarCooperativa = (req, res, next) => {
-  if (!req.usuario || req.usuario.tipo !== 'cooperativa') {
-    return res
-      .status(403)
-      .json({ message: 'Acceso denegado. Se requiere rol de cooperativa' });
-  }
-  next();
-};
+// // Middleware para verificar si el usuario es cooperativa
+// const verificarCooperativa = (req, res, next) => {
+//   if (!req.body || req.body.tipo !== 'cooperativa') {
+//     return res
+//       .status(403)
+//       .json({ message: 'Acceso denegado. Se requiere rol de cooperativa' });
+//   }
+//   next();
+// };
 
-module.exports = { verificarToken, verificarAdmin, verificarCooperativa };
+module.exports = { verificarToken };
