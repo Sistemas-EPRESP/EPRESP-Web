@@ -5,8 +5,6 @@ import { AuthContext } from "../context/AuthContext";
 const ProtectedRoute = ({ allowedRoles }) => {
   const { isAuthenticated, cooperativa } = useContext(AuthContext);
 
-  console.log(isAuthenticated, cooperativa);
-
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
