@@ -4,6 +4,7 @@ import Home from "../pages/Home";
 import AdminPage from "../pages/AdminPage";
 import CooperativaRendicionesPage from "../pages/CooperativaRendicionesPage";
 import ProtectedRoute from "./ProtectedRoute";
+import RendicionPage from "../pages/RendicionPage";
 
 const AppRouter = () => {
   return (
@@ -14,6 +15,7 @@ const AppRouter = () => {
       {/* Rutas para cooperativa */}
       <Route element={<ProtectedRoute allowedRoles={["cooperativa"]} />}>
         <Route path="/rendiciones" element={<CooperativaRendicionesPage />} />
+        <Route path="/formulario/rendicion" element={<RendicionPage />} />
       </Route>
 
       {/* Rutas para administrador */}

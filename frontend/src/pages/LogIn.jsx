@@ -16,7 +16,7 @@ const LogIn = () => {
       if (cooperativa.tipo === "administrador") {
         navigate("/administrador/rendiciones");
       } else if (cooperativa.tipo === "cooperativa") {
-        navigate("/rendiciones");
+        navigate("/formulario/rendicion");
       } else {
         navigate("/"); // Ruta por defecto para otros roles
       }

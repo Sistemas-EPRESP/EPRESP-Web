@@ -91,8 +91,6 @@ const RendicionPage = () => {
       total_transferencia_numero: parseFloat(data.get("total_transferencia")),
       demandas: demandasPayload,
     };
-
-    console.log("Datos del formulario:", rendicion);
     event.target.reset();
     setMensaje("Formulario enviado correctamente.");
   };
