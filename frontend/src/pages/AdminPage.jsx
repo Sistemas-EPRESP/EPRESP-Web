@@ -5,6 +5,7 @@ import YearGrid from "../components/YearGrid";
 const AdminPage = () => {
   const [cooperativas, setCooperativas] = useState([]);
   const [selectedCooperativa, setSelectedCooperativa] = useState("");
+  const [renditions, setRenditions] = useState([]);
 
   useEffect(() => {
     // Obtener la lista de cooperativas del backend
@@ -14,26 +15,23 @@ const AdminPage = () => {
       .catch((error) => console.error("Error fetching cooperatives:", error));
   }, []);
 
-  useEffect(() => {
+  const fetchRenditions = () => {
     if (selectedCooperativa) {
-      // Obtener las rendiciones de la cooperativa seleccionada
       axios
-        .get(`/cooperatives/${selectedCooperativa}/renditions`)
+        .get(`/cooperativas/obtener-preformularios/${selectedCooperativa}`)
         .then((response) => setRenditions(response.data))
         .catch((error) => console.error("Error fetching renditions:", error));
     } else {
       setRenditions([]);
     }
-  }, [selectedCooperative]);
+  };
 
+  // Extraer los años únicos usando la propiedad 'periodo_anio'
   const years = useMemo(() => {
-    if (!selectedCooperative) return [];
-    const cooperative = cooperatives.find((c) => c.id === selectedCooperative);
-    if (!cooperative) return [];
-
-    const uniqueYears = [...new Set(cooperative.renditions.map((r) => r.year))];
+    if (!renditions.length) return [];
+    const uniqueYears = [...new Set(renditions.map((r) => r.periodo_anio))];
     return uniqueYears.sort((a, b) => b - a);
-  }, [selectedCooperative]);
+  }, [renditions]);
 
   return (
     <>
@@ -41,39 +39,38 @@ const AdminPage = () => {
         Control de Rendiciones
       </h1>
 
-      <div className="mb-6 sm:mb-8">
-        <label
-          htmlFor="cooperative"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Seleccionar Cooperativa
-        </label>
+      <label
+        htmlFor="cooperative"
+        className="block text-sm font-medium text-gray-700"
+      >
+        Seleccionar Cooperativa
+      </label>
+      <div className="mb-6 sm:mb-8 flex items-center space-x-4">
         <select
           id="cooperative"
-          value={selectedCooperative}
-          onChange={(e) => setSelectedCooperative(e.target.value)}
+          value={selectedCooperativa}
+          onChange={(e) => setSelectedCooperativa(e.target.value)}
           className="w-full max-w-md px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
         >
           <option value="">Seleccione una cooperativa</option>
-          {cooperatives.map((coop) => (
+          {cooperativas.map((coop) => (
             <option key={coop.id} value={coop.id}>
-              {coop.name}
+              {coop.nombre}
             </option>
           ))}
         </select>
+        <button
+          onClick={fetchRenditions}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm sm:text-base"
+        >
+          Buscar
+        </button>
       </div>
 
-      {selectedCooperative ? (
+      {selectedCooperativa && renditions.length > 0 ? (
         <div>
           {years.map((year) => (
-            <YearGrid
-              key={year}
-              year={year}
-              renditions={
-                cooperatives.find((c) => c.id === selectedCooperative)
-                  ?.renditions || []
-              }
-            />
+            <YearGrid key={year} year={year} renditions={renditions} />
           ))}
         </div>
       ) : (

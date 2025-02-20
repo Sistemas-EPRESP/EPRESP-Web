@@ -6,9 +6,11 @@ const YearGrid = ({ year, renditions }) => {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   const stats = useMemo(() => {
-    const yearRenditions = renditions.filter((r) => r.year === year);
-    const submitted = yearRenditions.filter((r) => r.submitted).length;
-    const approved = yearRenditions.filter((r) => r.approved).length;
+    // Filtrar las rendiciones que correspondan al año indicado usando 'periodo_anio'
+    const yearRenditions = renditions.filter((r) => r.periodo_anio === year);
+    // Se asume que cada registro indica que la rendición fue enviada
+    const submitted = yearRenditions.length;
+    const approved = yearRenditions.filter((r) => r.aprobado).length;
     return { submitted, approved };
   }, [renditions, year]);
 
@@ -35,15 +37,16 @@ const YearGrid = ({ year, renditions }) => {
       {isExpanded && (
         <div className="mt-4 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
           {months.map((month) => {
+            // Buscar la rendición correspondiente para ese mes y año
             const rendition = renditions.find(
-              (r) => r.month === month && r.year === year
+              (r) => r.periodo_mes === month && r.periodo_anio === year
             );
             return (
               <MonthCard
                 key={month}
                 month={month}
-                approved={rendition?.approved}
-                submitted={rendition?.submitted}
+                approved={rendition?.aprobado || false}
+                submitted={!!rendition}
               />
             );
           })}
