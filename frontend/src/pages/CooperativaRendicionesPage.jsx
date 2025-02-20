@@ -1,23 +1,22 @@
-import { useMemo } from "react";
+import { useMemo, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { cooperatives } from "../data/mockData";
+import { AuthContext } from "../context/AuthContext";
 import YearGrid from "../components/YearGrid";
 
 const CooperativaRendicionesPage = () => {
   const navigate = useNavigate();
-  // Por ahora usamos la primera cooperativa como ejemplo
-  const cooperative = cooperatives[0];
+  const { cooperativa } = useContext(AuthContext);
 
   const years = useMemo(() => {
-    const uniqueYears = [...new Set(cooperative.renditions.map((r) => r.year))];
+    const uniqueYears = [...new Set(cooperativa.renditions.map((r) => r.year))];
     return uniqueYears.sort((a, b) => b - a);
-  }, [cooperative]);
+  }, [cooperativa]);
 
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          {cooperative.name}
+          {cooperativa.nombre}
         </h1>
         <button
           onClick={() => navigate("/formulario/rendicion")}
@@ -32,7 +31,7 @@ const CooperativaRendicionesPage = () => {
           <YearGrid
             key={year}
             year={year}
-            renditions={cooperative.renditions}
+            renditions={cooperativa.renditions}
           />
         ))}
       </div>
