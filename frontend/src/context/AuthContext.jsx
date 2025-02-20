@@ -1,8 +1,6 @@
-// src/context/AuthContext.js
 import { createContext, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "../config/AxiosConfig";
-import PropTypes from "prop-types";
 
 export const AuthContext = createContext();
 
@@ -100,8 +98,4 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired,
 };
