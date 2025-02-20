@@ -1,9 +1,30 @@
-import { useState, useMemo } from "react";
-import { cooperatives } from "../data/mockData";
+import { useEffect, useState, useMemo } from "react";
+import axios from "../config/AxiosConfig";
 import YearGrid from "../components/YearGrid";
 
 const AdminPage = () => {
-  const [selectedCooperative, setSelectedCooperative] = useState("");
+  const [cooperativas, setCooperativas] = useState([]);
+  const [selectedCooperativa, setSelectedCooperativa] = useState("");
+
+  useEffect(() => {
+    // Obtener la lista de cooperativas del backend
+    axios
+      .get("/cooperativas/obtener-cooperativas")
+      .then((response) => setCooperativas(response.data))
+      .catch((error) => console.error("Error fetching cooperatives:", error));
+  }, []);
+
+  useEffect(() => {
+    if (selectedCooperativa) {
+      // Obtener las rendiciones de la cooperativa seleccionada
+      axios
+        .get(`/cooperatives/${selectedCooperativa}/renditions`)
+        .then((response) => setRenditions(response.data))
+        .catch((error) => console.error("Error fetching renditions:", error));
+    } else {
+      setRenditions([]);
+    }
+  }, [selectedCooperative]);
 
   const years = useMemo(() => {
     if (!selectedCooperative) return [];
