@@ -49,19 +49,19 @@ const createUser = async (req, res) => {
   }
 };
 
-const sendMail = async (req, res) => {
-  const { email, subject, message } = req.body;
-  try {
-    await userServices.sendMail(email, subject, message);
-    res.status(200).json({
-      message: 'Correo enviado exitosamente',
-    });
-  } catch (error) {
-    res.status(404).json({
-      error: error.message,
-    });
-  }
-};
+// const sendMail = async (req, res) => {
+//   const { email, subject, message } = req.body;
+//   try {
+//     await userServices.sendMail(email, subject, message);
+//     res.status(200).json({
+//       message: 'Correo enviado exitosamente',
+//     });
+//   } catch (error) {
+//     res.status(404).json({
+//       error: error.message,
+//     });
+//   }
+// };
 
 module.exports = {
   createUser,
