@@ -5,6 +5,7 @@ import AdminPage from "../pages/AdminPage";
 import CooperativaRendicionesPage from "../pages/CooperativaRendicionesPage";
 import ProtectedRoute from "./ProtectedRoute";
 import RendicionPage from "../pages/RendicionPage";
+import FormularioRendicionAdmin from "../components/forms/FormularioRendicionAdmin";
 
 const AppRouter = () => {
   return (
@@ -21,6 +22,10 @@ const AppRouter = () => {
       {/* Rutas para administrador */}
       <Route element={<ProtectedRoute allowedRoles={["administrador"]} />}>
         <Route path="/administrador/rendiciones" element={<AdminPage />} />
+        <Route
+          path="/control_resolucion"
+          element={<FormularioRendicionAdmin />}
+        />
       </Route>
 
       {/* Ruta por defecto para manejar rutas no encontradas */}

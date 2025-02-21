@@ -100,7 +100,7 @@ const RendicionPage = () => {
 
     try {
       const response = await axiosInstance.post(
-        `/formulario-rendicion/${cooperativa.idCooperativa}`,
+        `/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`,
         { rendicion }
       );
 
