@@ -13,13 +13,10 @@ const Cooperativa = sequelize.define(
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       unique: true,
       validate: {
         isEmail: true,
-      },
-      set(value) {
-        this.setDataValue('email', value.toLowerCase().trim()); // Normaliza email
       },
     },
     cuit: {
@@ -30,6 +27,24 @@ const Cooperativa = sequelize.define(
         isNumeric: true,
         len: [8, 20], // Mínimo 8 y máximo 15 dígitos
       },
+    },
+    ciudad: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    numero_expediente: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    ref: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {

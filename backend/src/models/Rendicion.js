@@ -28,11 +28,11 @@ const Rendicion = sequelize.define(
       type: DataTypes.DECIMAL(10, 2), // Garantiza dos decimales
       allowNull: false,
     },
-    total_trasnferencia_letras: {
+    total_transferencia_letras: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    total_trasnferencia_numero: {
+    total_transferencia_numero: {
       type: DataTypes.DECIMAL(10, 2), // Garantiza dos decimales
       allowNull: false,
     },
@@ -40,6 +40,10 @@ const Rendicion = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
+    },
+    aprobado: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
   },
   {
