@@ -9,4 +9,6 @@ router.post(
   rendicionController.createFormularioRendicion,
 );
 
+router.get('/obtener-rendicion/:id', rendicionController.obtenerRendicion);
+
 module.exports = router;

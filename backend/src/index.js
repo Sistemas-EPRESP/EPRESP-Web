@@ -30,7 +30,7 @@ app.use(
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api', usuarioRoutes);
-app.use('/api', rendicionRoutes);
+app.use('/api/rendiciones', rendicionRoutes);
 app.use('/api/cooperativas', coopRoutes);
 
 // Conectar con la base de datos

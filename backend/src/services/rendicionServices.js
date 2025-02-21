@@ -51,8 +51,6 @@ const agregarFormulario = async (formulario, idCooperativa) => {
   return nuevaRendicion;
 };
 
-module.exports = { agregarFormulario };
-
 const verificarFormularioDuplicado = async (
   idCooperativa,
   codigoSeguimiento,
@@ -83,6 +81,19 @@ const obtenerPreRendiciones = async (id) => {
   }
 };
 
+const obtenerRendicion = async (id) => {
+  try {
+    const rendicion = await Rendicion.findOne({
+      where: { id },
+      include: { model: Demanda, as: 'Demandas' },
+    });
+
+    return rendicion;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 //CONTROLAR EL PERIODO JUNTO CON LA COOPERATIVA
 
-module.exports = { agregarFormulario, obtenerPreRendiciones };
+module.exports = { agregarFormulario, obtenerPreRendiciones, obtenerRendicion };

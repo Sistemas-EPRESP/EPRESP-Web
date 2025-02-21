@@ -13,4 +13,16 @@ const createFormularioRendicion = async (req, res) => {
   }
 };
 
-module.exports = { createFormularioRendicion };
+const obtenerRendicion = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const rendicion = await rendicionServices.obtenerRendicion(id);
+
+    return res.status(200).json(rendicion);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+module.exports = { createFormularioRendicion, obtenerRendicion };
