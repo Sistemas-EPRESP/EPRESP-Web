@@ -8,18 +8,27 @@ const verificarUsuario = async (cuit) => {
   }
 };
 
-const createUser = async (cuit, password, tipo) => {
+const createUser = async (cuit, password, tipo, email) => {
   // 1. Verificar si existe un usuario con el mismo CUIT
   await verificarUsuario(cuit);
   // 2. Crear el usuario
-  const usuario = await Usuario.create({
-    cuit,
-    password,
-    tipo,
-    activo: true,
-  });
-
-  return usuario;
+  if (email) {
+    const usuario = await Usuario.create({
+      cuit,
+      password,
+      tipo,
+      activo: true,
+    });
+    return usuario;
+  } else {
+    const usuario = await Usuario.create({
+      cuit,
+      password,
+      tipo,
+      activo: false,
+    });
+    return usuario;
+  }
 };
 
 const deleteUserByCuit = async (cuit) => {

@@ -1,5 +1,5 @@
 // services/cooperativaService.js
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const { Cooperativa } = require('../models');
 
 /**
@@ -10,29 +10,59 @@ const { Cooperativa } = require('../models');
  * @param {number} idUsuario - ID del usuario asociado
  * @returns {Promise<object>} - La cooperativa creada
  */
-async function createCooperativa(cuit, nombre, email, idUsuario) {
-  // 1. Verificar si ya existe una cooperativa con el mismo CUIT o email
+const createCooperativa = async (
+  id,
+  cuit,
+  nombre,
+  email,
+  idUsuario,
+  ciudad,
+  numero_expediente,
+  ref,
+) => {
+  const whereCondition = {
+    [Op.or]: [{ cuit }],
+  };
+
+  if (email) {
+    whereCondition[Op.or].push({ email });
+  }
+
+  // 2. Verificar si ya existe una cooperativa con el mismo CUIT o email
   const cooperativaExistente = await Cooperativa.findOne({
-    where: {
-      [Op.or]: [{ cuit }, { email }],
-    },
+    where: whereCondition,
   });
 
   if (cooperativaExistente) {
     throw new Error('Ya existe una cooperativa con ese CUIT o email');
   }
 
-  // 2. Crear la cooperativa
   const nuevaCooperativa = await Cooperativa.create({
+    id,
     nombre,
     cuit,
     email,
     usuarioId: idUsuario, // Clave foránea al usuario, si aplica
+    ciudad,
+    numero_expediente,
+    ref,
   });
 
   return nuevaCooperativa;
-}
+};
+
+const getAllCooperativas = async () => {
+  try {
+    const cooperativas = await Cooperativa.findAll({
+      attributes: ['id', 'nombre'],
+    });
+    return cooperativas;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
 module.exports = {
   createCooperativa,
+  getAllCooperativas,
 };

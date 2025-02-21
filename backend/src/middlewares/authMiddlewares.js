@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 // Middleware para verificar si el usuario está autenticado
 const verificarToken = (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.cookies.accessToken;
 
   if (!token) {
     return res.status(403).json({ message: 'Token no proporcionado' });
@@ -29,7 +29,9 @@ const verificarAdmin = (req, res, next) => {
 
 // Middleware para verificar si el usuario es cooperativa
 const verificarCooperativa = (req, res, next) => {
-  if (!req.usuario || req.usuario.tipo !== 'cooperativa') {
+  console.log(req.body);
+
+  if (!req.body || req.body.tipo !== 'cooperativa') {
     return res
       .status(403)
       .json({ message: 'Acceso denegado. Se requiere rol de cooperativa' });
@@ -37,4 +39,4 @@ const verificarCooperativa = (req, res, next) => {
   next();
 };
 
-module.exports = { verificarToken, verificarAdmin, verificarCooperativa };
+module.exports = { verificarToken, verificarCooperativa, verificarAdmin };

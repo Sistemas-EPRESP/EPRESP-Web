@@ -21,7 +21,7 @@ const loginController = async (req, res) => {
     // Guardamos ambos tokens en cookies httpOnly
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: process.env.SAME_SITE,
       secure: process.env.NODE_ENV === 'production', //process.env.NODE_ENV === 'production',
       maxAge: 3600000, // 1 hora
     });
