@@ -1,16 +1,27 @@
-import { useMemo, useContext } from "react";
+import { useMemo, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import YearGrid from "../components/YearGrid";
+import axios from "../config/AxiosConfig";
 
 const CooperativaRendicionesPage = () => {
   const navigate = useNavigate();
   const { cooperativa } = useContext(AuthContext);
+  const [rendiciones, setRendiciones] = useState([]);
 
+  useEffect(() => {
+    axios
+      .get(`/cooperativas/obtener-preformularios/${cooperativa.idCooperativa}`)
+      .then((response) => setRendiciones(response.data))
+      .catch((error) => console.error("Error fetching renditions:", error));
+  }, [cooperativa.idCooperativa]);
+
+  // Extraer los años únicos usando la propiedad 'periodo_anio'
   const years = useMemo(() => {
-    const uniqueYears = [...new Set(cooperativa.renditions.map((r) => r.year))];
+    if (!rendiciones.length) return [];
+    const uniqueYears = [...new Set(rendiciones.map((r) => r.periodo_anio))];
     return uniqueYears.sort((a, b) => b - a);
-  }, [cooperativa]);
+  }, [rendiciones]);
 
   return (
     <>
@@ -26,17 +37,13 @@ const CooperativaRendicionesPage = () => {
         </button>
       </div>
 
-      <div>
-        {years.map((year) => (
-          <YearGrid
-            key={year}
-            year={year}
-            renditions={cooperativa.renditions}
-          />
-        ))}
-      </div>
-
-      {years.length === 0 && (
+      {rendiciones.length > 0 ? (
+        <div>
+          {years.map((year) => (
+            <YearGrid key={year} year={year} renditions={rendiciones} />
+          ))}
+        </div>
+      ) : (
         <div className="text-center py-8 sm:py-12">
           <p className="text-gray-500 text-sm sm:text-base">
             No hay rendiciones disponibles
