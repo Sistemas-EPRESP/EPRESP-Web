@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const rendicionRoutes = require('./routes/rendicionRoutes');
+const coopRoutes = require('./routes/coopRoutes');
 const cors = require('cors');
 require('dotenv').config(); // Cargar variables de entorno
 
@@ -18,6 +19,7 @@ app.use(
     origin: [
       'http://localhost:5173',
       'http://192.168.0.93:5173',
+      'http://192.168.0.112:5173',
       'http://localhost:3000',
       'http://192.168.0.151:5173',
     ],
@@ -29,6 +31,7 @@ app.use(
 app.use('/api/auth', authRoutes);
 app.use('/api', usuarioRoutes);
 app.use('/api', rendicionRoutes);
+app.use('/api/cooperativas', coopRoutes);
 
 // Conectar con la base de datos
 sequelize

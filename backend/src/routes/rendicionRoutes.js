@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post(
   '/formulario-rendicion/:id',
-  verificarToken,
+  //verificarToken,
   rendicionController.createFormularioRendicion,
 );
 

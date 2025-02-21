@@ -8,10 +8,10 @@ const agregarFormulario = async (formulario, idCooperativa) => {
     periodo_anio,
     tasa_fiscalizacion_letras,
     tasa_fiscalizacion_numero,
-    total_trasnferencia_letras,
-    total_trasnferencia_numero,
+    total_transferencia_letras,
+    total_transferencia_numero,
     demandas,
-  } = formulario;
+  } = formulario.rendicion;
 
   // 1. Generar codigoSeguimiento (p.ej. "202502")
   const codigoSeguimiento = `${periodo_anio}${String(periodo_mes).padStart(2, '0')}`;
@@ -28,8 +28,8 @@ const agregarFormulario = async (formulario, idCooperativa) => {
     periodo_anio,
     tasa_fiscalizacion_letras,
     tasa_fiscalizacion_numero,
-    total_trasnferencia_letras,
-    total_trasnferencia_numero,
+    total_transferencia_letras,
+    total_transferencia_numero,
     codigo_seguimiento: codigoSeguimiento, // Guardamos el código
   });
 
@@ -66,11 +66,23 @@ const verificarFormularioDuplicado = async (
 
   if (rendicionExistente) {
     throw new Error(
-      `Ya existe un formulario para la cooperativa ${idCooperativa} con el código ${codigoSeguimiento}`,
+      `Este período ya se encuentra declarado. Código de seguimiento: ${codigoSeguimiento}`,
     );
+  }
+};
+
+const obtenerPreRendiciones = async (id) => {
+  try {
+    const rendiciones = await Rendicion.findAll({
+      where: { cooperativaId: id },
+      attributes: ['id', 'periodo_mes', 'periodo_anio', 'aprobado'],
+    });
+    return rendiciones;
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
 
 //CONTROLAR EL PERIODO JUNTO CON LA COOPERATIVA
 
-module.exports = { agregarFormulario };
+module.exports = { agregarFormulario, obtenerPreRendiciones };
