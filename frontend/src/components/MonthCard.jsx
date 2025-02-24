@@ -27,7 +27,7 @@ const MonthCard = ({ month, approved, submitted }) => {
 
   const handleCardClick = () => {
     // Redirige a la página de ControlResolucionPage
-    navigate("/control_resolucion");
+    navigate(`/administrador/rendiciones/${1}`);
   };
 
   return (
