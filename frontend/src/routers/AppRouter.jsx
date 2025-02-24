@@ -23,7 +23,7 @@ const AppRouter = () => {
       <Route element={<ProtectedRoute allowedRoles={["administrador"]} />}>
         <Route path="/administrador/rendiciones" element={<AdminPage />} />
         <Route
-          path="/control_resolucion"
+          path="/administrador/rendiciones/:id"
           element={<FormularioRendicionAdmin />}
         />
       </Route>
