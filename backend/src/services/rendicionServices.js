@@ -1,4 +1,4 @@
-const { Rendicion, Demanda } = require('../models');
+const { Rendicion, Demanda, Cooperativa } = require('../models');
 
 const agregarFormulario = async (formulario, idCooperativa) => {
   const {
@@ -33,7 +33,7 @@ const agregarFormulario = async (formulario, idCooperativa) => {
     codigo_seguimiento: codigoSeguimiento, // Guardamos el código
   });
 
-  // 4. (Opcional) Crear las demandas asociadas
+  // 4. Crear las demandas asociadas
   if (demandas) {
     const arrayDemandas = Object.entries(demandas).map(([tipo, data]) => ({
       tipo,
@@ -85,7 +85,15 @@ const obtenerRendicion = async (id) => {
   try {
     const rendicion = await Rendicion.findOne({
       where: { id },
-      include: { model: Demanda, as: 'Demandas' },
+      attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
+      include: [
+        {
+          model: Demanda,
+          as: 'Demandas',
+          attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
+        },
+        { model: Cooperativa, attributes: ['nombre', 'cuit'] },
+      ],
     });
 
     return rendicion;

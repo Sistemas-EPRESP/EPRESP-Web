@@ -4,6 +4,7 @@ const createFormularioRendicion = async (req, res) => {
   try {
     const { id } = req.params;
     const formulario = req.body;
+    console.log(formulario);
 
     await rendicionServices.agregarFormulario(formulario, id);
 
