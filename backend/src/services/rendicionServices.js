@@ -85,8 +85,13 @@ const obtenerRendicion = async (id) => {
   try {
     const rendicion = await Rendicion.findOne({
       where: { id },
+      attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
       include: [
-        { model: Demanda, as: 'Demandas' },
+        {
+          model: Demanda,
+          as: 'Demandas',
+          attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
+        },
         { model: Cooperativa, attributes: ['nombre', 'cuit'] },
       ],
     });
