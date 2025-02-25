@@ -4,6 +4,7 @@ import TablaDemandas from "../tables/TablaDemandas";
 import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
 import axios from "../../config/AxiosConfig";
+import { getNombreMes } from "../../utils/dateUtils"; // Importamos la función de utilidades
 
 const FormularioRendicionAdmin = () => {
   const { id } = useParams();
@@ -65,26 +66,6 @@ const FormularioRendicionAdmin = () => {
 
   // Transformamos el array de Demandas
   const demandasTransformadas = transformarDemandas(Demandas);
-
-  // Función para convertir el número del mes en su nombre correspondiente
-  const getNombreMes = (mesNumero) => {
-    const meses = [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
-    ];
-    // Restamos 1 ya que el array comienza en índice 0
-    return meses[mesNumero - 1] || "";
-  };
 
   return (
     <div className="max-w-7xl mx-auto bg-gray-50 min-h-screen py-8 px-4">
@@ -200,7 +181,6 @@ const FormularioRendicionAdmin = () => {
               >
                 Monto (Número)
               </label>
-              {/* Se reemplaza el input de texto por NumericInput */}
               <NumericInput
                 value={tasa_fiscalizacion_numero}
                 disabled={true}
@@ -230,7 +210,6 @@ const FormularioRendicionAdmin = () => {
               >
                 Monto (Número)
               </label>
-              {/* Se reemplaza el input de texto por NumericInput */}
               <NumericInput
                 value={tasa_fiscalizacion_numero}
                 disabled={true}

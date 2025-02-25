@@ -1,21 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { monthNames } from "../utils/dateUtils"; // Ajusta la ruta según tu estructura
 
-const monthNames = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
-
-const MonthCard = ({ month, approved, submitted }) => {
+const MonthCard = ({ month, approved, submitted, idRendicion }) => {
   const navigate = useNavigate(); // Hook para la navegación
 
   const baseClasses =
@@ -26,22 +12,19 @@ const MonthCard = ({ month, approved, submitted }) => {
     : "";
 
   const handleCardClick = () => {
-    // Redirige a la página de ControlResolucionPage
-    navigate(`/administrador/rendiciones/${1}`);
+    if (idRendicion) {
+      navigate(`/administrador/rendiciones/${idRendicion}`);
+    }
   };
 
   return (
-    <div
-      className={`${baseClasses} ${hoverClasses}`}
-      onClick={handleCardClick} // Agrega el manejador de clics
-    >
+    <div className={`${baseClasses} ${hoverClasses}`} onClick={handleCardClick}>
       <span className={`text-xs sm:text-sm font-medium ${contentClasses}`}>
         {monthNames[month - 1]}
       </span>
       {submitted && (
         <span
-          className={`text-[10px] sm:text-xs px-2 py-1 rounded-full
-          ${
+          className={`text-[10px] sm:text-xs px-2 py-1 rounded-full ${
             approved
               ? "bg-green-100 text-green-700"
               : "bg-yellow-100 text-yellow-700"

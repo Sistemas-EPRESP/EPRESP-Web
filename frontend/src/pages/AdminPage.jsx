@@ -5,7 +5,7 @@ import YearGrid from "../components/YearGrid";
 const AdminPage = () => {
   const [cooperativas, setCooperativas] = useState([]);
   const [selectedCooperativa, setSelectedCooperativa] = useState("");
-  const [renditions, setRenditions] = useState([]);
+  const [rendiciones, setRendiciones] = useState([]);
 
   useEffect(() => {
     // Obtener la lista de cooperativas del backend
@@ -19,19 +19,19 @@ const AdminPage = () => {
     if (selectedCooperativa) {
       axios
         .get(`/cooperativas/obtener-preformularios/${selectedCooperativa}`)
-        .then((response) => setRenditions(response.data))
+        .then((response) => setRendiciones(response.data))
         .catch((error) => console.error("Error fetching renditions:", error));
     } else {
-      setRenditions([]);
+      setRendiciones([]);
     }
   };
 
   // Extraer los años únicos usando la propiedad 'periodo_anio'
   const years = useMemo(() => {
-    if (!renditions.length) return [];
-    const uniqueYears = [...new Set(renditions.map((r) => r.periodo_anio))];
+    if (!rendiciones.length) return [];
+    const uniqueYears = [...new Set(rendiciones.map((r) => r.periodo_anio))];
     return uniqueYears.sort((a, b) => b - a);
-  }, [renditions]);
+  }, [rendiciones]);
 
   return (
     <>
@@ -67,10 +67,10 @@ const AdminPage = () => {
         </button>
       </div>
 
-      {selectedCooperativa && renditions.length > 0 ? (
+      {selectedCooperativa && rendiciones.length > 0 ? (
         <div>
           {years.map((year) => (
-            <YearGrid key={year} year={year} renditions={renditions} />
+            <YearGrid key={year} year={year} rendiciones={rendiciones} />
           ))}
         </div>
       ) : (
