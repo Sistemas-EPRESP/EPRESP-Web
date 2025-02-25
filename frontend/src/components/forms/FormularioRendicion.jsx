@@ -1,16 +1,94 @@
+import { useState, useContext } from "react";
 import TablaDemandas from "../tables/TablaDemandas";
+import NumericInput from "../ui/NumericInput";
+import TextInput from "../ui/TextInput";
+import { AuthContext } from "../../context/AuthContext";
+import axiosInstance from "../../config/AxiosConfig";
 
-const FormularioRendicion = ({
-  cooperativa,
-  currentYear,
-  years,
-  selectedYear,
-  handleYearChange,
-  handleSubmit,
-  mensaje,
-  demandas, // Recibimos las demandas
-  handleDemandaChange, // Recibimos la función para actualizar demandas
-}) => {
+const FormularioRendicion = () => {
+  const { cooperativa } = useContext(AuthContext);
+
+  // Configuración de los años para el select
+  const currentYear = new Date().getFullYear();
+  const years = Array.from(
+    { length: currentYear - 2019 + 1 },
+    (_, index) => 2019 + index
+  );
+  const [selectedYear, setSelectedYear] = useState(currentYear.toString());
+
+  // Estado para la tabla de demandas con valores por defecto (ya se muestran en pantalla)
+  const [demandas, setDemandas] = useState({});
+
+  // Estado para mostrar mensajes de éxito o error
+  const [mensaje, setMensaje] = useState("");
+
+  // Actualiza el año seleccionado
+  const handleYearChange = (event) => {
+    setSelectedYear(event.target.value);
+  };
+
+  // Función que se encarga de recopilar todos los datos y enviarlos al backend
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!cooperativa || !cooperativa.idCooperativa) {
+      setMensaje("Error: No se encontró la cooperativa.");
+      return;
+    }
+
+    const fechaActual = new Date().toISOString().split("T")[0];
+    const formData = new FormData(event.target);
+
+    // Preparar el payload de demandas tomando el estado actual de la tabla
+    const demandasPayload = {};
+    Object.keys(demandas).forEach((categoria) => {
+      // Convertir "grandesUsuarios" a "grandes_usuarios" para el backend
+      const key =
+        categoria === "grandesUsuarios" ? "grandes_usuarios" : categoria;
+      demandasPayload[key] = {
+        facturacion: parseFloat(demandas[categoria].facturacion) || 0,
+        total_tasa_fiscalizacion:
+          (parseFloat(demandas[categoria].facturacion) || 0) * 0.01,
+        total_percibido: parseFloat(demandas[categoria].totalPercibido) || 0,
+        total_transferido:
+          parseFloat(demandas[categoria].totalTransferido) || 0,
+        observaciones: demandas[categoria].observaciones || "Ninguna",
+      };
+    });
+
+    // Armar el objeto que se enviará al backend
+    const rendicion = {
+      fecha_rendicion: fechaActual,
+      fecha_transferencia: formData.get("fecha_transferencia"),
+      periodo_mes: parseInt(formData.get("periodo_rendicion"), 10),
+      periodo_anio: parseInt(selectedYear, 10),
+      tasa_fiscalizacion_letras: formData.get("total_tasa_letras") || "",
+      tasa_fiscalizacion_numero: parseFloat(formData.get("total_tasa")) || 0,
+      total_transferencia_letras:
+        formData.get("total_transferencia_letras") || "",
+      total_transferencia_numero:
+        parseFloat(formData.get("total_transferencia")) || 0,
+      demandas: demandasPayload,
+    };
+
+    try {
+      const response = await axiosInstance.post(
+        `/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`,
+        { rendicion }
+      );
+      if (response.status === 200 || response.status === 201) {
+        setMensaje("Formulario enviado correctamente.");
+        // Opcional: se pueden resetear los estados o limpiar el formulario
+      }
+    } catch (error) {
+      console.error(error);
+      setMensaje(
+        error.response?.data?.message || "Error al enviar la rendición."
+      );
+    }
+  };
+
+  // Función para formatear el CUIT
   const formatCUIT = (cuit) => {
     const cuitStr = cuit.toString();
     if (cuitStr.length === 11) {
@@ -45,8 +123,8 @@ const FormularioRendicion = ({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Fecha de Rendición y Fecha de Transferencia */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {/* Fecha de Rendición */}
           <div className="space-y-2">
             <label
               htmlFor="fecha_rendicion"
@@ -84,6 +162,7 @@ const FormularioRendicion = ({
           </div>
         </div>
 
+        {/* Período de Rendición */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
             <label
@@ -118,7 +197,7 @@ const FormularioRendicion = ({
               htmlFor="anio"
               className="block text-sm font-medium text-gray-700"
             >
-              Periodo de Rendición Año
+              Período de Rendición Año
             </label>
             <select
               id="anio"
@@ -137,11 +216,52 @@ const FormularioRendicion = ({
           </div>
         </div>
 
-        {/* Aquí se integra la Tabla de Demandas dentro del formulario */}
-        <TablaDemandas
-          demandas={demandas}
-          handleDemandaChange={handleDemandaChange}
-        />
+        {/* Datos de la tasa de fiscalización */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label
+              htmlFor="total_tasa_letras"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Total Tasa de Fiscalización y Control (Letras)
+            </label>
+            <TextInput name="total_tasa_letras" onChange={() => {}} />
+          </div>
+          <div>
+            <label
+              htmlFor="total_tasa"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Monto (Número)
+            </label>
+            <NumericInput name="total_tasa" onChange={() => {}} />
+          </div>
+        </div>
+
+        {/* Datos de la transferencia */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label
+              htmlFor="total_transferencia_letras"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Total Transferencia: Pesos (Letras)
+            </label>
+            <TextInput name="total_transferencia_letras" onChange={() => {}} />
+          </div>
+          <div>
+            <label
+              htmlFor="total_transferencia"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Monto (Número)
+            </label>
+            <NumericInput name="total_transferencia" onChange={() => {}} />
+          </div>
+        </div>
+
+        {/* Integración de la Tabla de Demandas */}
+        <TablaDemandas demandas={demandas} setDemandas={setDemandas} />
 
         <div className="pt-6 border-t">
           <button
