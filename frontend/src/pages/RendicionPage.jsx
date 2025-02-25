@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import axiosInstance from "../config/AxiosConfig";
 import FormularioRendicion from "../components/forms/FormularioRendicion";
-import PeriodoRendiciones from "../components/PeriodoRendiciones";
+import PeriodoRendiciones from "../components/tables/PeriodoRendiciones";
 
 const RendicionPage = () => {
   const { cooperativa } = useContext(AuthContext);

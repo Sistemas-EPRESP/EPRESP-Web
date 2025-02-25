@@ -1,4 +1,4 @@
-import TablaDemandas from "../TablaDemandas"; // Ajusta la ruta según tu estructura
+import TablaDemandas from "../tables/TablaDemandas";
 
 const FormularioRendicion = ({
   cooperativa,
