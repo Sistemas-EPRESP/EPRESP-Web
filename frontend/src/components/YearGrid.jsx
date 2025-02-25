@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import MonthCard from "./MonthCard";
 
-const YearGrid = ({ year, rendiciones }) => {
+const YearGrid = ({ year, rendiciones = [] }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 

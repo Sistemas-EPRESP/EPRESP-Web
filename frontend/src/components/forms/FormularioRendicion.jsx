@@ -16,18 +16,28 @@ const FormularioRendicion = () => {
   );
   const [selectedYear, setSelectedYear] = useState(currentYear.toString());
 
-  // Estado para la tabla de demandas con valores por defecto (ya se muestran en pantalla)
+  // Estado para la tabla de demandas (se muestra en pantalla con valores por defecto)
   const [demandas, setDemandas] = useState({});
 
   // Estado para mostrar mensajes de éxito o error
   const [mensaje, setMensaje] = useState("");
+
+  // Cálculo de totales a partir de las demandas
+  const totalPercibido = Object.values(demandas).reduce(
+    (acc, cur) => acc + (parseFloat(cur.totalPercibido) || 0),
+    0
+  );
+  const totalTransferido = Object.values(demandas).reduce(
+    (acc, cur) => acc + (parseFloat(cur.totalTransferido) || 0),
+    0
+  );
 
   // Actualiza el año seleccionado
   const handleYearChange = (event) => {
     setSelectedYear(event.target.value);
   };
 
-  // Función que se encarga de recopilar todos los datos y enviarlos al backend
+  // Función que recopila los datos y los envía al backend
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -39,7 +49,7 @@ const FormularioRendicion = () => {
     const fechaActual = new Date().toISOString().split("T")[0];
     const formData = new FormData(event.target);
 
-    // Preparar el payload de demandas tomando el estado actual de la tabla
+    // Preparar el payload de demandas a partir del estado actual de la tabla
     const demandasPayload = {};
     Object.keys(demandas).forEach((categoria) => {
       // Convertir "grandesUsuarios" a "grandes_usuarios" para el backend
@@ -114,7 +124,7 @@ const FormularioRendicion = () => {
             </p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">CUIT</h3>
+            <h3 className="text-sm font-medium text-gray-700">CUIT</h3>
             <p className="text-lg font-semibold text-gray-900">
               {formatCUIT(cooperativa.cuit)}
             </p>
@@ -262,6 +272,21 @@ const FormularioRendicion = () => {
 
         {/* Integración de la Tabla de Demandas */}
         <TablaDemandas demandas={demandas} setDemandas={setDemandas} />
+
+        {/* Sección de Precauciones */}
+        <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
+          <h3 className="text-sm font-semibold text-yellow-800 mb-2">
+            Precauciones
+          </h3>
+          <ul className="list-disc pl-5 text-yellow-800 text-sm">
+            <li>
+              El total transferido no puede ser menor que el total percibido.
+              (Transferido: {totalTransferido.toFixed(2)} vs. Percibido:{" "}
+              {totalPercibido.toFixed(2)})
+            </li>
+            {/* Agrega más items de precaución si lo consideras necesario */}
+          </ul>
+        </div>
 
         <div className="pt-6 border-t">
           <button
