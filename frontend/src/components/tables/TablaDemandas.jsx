@@ -9,7 +9,7 @@ export const TablaDemandas = ({
   // Estado de las demandas
   const [demandas, setDemandas] = useState(initialDemandas);
 
-  // Nuevo useEffect para actualizar el estado cuando initialDemandas cambie
+  // Actualiza el estado cuando initialDemandas cambie
   useEffect(() => {
     setDemandas(initialDemandas);
   }, [initialDemandas]);
@@ -41,7 +41,7 @@ export const TablaDemandas = ({
     observaciones: "",
   });
 
-  // Se recalculan totales cuando cambia el estado
+  // Se recalculan totales cuando cambia el estado de demandas
   useEffect(() => {
     const newTotals = {
       facturacion: 0,
@@ -68,7 +68,7 @@ export const TablaDemandas = ({
     });
   }, [demandas, rowOrder]);
 
-  // Actualiza el valor de una celda en el estado (sin cálculo automático)
+  // Actualiza el valor de una celda en el estado
   const handleCellChange = (rowKey, field, newValue) => {
     setDemandas((prevDemandas) => ({
       ...prevDemandas,
@@ -80,7 +80,7 @@ export const TablaDemandas = ({
   };
 
   // Configuración de la grilla de referencias para celdas focusables:
-  // Se omite la columna de tasaFiscalizacion (ya que no es editable).
+  // Se omite la columna de tasaFiscalizacion (no editable).
   // Las columnas focusables son:
   //   0: Facturación, 1: Total Percibido, 2: Total Transferido, 3: Observaciones
   const totalRows = rowOrder.length;
@@ -89,13 +89,36 @@ export const TablaDemandas = ({
     Array.from({ length: totalRows }, () => Array(totalCols).fill(null))
   );
 
-  // Función para mover el foco al presionar Enter y calcular en "Facturación"
+  // Función auxiliar para calcular la tasa de fiscalización
+  const calculateTasaFiscalizacion = (rowIndex) => {
+    const rowKey = rowOrder[rowIndex].key;
+    const factValue = parseFloat(demandas[rowKey]?.facturacion || "0");
+    return (factValue * 0.01).toFixed(2);
+  };
+
+  // Función auxiliar para determinar la siguiente celda a enfocar
+  const getNextCell = (rowIndex, colIndex) => {
+    let nextRow = rowIndex;
+    let nextCol = colIndex;
+
+    if (rowIndex < totalRows - 1) {
+      // Si no es la última fila, se mueve a la siguiente fila en la misma columna
+      nextRow = rowIndex + 1;
+    } else if (colIndex < totalCols - 1) {
+      // Si es la última fila pero no la última columna, se mueve a la primera fila de la siguiente columna
+      nextRow = 0;
+      nextCol = colIndex + 1;
+    }
+    // Si es la última celda, se mantiene el foco en la misma celda
+    return { nextRow, nextCol };
+  };
+
+  // Función para manejar el evento Enter: calcula la tasa en "Facturación" y navega a la siguiente celda
   const handleEnter = (rowIndex, colIndex) => {
-    // Si se presionó Enter en la celda "Facturación" (columna 0), se calcula el 1%
+    // Si se presionó Enter en la celda "Facturación" (columna 0), calcular la tasa
     if (colIndex === 0) {
       const rowKey = rowOrder[rowIndex].key;
-      const factValue = parseFloat(demandas[rowKey]?.facturacion || "0");
-      const newTasaFiscalizacion = (factValue * 0.01).toFixed(2);
+      const newTasaFiscalizacion = calculateTasaFiscalizacion(rowIndex);
       setDemandas((prevDemandas) => ({
         ...prevDemandas,
         [rowKey]: {
@@ -105,16 +128,9 @@ export const TablaDemandas = ({
       }));
     }
 
-    // Navegación entre celdas focusables
-    if (rowIndex < totalRows - 1) {
-      inputRefs.current[rowIndex + 1][colIndex]?.focus();
-    } else {
-      if (colIndex < totalCols - 1) {
-        inputRefs.current[0][colIndex + 1]?.focus();
-      } else {
-        inputRefs.current[rowIndex][colIndex]?.focus();
-      }
-    }
+    // Determinar la siguiente celda a la que se debe mover el foco
+    const { nextRow, nextCol } = getNextCell(rowIndex, colIndex);
+    inputRefs.current[nextRow][nextCol]?.focus();
   };
 
   // Renderiza celdas numéricas (focusables)

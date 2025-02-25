@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import TablaDemandas from "../tables/TablaDemandas";
 import NumericInput from "../ui/NumericInput";
+import TextInput from "../ui/TextInput";
 import axios from "../../config/AxiosConfig";
 
 const FormularioRendicionAdmin = () => {
@@ -13,7 +14,6 @@ const FormularioRendicionAdmin = () => {
       axios
         .get(`/rendiciones/obtener-rendicion/${id}`)
         .then((response) => {
-          console.log(response.data);
           setRendicionData(response.data);
         })
         .catch((error) => console.error(error));
@@ -187,12 +187,40 @@ const FormularioRendicionAdmin = () => {
               >
                 Total Tasa de Fiscalización y Control (Letras)
               </label>
-              <input
-                type="text"
-                id="tasaLetras"
+              <TextInput
                 value={tasa_fiscalizacion_letras}
-                disabled
-                className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-md shadow-sm cursor-not-allowed"
+                disabled={true}
+                onChange={() => {}} // Como es de solo lectura, se puede pasar una función vacía
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="tasaNumero"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Monto (Número)
+              </label>
+              {/* Se reemplaza el input de texto por NumericInput */}
+              <NumericInput
+                value={tasa_fiscalizacion_numero}
+                disabled={true}
+                onChange={() => {}} // Como es de solo lectura, se puede pasar una función vacía
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="tasaLetras"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Total Transferencia: Pesos (Letras)
+              </label>
+              <TextInput
+                value={tasa_fiscalizacion_letras}
+                disabled={true}
+                onChange={() => {}} // Como es de solo lectura, se puede pasar una función vacía
               />
             </div>
             <div>
