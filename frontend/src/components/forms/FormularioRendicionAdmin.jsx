@@ -108,7 +108,7 @@ const FormularioRendicionAdmin = () => {
                 id="fechaRendicion"
                 value={fecha_rendicion}
                 disabled
-                className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-md shadow-sm cursor-not-allowed"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
             <div>
@@ -123,7 +123,7 @@ const FormularioRendicionAdmin = () => {
                 id="fechaTransferencia"
                 value={fecha_transferencia}
                 disabled
-                className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-md shadow-sm cursor-not-allowed"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
           </div>
@@ -141,7 +141,7 @@ const FormularioRendicionAdmin = () => {
                 id="periodoAnio"
                 value={periodo_anio}
                 disabled
-                className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-md shadow-sm cursor-not-allowed"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
             <div>
@@ -156,7 +156,7 @@ const FormularioRendicionAdmin = () => {
                 id="periodoMes"
                 value={getNombreMes(periodo_mes)}
                 disabled
-                className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-md shadow-sm cursor-not-allowed"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
           </div>

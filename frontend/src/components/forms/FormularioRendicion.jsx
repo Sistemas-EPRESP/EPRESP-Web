@@ -178,7 +178,7 @@ const FormularioRendicion = () => {
                 name="fecha_rendicion"
                 value={new Date().toISOString().split("T")[0]}
                 disabled
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
           </div>
@@ -200,7 +200,7 @@ const FormularioRendicion = () => {
                     ? rendicionData.fecha_transferencia
                     : ""
                 }
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -224,7 +224,7 @@ const FormularioRendicion = () => {
                   ? rendicionData.periodo_mes.toString().padStart(2, "0")
                   : "01"
               }
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+              className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             >
               {monthNames.map((nombre, index) => {
                 const mesNumero = (index + 1).toString().padStart(2, "0");
@@ -250,7 +250,7 @@ const FormularioRendicion = () => {
               value={selectedYear}
               onChange={handleYearChange}
               required
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+              className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             >
               {years.map((year) => (
                 <option key={year} value={year}>
