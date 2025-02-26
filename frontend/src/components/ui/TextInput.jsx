@@ -1,33 +1,77 @@
-import { useState, useRef, useEffect } from "react";
+// TextInput.js
+import { useState, useRef, useEffect, forwardRef } from "react";
 
-const TextInput = ({ value = "", onChange, disabled = false }) => {
-  const inputRef = useRef(null);
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  useEffect(() => {
-    const checkOverflow = () => {
-      if (inputRef.current) {
-        setShowTooltip(
-          inputRef.current.scrollWidth > inputRef.current.clientWidth
-        );
+const TextInput = forwardRef(
+  (
+    {
+      defaultValue = "",
+      value: controlledValue,
+      onChange,
+      disabled = false,
+      maxLength,
+      onEnter,
+      ...rest
+    },
+    ref
+  ) => {
+    const localRef = useRef(null);
+    const setRefs = (el) => {
+      localRef.current = el;
+      if (typeof ref === "function") {
+        ref(el);
+      } else if (ref) {
+        ref.current = el;
       }
     };
 
-    checkOverflow();
-  }, [value]);
+    const [internalValue, setInternalValue] = useState(defaultValue);
+    const [showTooltip, setShowTooltip] = useState(false);
 
-  return (
-    <input
-      ref={inputRef}
-      type="text"
-      value={value}
-      onChange={(e) => onChange && onChange(e.target.value)}
-      disabled={disabled}
-      title={showTooltip ? value : ""} // Agrega el tooltip solo si el contenido es más grande que el input
-      className={`w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500
-        ${disabled ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""}`}
-    />
-  );
-};
+    const value =
+      controlledValue !== undefined ? controlledValue : internalValue;
+
+    useEffect(() => {
+      if (localRef.current) {
+        setShowTooltip(
+          localRef.current.scrollWidth > localRef.current.clientWidth
+        );
+      }
+    }, [value]);
+
+    const handleChange = (e) => {
+      if (onChange) {
+        onChange(e.target.value);
+      } else {
+        setInternalValue(e.target.value);
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (onEnter) onEnter();
+      }
+    };
+
+    return (
+      <input
+        ref={setRefs}
+        type="text"
+        value={value}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        disabled={disabled}
+        maxLength={maxLength}
+        title={showTooltip ? value : ""}
+        className={`w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+          disabled ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""
+        }`}
+        {...rest}
+      />
+    );
+  }
+);
+
+TextInput.displayName = "TextInput";
 
 export default TextInput;

@@ -10,43 +10,84 @@ import { formatCUIT } from "../../utils/formatCUIT";
 
 const FormularioRendicion = () => {
   const { cooperativa } = useContext(AuthContext);
-  const { id } = useParams(); // Si hay "id", estamos en modo actualización
+  const { id } = useParams(); // Si existe "id", estamos en modo actualización
   const isEditMode = Boolean(id);
 
-  // Estados para el modo update
-  const [loading, setLoading] = useState(isEditMode);
-  const [rendicionData, setRendicionData] = useState(null);
-
-  // Configuración de años y estado para el año seleccionado
   const currentYear = new Date().getFullYear();
   const years = Array.from(
     { length: currentYear - 2019 + 1 },
     (_, index) => 2019 + index
   );
-  const [selectedYear, setSelectedYear] = useState(currentYear.toString());
 
-  // Estado para las demandas
+  // Estado para valores del formulario (componentes controlados)
+  const [formValues, setFormValues] = useState({
+    fecha_transferencia: "",
+    periodo_mes: "01",
+    total_tasa_letras: "",
+    total_tasa: "",
+    total_transferencia_letras: "",
+    total_transferencia: "",
+    periodo_anio: currentYear.toString(),
+  });
+
+  // Función para transformar la data de demandas (si viene como arreglo) al formato que espera la tabla
+  const transformarDemandas = (demandasArray) => {
+    const mapeoTipos = {
+      residencial: "residencial",
+      comercial: "comercial",
+      industrial: "industrial",
+      grandes_usuarios: "grandesUsuarios",
+      contratos: "contratos",
+      otros: "otros",
+    };
+
+    if (Array.isArray(demandasArray)) {
+      return demandasArray.reduce((acc, item) => {
+        const key = mapeoTipos[item.tipo] || item.tipo;
+        acc[key] = {
+          facturacion: item.facturacion || "0.00",
+          tasaFiscalizacion: item.total_tasa_fiscalizacion || "0.00",
+          totalPercibido: item.total_percibido || "0.00",
+          totalTransferido: item.total_transferido || "0.00",
+          observaciones: item.observaciones || "",
+          id: item.id,
+        };
+        return acc;
+      }, {});
+    } else {
+      return demandasArray || {};
+    }
+  };
+
+  // Estado para demandas (se actualizará al transformar la data recibida)
   const [demandas, setDemandas] = useState({});
 
-  // Estado para mostrar mensajes de éxito o error
+  // Estado para carga y mensajes
+  const [loading, setLoading] = useState(isEditMode);
   const [mensaje, setMensaje] = useState("");
 
-  // Efecto para cargar datos existentes en modo actualización
+  // Carga de datos en modo actualización
   useEffect(() => {
     if (isEditMode) {
       axiosInstance
         .get(`/rendiciones/obtener-rendicion/${id}`)
         .then((response) => {
           const data = response.data;
-          setRendicionData(data);
-          // Se precargan algunos campos con los datos recibidos
-          setSelectedYear(
-            data.periodo_anio
+          setFormValues({
+            fecha_transferencia: data.fecha_transferencia || "",
+            periodo_mes: data.periodo_mes
+              ? data.periodo_mes.toString().padStart(2, "0")
+              : "01",
+            total_tasa_letras: data.tasa_fiscalizacion_letras || "",
+            total_tasa: data.tasa_fiscalizacion_numero || "",
+            total_transferencia_letras: data.total_transferencia_letras || "",
+            total_transferencia: data.total_transferencia_numero || "",
+            periodo_anio: data.periodo_anio
               ? data.periodo_anio.toString()
-              : currentYear.toString()
-          );
-          // Se asume que "Demandas" viene en el formato esperado (puedes adaptarlo si viene como array)
-          setDemandas(data.Demandas || {});
+              : currentYear.toString(),
+          });
+          // Transformamos la data de demandas para que tenga el formato correcto
+          setDemandas(transformarDemandas(data.Demandas));
           setLoading(false);
         })
         .catch((error) => {
@@ -61,10 +102,28 @@ const FormularioRendicion = () => {
     return <div>Cargando...</div>;
   }
 
-  const handleYearChange = (event) => {
-    setSelectedYear(event.target.value);
+  // Manejo de cambios en inputs controlados
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
+  // Calcular totales a partir de las demandas
+  const totalPercibido = Object.values(demandas).reduce(
+    (acc, cur) => acc + (parseFloat(cur.totalPercibido) || 0),
+    0
+  );
+  const totalTransferido = Object.values(demandas).reduce(
+    (acc, cur) => acc + (parseFloat(cur.totalTransferido) || 0),
+    0
+  );
+  // Condición: mostrar precauciones solo si totalTransferido es menor que totalPercibido
+  const shouldShowPrecauciones = totalTransferido < totalPercibido;
+
+  // Envío del formulario
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -74,9 +133,8 @@ const FormularioRendicion = () => {
     }
 
     const fechaActual = new Date().toISOString().split("T")[0];
-    const formData = new FormData(event.target);
 
-    // Preparar payload de demandas (se adapta el nombre de las claves para el backend)
+    // Preparar payload para demandas
     const demandasPayload = {};
     Object.keys(demandas).forEach((categoria) => {
       const key =
@@ -92,31 +150,28 @@ const FormularioRendicion = () => {
       };
     });
 
-    // Armado del objeto rendición
+    // Construir objeto rendición
     const rendicion = {
       fecha_rendicion: fechaActual,
-      fecha_transferencia: formData.get("fecha_transferencia"),
-      periodo_mes: parseInt(formData.get("periodo_rendicion"), 10),
-      periodo_anio: parseInt(selectedYear, 10),
-      tasa_fiscalizacion_letras: formData.get("total_tasa_letras") || "",
-      tasa_fiscalizacion_numero: parseFloat(formData.get("total_tasa")) || 0,
-      total_transferencia_letras:
-        formData.get("total_transferencia_letras") || "",
+      fecha_transferencia: formValues.fecha_transferencia,
+      periodo_mes: parseInt(formValues.periodo_mes, 10),
+      periodo_anio: parseInt(formValues.periodo_anio, 10),
+      tasa_fiscalizacion_letras: formValues.total_tasa_letras,
+      tasa_fiscalizacion_numero: parseFloat(formValues.total_tasa) || 0,
+      total_transferencia_letras: formValues.total_transferencia_letras,
       total_transferencia_numero:
-        parseFloat(formData.get("total_transferencia")) || 0,
+        parseFloat(formValues.total_transferencia) || 0,
       demandas: demandasPayload,
     };
 
     try {
       let response;
       if (isEditMode) {
-        // Actualizar registro existente (PUT)
         response = await axiosInstance.put(
           `/rendiciones/formulario-rendicion/${id}`,
           { rendicion }
         );
       } else {
-        // Crear un nuevo registro (POST)
         response = await axiosInstance.post(
           `/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`,
           { rendicion }
@@ -128,13 +183,28 @@ const FormularioRendicion = () => {
             ? "Rendición actualizada correctamente."
             : "Formulario enviado correctamente."
         );
-        // Opcional: redireccionar o resetear estados según convenga
       }
     } catch (error) {
       console.error(error);
       setMensaje(
         error.response?.data?.message || "Error al enviar la rendición."
       );
+    }
+  };
+
+  // Manejo del tabulado en el formulario
+  const handleFormKeyDown = (e) => {
+    if (e.key === "Enter") {
+      if (e.target.closest("table")) return;
+      e.preventDefault();
+      const form = e.target.form;
+      const focusable = form.querySelectorAll(
+        "input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])"
+      );
+      const index = Array.prototype.indexOf.call(focusable, e.target);
+      if (index > -1 && index < focusable.length - 1) {
+        focusable[index + 1].focus();
+      }
     }
   };
 
@@ -161,8 +231,12 @@ const FormularioRendicion = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Fecha de Rendición y Fecha de Transferencia */}
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={handleFormKeyDown}
+        className="space-y-6"
+      >
+        {/* Sección de fechas */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
             <label
@@ -178,7 +252,7 @@ const FormularioRendicion = () => {
                 name="fecha_rendicion"
                 value={new Date().toISOString().split("T")[0]}
                 disabled
-                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
           </div>
@@ -195,18 +269,15 @@ const FormularioRendicion = () => {
                 id="fecha_transferencia"
                 name="fecha_transferencia"
                 required
-                defaultValue={
-                  isEditMode && rendicionData
-                    ? rendicionData.fecha_transferencia
-                    : ""
-                }
+                value={formValues.fecha_transferencia}
+                onChange={handleInputChange}
                 className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
         </div>
 
-        {/* Período de Rendición */}
+        {/* Período de rendición */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
             <label
@@ -217,13 +288,10 @@ const FormularioRendicion = () => {
             </label>
             <select
               id="periodo_rendicion"
-              name="periodo_rendicion"
+              name="periodo_mes"
               required
-              defaultValue={
-                isEditMode && rendicionData
-                  ? rendicionData.periodo_mes.toString().padStart(2, "0")
-                  : "01"
-              }
+              value={formValues.periodo_mes}
+              onChange={handleInputChange}
               className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             >
               {monthNames.map((nombre, index) => {
@@ -236,7 +304,6 @@ const FormularioRendicion = () => {
               })}
             </select>
           </div>
-
           <div className="space-y-2">
             <label
               htmlFor="anio"
@@ -246,9 +313,9 @@ const FormularioRendicion = () => {
             </label>
             <select
               id="anio"
-              name="anio"
-              value={selectedYear}
-              onChange={handleYearChange}
+              name="periodo_anio"
+              value={formValues.periodo_anio}
+              onChange={handleInputChange}
               required
               className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             >
@@ -272,12 +339,9 @@ const FormularioRendicion = () => {
             </label>
             <TextInput
               name="total_tasa_letras"
-              defaultValue={
-                isEditMode && rendicionData
-                  ? rendicionData.tasa_fiscalizacion_letras
-                  : ""
-              }
-              onChange={() => {}}
+              value={formValues.total_tasa_letras}
+              onChange={handleInputChange}
+              maxLength={100}
             />
           </div>
           <div>
@@ -289,12 +353,8 @@ const FormularioRendicion = () => {
             </label>
             <NumericInput
               name="total_tasa"
-              defaultValue={
-                isEditMode && rendicionData
-                  ? rendicionData.tasa_fiscalizacion_numero
-                  : ""
-              }
-              onChange={() => {}}
+              value={formValues.total_tasa}
+              onChange={handleInputChange}
             />
           </div>
         </div>
@@ -310,12 +370,8 @@ const FormularioRendicion = () => {
             </label>
             <TextInput
               name="total_transferencia_letras"
-              defaultValue={
-                isEditMode && rendicionData
-                  ? rendicionData.total_transferencia_letras
-                  : ""
-              }
-              onChange={() => {}}
+              value={formValues.total_transferencia_letras}
+              onChange={handleInputChange}
             />
           </div>
           <div>
@@ -327,12 +383,8 @@ const FormularioRendicion = () => {
             </label>
             <NumericInput
               name="total_transferencia"
-              defaultValue={
-                isEditMode && rendicionData
-                  ? rendicionData.total_transferencia_numero
-                  : ""
-              }
-              onChange={() => {}}
+              value={formValues.total_transferencia}
+              onChange={handleInputChange}
             />
           </div>
         </div>
@@ -340,32 +392,21 @@ const FormularioRendicion = () => {
         {/* Integración de la Tabla de Demandas */}
         <TablaDemandas demandas={demandas} setDemandas={setDemandas} />
 
-        {/* Sección de Precauciones */}
-        <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
-          <h3 className="text-sm font-semibold text-yellow-800 mb-2">
-            Precauciones
-          </h3>
-          <ul className="list-disc pl-5 text-yellow-800 text-sm">
-            <li>
-              El total transferido no puede ser menor que el total percibido.
-              (Transferido:{" "}
-              {Object.values(demandas)
-                .reduce(
-                  (acc, cur) => acc + (parseFloat(cur.totalTransferido) || 0),
-                  0
-                )
-                .toFixed(2)}{" "}
-              vs. Percibido:{" "}
-              {Object.values(demandas)
-                .reduce(
-                  (acc, cur) => acc + (parseFloat(cur.totalPercibido) || 0),
-                  0
-                )
-                .toFixed(2)}
-              )
-            </li>
-          </ul>
-        </div>
+        {/* Precauciones: se muestra solo si totalTransferido es menor que totalPercibido */}
+        {shouldShowPrecauciones && (
+          <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
+            <h3 className="text-sm font-semibold text-yellow-800 mb-2">
+              Precauciones
+            </h3>
+            <ul className="list-disc pl-5 text-yellow-800 text-sm">
+              <li>
+                El total transferido no puede ser menor que el total percibido.
+                (Transferido: {totalTransferido.toFixed(2)} vs. Percibido:{" "}
+                {totalPercibido.toFixed(2)})
+              </li>
+            </ul>
+          </div>
+        )}
 
         <div className="pt-6 border-t">
           <button

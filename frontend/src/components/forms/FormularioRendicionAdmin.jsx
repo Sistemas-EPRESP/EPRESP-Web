@@ -15,18 +15,13 @@ const FormularioRendicionAdmin = () => {
     if (id) {
       axios
         .get(`/rendiciones/obtener-rendicion/${id}`)
-        .then((response) => {
-          setRendicionData(response.data);
-        })
+        .then((response) => setRendicionData(response.data))
         .catch((error) => console.error(error));
     }
   }, [id]);
 
-  if (!rendicionData) {
-    return <div>Cargando...</div>;
-  }
+  if (!rendicionData) return <div>Cargando...</div>;
 
-  // Desestructuramos la respuesta de la API
   const {
     Cooperativa,
     fecha_rendicion,
@@ -35,17 +30,15 @@ const FormularioRendicionAdmin = () => {
     periodo_mes,
     tasa_fiscalizacion_letras,
     tasa_fiscalizacion_numero,
-    Demandas, // Es un array
+    Demandas,
   } = rendicionData;
 
-  // Función para transformar el array de demandas en el formato que espera TablaDemandas
   const transformarDemandas = (demandasArray) => {
-    // Mapeo para convertir el "tipo" de la API a la clave esperada en la tabla
     const mapeoTipos = {
       residencial: "residencial",
       comercial: "comercial",
       industrial: "industrial",
-      grandes_usuarios: "grandesUsuarios", // Convierte "grandes_usuarios" a "grandesUsuarios"
+      grandes_usuarios: "grandesUsuarios",
       contratos: "contratos",
       otros: "otros",
     };
@@ -54,7 +47,6 @@ const FormularioRendicionAdmin = () => {
       const key = mapeoTipos[item.tipo] || item.tipo;
       acc[key] = {
         facturacion: item.facturacion || "0.00",
-        // Renombramos las propiedades para que coincidan con lo que usa TablaDemandas
         tasaFiscalizacion: item.total_tasa_fiscalizacion || "0.00",
         totalPercibido: item.total_percibido || "0.00",
         totalTransferido: item.total_transferido || "0.00",
@@ -65,7 +57,6 @@ const FormularioRendicionAdmin = () => {
     }, {});
   };
 
-  // Transformamos el array de Demandas
   const demandasTransformadas = transformarDemandas(Demandas);
 
   return (
@@ -75,7 +66,6 @@ const FormularioRendicionAdmin = () => {
           Vista Administrador: Rendición
         </h1>
 
-        {/* Información de la cooperativa */}
         <div className="bg-gray-50 rounded-lg shadow-sm p-6 mb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -93,7 +83,6 @@ const FormularioRendicionAdmin = () => {
           </div>
         </div>
 
-        {/* Datos de rendición en modo solo lectura */}
         <div className="space-y-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
@@ -108,7 +97,7 @@ const FormularioRendicionAdmin = () => {
                 id="fechaRendicion"
                 value={fecha_rendicion}
                 disabled
-                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
             <div>
@@ -123,7 +112,7 @@ const FormularioRendicionAdmin = () => {
                 id="fechaTransferencia"
                 value={fecha_transferencia}
                 disabled
-                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
           </div>
@@ -141,7 +130,7 @@ const FormularioRendicionAdmin = () => {
                 id="periodoAnio"
                 value={periodo_anio}
                 disabled
-                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
             <div>
@@ -156,7 +145,7 @@ const FormularioRendicionAdmin = () => {
                 id="periodoMes"
                 value={getNombreMes(periodo_mes)}
                 disabled
-                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 cursor-not-allowed text-gray-500"
+                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
           </div>
@@ -171,8 +160,8 @@ const FormularioRendicionAdmin = () => {
               </label>
               <TextInput
                 value={tasa_fiscalizacion_letras}
-                disabled={true}
-                onChange={() => {}} // Como es de solo lectura, se puede pasar una función vacía
+                disabled
+                onChange={() => {}}
               />
             </div>
             <div>
@@ -184,8 +173,8 @@ const FormularioRendicionAdmin = () => {
               </label>
               <NumericInput
                 value={tasa_fiscalizacion_numero}
-                disabled={true}
-                onChange={() => {}} // Como es de solo lectura, se puede pasar una función vacía
+                disabled
+                onChange={() => {}}
               />
             </div>
           </div>
@@ -193,38 +182,37 @@ const FormularioRendicionAdmin = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label
-                htmlFor="tasaLetras"
+                htmlFor="transferenciaLetras"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 Total Transferencia: Pesos (Letras)
               </label>
               <TextInput
                 value={tasa_fiscalizacion_letras}
-                disabled={true}
-                onChange={() => {}} // Como es de solo lectura, se puede pasar una función vacía
+                disabled
+                onChange={() => {}}
               />
             </div>
             <div>
               <label
-                htmlFor="tasaNumero"
+                htmlFor="transferenciaNumero"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 Monto (Número)
               </label>
               <NumericInput
                 value={tasa_fiscalizacion_numero}
-                disabled={true}
-                onChange={() => {}} // Como es de solo lectura, se puede pasar una función vacía
+                disabled
+                onChange={() => {}}
               />
             </div>
           </div>
 
-          {/* Sección para la tabla de demandas */}
           <div className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Tabla de Demandas
             </h2>
-            <TablaDemandas demandas={demandasTransformadas} disabled={true} />
+            <TablaDemandas demandas={demandasTransformadas} disabled />
           </div>
         </div>
       </div>
