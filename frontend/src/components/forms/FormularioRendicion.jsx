@@ -7,6 +7,7 @@ import { AuthContext } from "../../context/AuthContext";
 import axiosInstance from "../../config/AxiosConfig";
 import { monthNames } from "../../utils/dateUtils";
 import { formatCUIT } from "../../utils/formatCUIT";
+import FileUpload from "../ui/FileUpload";
 
 const FormularioRendicion = () => {
   const { cooperativa } = useContext(AuthContext);
@@ -30,7 +31,45 @@ const FormularioRendicion = () => {
     periodo_anio: currentYear.toString(),
   });
 
-  // Función para transformar la data de demandas (si viene como arreglo) al formato que espera la tabla
+  // Estado para demandas
+  const [demandas, setDemandas] = useState({});
+
+  // Estado para carga, mensajes y archivo PDF
+  const [loading, setLoading] = useState(isEditMode);
+  const [mensaje, setMensaje] = useState("");
+  const [setPdfFile] = useState(null);
+
+  // Carga de datos en modo actualización
+  useEffect(() => {
+    if (isEditMode) {
+      axiosInstance
+        .get(`/rendiciones/obtener-rendicion/${id}`)
+        .then((response) => {
+          const data = response.data;
+          setFormValues({
+            fecha_transferencia: data.fecha_transferencia || "",
+            periodo_mes: data.periodo_mes
+              ? data.periodo_mes.toString().padStart(2, "0")
+              : "01",
+            total_tasa_letras: data.tasa_fiscalizacion_letras || "",
+            total_tasa: data.tasa_fiscalizacion_numero || "",
+            total_transferencia_letras: data.total_transferencia_letras || "",
+            total_transferencia: data.total_transferencia_numero || "",
+            periodo_anio: data.periodo_anio
+              ? data.periodo_anio.toString()
+              : currentYear.toString(),
+          });
+          setDemandas(transformarDemandas(data.Demandas));
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setMensaje("Error al cargar los datos de la rendición.");
+          setLoading(false);
+        });
+    }
+  }, [id, isEditMode, currentYear]);
+
   const transformarDemandas = (demandasArray) => {
     const mapeoTipos = {
       residencial: "residencial",
@@ -59,45 +98,6 @@ const FormularioRendicion = () => {
     }
   };
 
-  // Estado para demandas (se actualizará al transformar la data recibida)
-  const [demandas, setDemandas] = useState({});
-
-  // Estado para carga y mensajes
-  const [loading, setLoading] = useState(isEditMode);
-  const [mensaje, setMensaje] = useState("");
-
-  // Carga de datos en modo actualización
-  useEffect(() => {
-    if (isEditMode) {
-      axiosInstance
-        .get(`/rendiciones/obtener-rendicion/${id}`)
-        .then((response) => {
-          const data = response.data;
-          setFormValues({
-            fecha_transferencia: data.fecha_transferencia || "",
-            periodo_mes: data.periodo_mes
-              ? data.periodo_mes.toString().padStart(2, "0")
-              : "01",
-            total_tasa_letras: data.tasa_fiscalizacion_letras || "",
-            total_tasa: data.tasa_fiscalizacion_numero || "",
-            total_transferencia_letras: data.total_transferencia_letras || "",
-            total_transferencia: data.total_transferencia_numero || "",
-            periodo_anio: data.periodo_anio
-              ? data.periodo_anio.toString()
-              : currentYear.toString(),
-          });
-          // Transformamos la data de demandas para que tenga el formato correcto
-          setDemandas(transformarDemandas(data.Demandas));
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error(error);
-          setMensaje("Error al cargar los datos de la rendición.");
-          setLoading(false);
-        });
-    }
-  }, [id, isEditMode, currentYear]);
-
   if (isEditMode && loading) {
     return <div>Cargando...</div>;
   }
@@ -120,7 +120,6 @@ const FormularioRendicion = () => {
     (acc, cur) => acc + (parseFloat(cur.totalTransferido) || 0),
     0
   );
-  // Condición: mostrar precauciones solo si totalTransferido es menor que totalPercibido
   const shouldShowPrecauciones = totalTransferido < totalPercibido;
 
   // Envío del formulario
@@ -134,7 +133,6 @@ const FormularioRendicion = () => {
 
     const fechaActual = new Date().toISOString().split("T")[0];
 
-    // Preparar payload para demandas
     const demandasPayload = {};
     Object.keys(demandas).forEach((categoria) => {
       const key =
@@ -150,7 +148,6 @@ const FormularioRendicion = () => {
       };
     });
 
-    // Construir objeto rendición
     const rendicion = {
       fecha_rendicion: fechaActual,
       fecha_transferencia: formValues.fecha_transferencia,
@@ -162,6 +159,8 @@ const FormularioRendicion = () => {
       total_transferencia_numero:
         parseFloat(formValues.total_transferencia) || 0,
       demandas: demandasPayload,
+      // Por ahora no se envía el archivo, solo se visualiza
+      // archivo: pdfFile
     };
 
     try {
@@ -192,7 +191,6 @@ const FormularioRendicion = () => {
     }
   };
 
-  // Manejo del tabulado en el formulario
   const handleFormKeyDown = (e) => {
     if (e.key === "Enter") {
       if (e.target.closest("table")) return;
@@ -234,7 +232,7 @@ const FormularioRendicion = () => {
       <form
         onSubmit={handleSubmit}
         onKeyDown={handleFormKeyDown}
-        className="space-y-6"
+        className="space-y-10"
       >
         {/* Sección de fechas */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -391,6 +389,11 @@ const FormularioRendicion = () => {
 
         {/* Integración de la Tabla de Demandas */}
         <TablaDemandas demandas={demandas} setDemandas={setDemandas} />
+
+        {/* Opción para subir comprobante de pago (solo estética) */}
+        <div className="mt-6">
+          <FileUpload onChange={(file) => setPdfFile(file)} />
+        </div>
 
         {/* Precauciones: se muestra solo si totalTransferido es menor que totalPercibido */}
         {shouldShowPrecauciones && (
