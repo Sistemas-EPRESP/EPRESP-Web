@@ -14,6 +14,21 @@ const createFormularioRendicion = async (req, res) => {
   }
 };
 
+const updateFormularioRendicion = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const formulario = req.body;
+
+    await rendicionServices.modificarFormulario(formulario, id);
+
+    return res
+      .status(200)
+      .json({ message: 'Formulario modificado correctamente' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 const obtenerRendicion = async (req, res) => {
   try {
     const { id } = req.params;
@@ -26,4 +41,23 @@ const obtenerRendicion = async (req, res) => {
   }
 };
 
-module.exports = { createFormularioRendicion, obtenerRendicion };
+const aprobarRendicion = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await rendicionServices.aprobarRendicion(id);
+
+    return res
+      .status(200)
+      .json({ message: 'Rendición aprobada correctamente' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  createFormularioRendicion,
+  updateFormularioRendicion,
+  obtenerRendicion,
+  aprobarRendicion,
+};
