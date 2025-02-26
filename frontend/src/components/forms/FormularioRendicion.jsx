@@ -5,6 +5,7 @@ import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
 import { AuthContext } from "../../context/AuthContext";
 import axiosInstance from "../../config/AxiosConfig";
+import { monthNames } from "../../utils/dateUtils";
 
 const FormularioRendicion = () => {
   const { cooperativa } = useContext(AuthContext);
@@ -229,22 +230,20 @@ const FormularioRendicion = () => {
               name="periodo_rendicion"
               required
               defaultValue={
-                isEditMode && rendicionData ? rendicionData.periodo_mes : "01"
+                isEditMode && rendicionData
+                  ? rendicionData.periodo_mes.toString().padStart(2, "0")
+                  : "01"
               }
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
             >
-              <option value="01">Enero</option>
-              <option value="02">Febrero</option>
-              <option value="03">Marzo</option>
-              <option value="04">Abril</option>
-              <option value="05">Mayo</option>
-              <option value="06">Junio</option>
-              <option value="07">Julio</option>
-              <option value="08">Agosto</option>
-              <option value="09">Septiembre</option>
-              <option value="10">Octubre</option>
-              <option value="11">Noviembre</option>
-              <option value="12">Diciembre</option>
+              {monthNames.map((nombre, index) => {
+                const mesNumero = (index + 1).toString().padStart(2, "0");
+                return (
+                  <option key={mesNumero} value={mesNumero}>
+                    {nombre}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
