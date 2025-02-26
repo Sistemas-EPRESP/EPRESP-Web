@@ -1,4 +1,5 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
 import TablaDemandas from "../tables/TablaDemandas";
 import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
@@ -7,8 +8,14 @@ import axiosInstance from "../../config/AxiosConfig";
 
 const FormularioRendicion = () => {
   const { cooperativa } = useContext(AuthContext);
+  const { id } = useParams(); // Si hay "id", estamos en modo actualización
+  const isEditMode = Boolean(id);
 
-  // Configuración de los años para el select
+  // Estados para el modo update
+  const [loading, setLoading] = useState(isEditMode);
+  const [rendicionData, setRendicionData] = useState(null);
+
+  // Configuración de años y estado para el año seleccionado
   const currentYear = new Date().getFullYear();
   const years = Array.from(
     { length: currentYear - 2019 + 1 },
@@ -16,28 +23,46 @@ const FormularioRendicion = () => {
   );
   const [selectedYear, setSelectedYear] = useState(currentYear.toString());
 
-  // Estado para la tabla de demandas (se muestra en pantalla con valores por defecto)
+  // Estado para las demandas
   const [demandas, setDemandas] = useState({});
 
   // Estado para mostrar mensajes de éxito o error
   const [mensaje, setMensaje] = useState("");
 
-  // Cálculo de totales a partir de las demandas
-  const totalPercibido = Object.values(demandas).reduce(
-    (acc, cur) => acc + (parseFloat(cur.totalPercibido) || 0),
-    0
-  );
-  const totalTransferido = Object.values(demandas).reduce(
-    (acc, cur) => acc + (parseFloat(cur.totalTransferido) || 0),
-    0
-  );
+  // Efecto para cargar datos existentes en modo actualización
+  useEffect(() => {
+    if (isEditMode) {
+      axiosInstance
+        .get(`/rendiciones/obtener-rendicion/${id}`)
+        .then((response) => {
+          const data = response.data;
+          setRendicionData(data);
+          // Se precargan algunos campos con los datos recibidos
+          setSelectedYear(
+            data.periodo_anio
+              ? data.periodo_anio.toString()
+              : currentYear.toString()
+          );
+          // Se asume que "Demandas" viene en el formato esperado (puedes adaptarlo si viene como array)
+          setDemandas(data.Demandas || {});
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setMensaje("Error al cargar los datos de la rendición.");
+          setLoading(false);
+        });
+    }
+  }, [id, isEditMode, currentYear]);
 
-  // Actualiza el año seleccionado
+  if (isEditMode && loading) {
+    return <div>Cargando...</div>;
+  }
+
   const handleYearChange = (event) => {
     setSelectedYear(event.target.value);
   };
 
-  // Función que recopila los datos y los envía al backend
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -49,10 +74,9 @@ const FormularioRendicion = () => {
     const fechaActual = new Date().toISOString().split("T")[0];
     const formData = new FormData(event.target);
 
-    // Preparar el payload de demandas a partir del estado actual de la tabla
+    // Preparar payload de demandas (se adapta el nombre de las claves para el backend)
     const demandasPayload = {};
     Object.keys(demandas).forEach((categoria) => {
-      // Convertir "grandesUsuarios" a "grandes_usuarios" para el backend
       const key =
         categoria === "grandesUsuarios" ? "grandes_usuarios" : categoria;
       demandasPayload[key] = {
@@ -66,7 +90,7 @@ const FormularioRendicion = () => {
       };
     });
 
-    // Armar el objeto que se enviará al backend
+    // Armado del objeto rendición
     const rendicion = {
       fecha_rendicion: fechaActual,
       fecha_transferencia: formData.get("fecha_transferencia"),
@@ -82,13 +106,27 @@ const FormularioRendicion = () => {
     };
 
     try {
-      const response = await axiosInstance.post(
-        `/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`,
-        { rendicion }
-      );
+      let response;
+      if (isEditMode) {
+        // Actualizar registro existente (PUT)
+        response = await axiosInstance.put(
+          `/rendiciones/formulario-rendicion/${id}`,
+          { rendicion }
+        );
+      } else {
+        // Crear un nuevo registro (POST)
+        response = await axiosInstance.post(
+          `/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`,
+          { rendicion }
+        );
+      }
       if (response.status === 200 || response.status === 201) {
-        setMensaje("Formulario enviado correctamente.");
-        // Opcional: se pueden resetear los estados o limpiar el formulario
+        setMensaje(
+          isEditMode
+            ? "Rendición actualizada correctamente."
+            : "Formulario enviado correctamente."
+        );
+        // Opcional: redireccionar o resetear estados según convenga
       }
     } catch (error) {
       console.error(error);
@@ -166,6 +204,11 @@ const FormularioRendicion = () => {
                 id="fecha_transferencia"
                 name="fecha_transferencia"
                 required
+                defaultValue={
+                  isEditMode && rendicionData
+                    ? rendicionData.fecha_transferencia
+                    : ""
+                }
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
               />
             </div>
@@ -185,6 +228,9 @@ const FormularioRendicion = () => {
               id="periodo_rendicion"
               name="periodo_rendicion"
               required
+              defaultValue={
+                isEditMode && rendicionData ? rendicionData.periodo_mes : "01"
+              }
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
             >
               <option value="01">Enero</option>
@@ -235,7 +281,15 @@ const FormularioRendicion = () => {
             >
               Total Tasa de Fiscalización y Control (Letras)
             </label>
-            <TextInput name="total_tasa_letras" onChange={() => {}} />
+            <TextInput
+              name="total_tasa_letras"
+              defaultValue={
+                isEditMode && rendicionData
+                  ? rendicionData.tasa_fiscalizacion_letras
+                  : ""
+              }
+              onChange={() => {}}
+            />
           </div>
           <div>
             <label
@@ -244,7 +298,15 @@ const FormularioRendicion = () => {
             >
               Monto (Número)
             </label>
-            <NumericInput name="total_tasa" onChange={() => {}} />
+            <NumericInput
+              name="total_tasa"
+              defaultValue={
+                isEditMode && rendicionData
+                  ? rendicionData.tasa_fiscalizacion_numero
+                  : ""
+              }
+              onChange={() => {}}
+            />
           </div>
         </div>
 
@@ -257,7 +319,15 @@ const FormularioRendicion = () => {
             >
               Total Transferencia: Pesos (Letras)
             </label>
-            <TextInput name="total_transferencia_letras" onChange={() => {}} />
+            <TextInput
+              name="total_transferencia_letras"
+              defaultValue={
+                isEditMode && rendicionData
+                  ? rendicionData.total_transferencia_letras
+                  : ""
+              }
+              onChange={() => {}}
+            />
           </div>
           <div>
             <label
@@ -266,7 +336,15 @@ const FormularioRendicion = () => {
             >
               Monto (Número)
             </label>
-            <NumericInput name="total_transferencia" onChange={() => {}} />
+            <NumericInput
+              name="total_transferencia"
+              defaultValue={
+                isEditMode && rendicionData
+                  ? rendicionData.total_transferencia_numero
+                  : ""
+              }
+              onChange={() => {}}
+            />
           </div>
         </div>
 
@@ -281,10 +359,22 @@ const FormularioRendicion = () => {
           <ul className="list-disc pl-5 text-yellow-800 text-sm">
             <li>
               El total transferido no puede ser menor que el total percibido.
-              (Transferido: {totalTransferido.toFixed(2)} vs. Percibido:{" "}
-              {totalPercibido.toFixed(2)})
+              (Transferido:{" "}
+              {Object.values(demandas)
+                .reduce(
+                  (acc, cur) => acc + (parseFloat(cur.totalTransferido) || 0),
+                  0
+                )
+                .toFixed(2)}{" "}
+              vs. Percibido:{" "}
+              {Object.values(demandas)
+                .reduce(
+                  (acc, cur) => acc + (parseFloat(cur.totalPercibido) || 0),
+                  0
+                )
+                .toFixed(2)}
+              )
             </li>
-            {/* Agrega más items de precaución si lo consideras necesario */}
           </ul>
         </div>
 
@@ -293,7 +383,7 @@ const FormularioRendicion = () => {
             type="submit"
             className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            Enviar Formulario
+            {isEditMode ? "Actualizar Rendición" : "Enviar Formulario"}
           </button>
         </div>
       </form>

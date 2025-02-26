@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { monthNames } from "../utils/dateUtils"; // Ajusta la ruta según tu estructura
+import { AuthContext } from "../context/AuthContext";
+import { useContext } from "react";
 
 const MonthCard = ({ month, approved, submitted, idRendicion }) => {
+  const { cooperativa } = useContext(AuthContext);
   const navigate = useNavigate(); // Hook para la navegación
 
   const baseClasses =
@@ -12,9 +15,14 @@ const MonthCard = ({ month, approved, submitted, idRendicion }) => {
     : "";
 
   const handleCardClick = () => {
-    if (idRendicion) {
-      navigate(`/administrador/rendiciones/${idRendicion}`);
-    }
+    if (!idRendicion) return;
+
+    const path =
+      cooperativa.tipo === "cooperativa"
+        ? `/rendiciones/${idRendicion}`
+        : `/administrador/rendiciones/${idRendicion}`;
+
+    navigate(path);
   };
 
   return (

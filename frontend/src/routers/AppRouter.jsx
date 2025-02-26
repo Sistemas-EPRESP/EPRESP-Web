@@ -16,7 +16,8 @@ const AppRouter = () => {
       {/* Rutas para cooperativa */}
       <Route element={<ProtectedRoute allowedRoles={["cooperativa"]} />}>
         <Route path="/rendiciones" element={<CooperativaRendicionesPage />} />
-        <Route path="/formulario/rendicion" element={<RendicionPage />} />
+        {/* <Route path="/formulario/rendicion" element={<RendicionPage />} /> */}
+        <Route path="/rendiciones/:id" element={<RendicionPage />} />
       </Route>
 
       {/* Rutas para administrador */}
