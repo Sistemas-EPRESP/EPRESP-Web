@@ -40,7 +40,7 @@ const CooperativaRendicionesPage = () => {
       {rendiciones.length > 0 ? (
         <div>
           {years.map((year) => (
-            <YearGrid key={year} year={year} renditions={rendiciones} />
+            <YearGrid key={year} year={year} rendiciones={rendiciones} />
           ))}
         </div>
       ) : (

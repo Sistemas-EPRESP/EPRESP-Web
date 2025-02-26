@@ -1,18 +1,18 @@
 import { useMemo, useState } from "react";
 import MonthCard from "./MonthCard";
 
-const YearGrid = ({ year, renditions }) => {
+const YearGrid = ({ year, rendiciones = [] }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   const stats = useMemo(() => {
     // Filtrar las rendiciones que correspondan al año indicado usando 'periodo_anio'
-    const yearRenditions = renditions.filter((r) => r.periodo_anio === year);
+    const yearRendiciones = rendiciones.filter((r) => r.periodo_anio === year);
     // Se asume que cada registro indica que la rendición fue enviada
-    const submitted = yearRenditions.length;
-    const approved = yearRenditions.filter((r) => r.aprobado).length;
+    const submitted = yearRendiciones.length;
+    const approved = yearRendiciones.filter((r) => r.aprobado).length;
     return { submitted, approved };
-  }, [renditions, year]);
+  }, [rendiciones, year]);
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6">
@@ -38,7 +38,7 @@ const YearGrid = ({ year, renditions }) => {
         <div className="mt-4 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
           {months.map((month) => {
             // Buscar la rendición correspondiente para ese mes y año
-            const rendition = renditions.find(
+            const rendition = rendiciones.find(
               (r) => r.periodo_mes === month && r.periodo_anio === year
             );
             return (
@@ -47,6 +47,7 @@ const YearGrid = ({ year, renditions }) => {
                 month={month}
                 approved={rendition?.aprobado || false}
                 submitted={!!rendition}
+                idRendicion={rendition?.id}
               />
             );
           })}
