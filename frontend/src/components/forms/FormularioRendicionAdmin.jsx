@@ -4,7 +4,8 @@ import TablaDemandas from "../tables/TablaDemandas";
 import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
 import axios from "../../config/AxiosConfig";
-import { getNombreMes } from "../../utils/dateUtils"; // Importamos la función de utilidades
+import { getNombreMes } from "../../utils/dateUtils";
+import { formatCUIT } from "../../utils/formatCUIT";
 
 const FormularioRendicionAdmin = () => {
   const { id } = useParams();
@@ -86,7 +87,7 @@ const FormularioRendicionAdmin = () => {
             <div>
               <h2 className="text-sm font-medium text-gray-500">CUIT</h2>
               <p className="text-lg font-semibold text-gray-900">
-                {Cooperativa.cuit}
+                {formatCUIT(Cooperativa.cuit)}
               </p>
             </div>
           </div>

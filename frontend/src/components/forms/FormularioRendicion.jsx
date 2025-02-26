@@ -6,6 +6,7 @@ import TextInput from "../ui/TextInput";
 import { AuthContext } from "../../context/AuthContext";
 import axiosInstance from "../../config/AxiosConfig";
 import { monthNames } from "../../utils/dateUtils";
+import { formatCUIT } from "../../utils/formatCUIT";
 
 const FormularioRendicion = () => {
   const { cooperativa } = useContext(AuthContext);
@@ -135,17 +136,6 @@ const FormularioRendicion = () => {
         error.response?.data?.message || "Error al enviar la rendición."
       );
     }
-  };
-
-  // Función para formatear el CUIT
-  const formatCUIT = (cuit) => {
-    const cuitStr = cuit.toString();
-    if (cuitStr.length === 11) {
-      return `${cuitStr.slice(0, 2)}-${cuitStr.slice(2, 10)}-${cuitStr.slice(
-        10
-      )}`;
-    }
-    return cuitStr;
   };
 
   return (
