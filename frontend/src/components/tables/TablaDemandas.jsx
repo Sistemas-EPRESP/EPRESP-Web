@@ -1,7 +1,7 @@
 import { useMemo, useRef } from "react";
 import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
-import { formatPesos } from "../../utils/formatPesos";
+import { formatPesos, parsePesos } from "../../utils/formatPesos";
 import { getNombreMes, getNombreMesAnterior } from "../../utils/dateUtils";
 
 const TablaDemandas = ({
@@ -54,7 +54,7 @@ const TablaDemandas = ({
     return defaults;
   };
 
-  // 4. Calcular las demandas fusionadas (si el estado del padre cambia, se recalcula)
+  // 4. Calcular las demandas fusionadas (se recalcula si cambia el estado del padre)
   const mergedDemandas = useMemo(() => mergeDemandas(demandas), [demandas, rowOrder]);
 
   // 5. Calcular los totales basados en las demandas fusionadas
@@ -68,10 +68,11 @@ const TablaDemandas = ({
 
     rowOrder.forEach((row) => {
       const data = mergedDemandas[row.key] || {};
-      newTotals.facturacion += parseFloat(data.facturacion || "0");
-      newTotals.tasaFiscalizacion += parseFloat(data.tasaFiscalizacion || "0");
-      newTotals.totalPercibido += parseFloat(data.totalPercibido || "0");
-      newTotals.totalTransferido += parseFloat(data.totalTransferido || "0");
+      // Se reemplaza la coma decimal por el punto y se fuerza la conversión a número
+      newTotals.facturacion += parsePesos(data.facturacion);
+      newTotals.tasaFiscalizacion += parsePesos(data.tasaFiscalizacion);
+      newTotals.totalPercibido += parsePesos(data.totalPercibido);
+      newTotals.totalTransferido += parsePesos(data.totalTransferido);
     });
 
     return {
@@ -87,14 +88,21 @@ const TablaDemandas = ({
   // 6. Función para actualizar el valor de una celda vía setDemandas
   const handleCellChange = (rowKey, field, newValue) => {
     if (disabled || !setDemandas) return;
-    setDemandas((prev) => ({
-      ...prev,
-      [rowKey]: {
+    setDemandas((prev) => {
+      const updatedRow = {
         ...getDefaultDemandas()[rowKey],
         ...prev[rowKey],
         [field]: newValue,
-      },
-    }));
+      };
+      // Si la celda es de "facturacion", recalculamos la tasa de fiscalización automáticamente.
+      if (field === "facturacion") {
+        updatedRow.tasaFiscalizacion = (parsePesos(newValue) * 0.01).toFixed(2);
+      }
+      return {
+        ...prev,
+        [rowKey]: updatedRow,
+      };
+    });
   };
 
   // 7. Configuración de refs para celdas focusables
@@ -105,7 +113,7 @@ const TablaDemandas = ({
   // 8. Función auxiliar para calcular la tasa de fiscalización
   const calculateTasaFiscalizacion = (rowIndex) => {
     const rowKey = rowOrder[rowIndex].key;
-    const factValue = parseFloat(mergedDemandas[rowKey]?.facturacion || "0");
+    const factValue = Number(mergedDemandas[rowKey]?.facturacion?.toString().replace(",", ".") || 0);
     return (factValue * 0.01).toFixed(2);
   };
 
@@ -122,7 +130,7 @@ const TablaDemandas = ({
     return { nextRow, nextCol };
   };
 
-  // 10. Manejo del evento Enter: se calcula la tasa si es la celda de "Facturación" y se mueve el foco
+  // 10. Manejo del evento Enter: calcula la tasa si es la celda "Facturación" y mueve el foco
   const handleEnter = (rowIndex, colIndex) => {
     if (colIndex === 0) {
       const rowKey = rowOrder[rowIndex].key;
