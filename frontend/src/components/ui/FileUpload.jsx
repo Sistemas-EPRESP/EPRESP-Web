@@ -1,90 +1,77 @@
-import { useState } from "react";
-
-// Función auxiliar para concatenar clases condicionalmente
-function cn(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+import { useCallback, useEffect, useState } from "react";
+import { useDropzone } from "react-dropzone";
 
 const FileUpload = ({ onChange }) => {
-  const [file, setFile] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [preview, setPreview] = useState(null);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files && e.target.files[0];
-    if (selectedFile && selectedFile.type === "application/pdf") {
-      setFile(selectedFile);
-      if (onChange) onChange(selectedFile);
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      if (acceptedFiles.length) {
+        const file = acceptedFiles[0];
+        setSelectedFile(file);
+        onChange(file);
+      }
+    },
+    [onChange]
+  );
+
+  const { getRootProps, getInputProps, isDragActive, isDragReject } =
+    useDropzone({
+      onDrop,
+      accept: { "application/pdf": [".pdf"], "image/*": [] },
+      multiple: false,
+    });
+
+  useEffect(() => {
+    if (selectedFile && selectedFile.type.startsWith("image/")) {
+      const objectUrl = URL.createObjectURL(selectedFile);
+      setPreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
     }
-  };
+    setPreview(null);
+  }, [selectedFile]);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const droppedFile = e.dataTransfer.files && e.dataTransfer.files[0];
-    if (droppedFile && droppedFile.type === "application/pdf") {
-      setFile(droppedFile);
-      if (onChange) onChange(droppedFile);
-    }
-  };
-
-  const removeFile = (e) => {
-    e.stopPropagation(); // Evita que se active la carga del archivo
-    setFile(null);
-    if (onChange) onChange(null);
-  };
+  const baseClasses =
+    "border-2 border-dashed p-6 text-center cursor-pointer rounded-md transition-colors";
+  const borderClasses = isDragActive
+    ? "border-green-500"
+    : isDragReject
+    ? "border-red-500"
+    : "border-gray-300";
 
   return (
-    <div className="w-full space-y-2">
-      <span className="text-sm font-medium">
-        Comprobante de Pago (solo PDF)
-      </span>
-      <label
-        htmlFor="pdfFile"
-        className={cn(
-          "relative block border-2 border-dashed rounded-lg cursor-pointer",
-          isDragging ? "border-blue-500 bg-blue-50" : "",
-          file ? "border-solid border-blue-300" : "border-gray-300"
-        )}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <input
-          id="pdfFile"
-          type="file"
-          accept="application/pdf"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-        <div className="flex flex-col items-center justify-center w-full min-h-[120px] p-4">
-          {!file ? (
-            <p className="text-sm text-gray-600 text-center px-4">
-              Haz clic o arrastra tu comprobante PDF aquí
-            </p>
-          ) : (
-            <div className="relative w-full flex items-center justify-center">
-              <span className="text-sm truncate">{file.name}</span>
-              <button
-                type="button"
-                onClick={removeFile}
-                className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-lg font-bold"
-              >
-                X
-              </button>
-            </div>
+    <div {...getRootProps({ className: `${baseClasses} ${borderClasses}` })}>
+      <input {...getInputProps()} />
+      {selectedFile ? (
+        <div className="flex flex-col items-center">
+          <div className="flex justify-between items-center w-full">
+            <span className="truncate">{selectedFile.name}</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedFile(null);
+                onChange(null);
+              }}
+              className="ml-2 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+            >
+              Quitar
+            </button>
+          </div>
+          {preview && (
+            <img
+              src={preview}
+              alt="Vista previa"
+              className="mt-2 max-h-64 object-contain"
+            />
           )}
         </div>
-      </label>
+      ) : (
+        <p className="text-gray-600">
+          Arrastra y suelta un archivo PDF o haz clic para seleccionarlo.
+        </p>
+      )}
     </div>
   );
 };
