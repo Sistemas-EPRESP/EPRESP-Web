@@ -2,12 +2,13 @@ import { useMemo, useRef } from "react";
 import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
 import { formatPesos } from "../../utils/formatPesos";
+import { getNombreMes, getNombreMesAnterior } from "../../utils/dateUtils";
 
 const TablaDemandas = ({
   demandas,
   setDemandas,
   disabled = false,
-  previousMonthName,
+  selectedMonth, // Se recibe el mes seleccionado (número entero)
 }) => {
   // 1. Definir el orden y etiquetas fijas de las filas
   const rowOrder = useMemo(
@@ -54,10 +55,7 @@ const TablaDemandas = ({
   };
 
   // 4. Calcular las demandas fusionadas (si el estado del padre cambia, se recalcula)
-  const mergedDemandas = useMemo(
-    () => mergeDemandas(demandas),
-    [demandas, rowOrder]
-  );
+  const mergedDemandas = useMemo(() => mergeDemandas(demandas), [demandas, rowOrder]);
 
   // 5. Calcular los totales basados en las demandas fusionadas
   const totals = useMemo(() => {
@@ -102,9 +100,7 @@ const TablaDemandas = ({
   // 7. Configuración de refs para celdas focusables
   const totalRows = rowOrder.length;
   const totalCols = 4;
-  const inputRefs = useRef(
-    Array.from({ length: totalRows }, () => Array(totalCols).fill(null))
-  );
+  const inputRefs = useRef(Array.from({ length: totalRows }, () => Array(totalCols).fill(null)));
 
   // 8. Función auxiliar para calcular la tasa de fiscalización
   const calculateTasaFiscalizacion = (rowIndex) => {
@@ -158,70 +154,51 @@ const TablaDemandas = ({
     />
   );
 
+  // 12. Utilizamos las funciones de dateUtils para obtener los nombres:
+  // En "Facturación" se mostrará el mes anterior y en "Total Percibido" el mes seleccionado.
+  const facturacionMonthName = selectedMonth ? getNombreMesAnterior(selectedMonth) : "";
+  const totalPercibidoMonthName = selectedMonth ? getNombreMes(selectedMonth) : "";
+
   return (
     <div className="overflow-x-auto">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Tabla de Demandas</h2>
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-50">
+            <th className="px-4 py-2 text-left font-semibold text-gray-700">Demandas</th>
             <th className="px-4 py-2 text-left font-semibold text-gray-700">
-              Demandas
-            </th>
-            <th className="px-4 py-2 text-left font-semibold text-gray-700">
-              Facturación <span className="">{previousMonthName}</span>
+              Facturación <span>{facturacionMonthName}</span>
             </th>
             <th className="px-4 py-2 text-left font-semibold text-gray-700">
               Total de Tasa de Fiscalización y Control
             </th>
             <th className="px-4 py-2 text-left font-semibold text-gray-700">
-              Total Percibido
+              Total Percibido <span>{totalPercibidoMonthName}</span>
             </th>
-            <th className="px-4 py-2 text-left font-semibold text-gray-700">
-              Total Transferido
-            </th>
-            <th className="px-4 py-2 text-left font-semibold text-gray-700">
-              Observaciones
-            </th>
+            <th className="px-4 py-2 text-left font-semibold text-gray-700">Total Transferido</th>
+            <th className="px-4 py-2 text-left font-semibold text-gray-700">Observaciones</th>
           </tr>
         </thead>
 
         <tbody>
           {rowOrder.map((row, rowIndex) => {
-            const data =
-              mergedDemandas[row.key] || getDefaultDemandas()[row.key];
+            const data = mergedDemandas[row.key] || getDefaultDemandas()[row.key];
             return (
               <tr key={row.key} className="border-b border-gray-100">
                 <td className="px-4 py-2 font-medium" title={row.label}>
                   {row.label}
                 </td>
                 <td className="px-4 py-2">
-                  {renderNumericCell(
-                    row.key,
-                    "facturacion",
-                    data.facturacion,
-                    rowIndex,
-                    0
-                  )}
+                  {renderNumericCell(row.key, "facturacion", data.facturacion, rowIndex, 0)}
                 </td>
                 <td className="px-4 py-2">
                   <span className="font-medium">{data.tasaFiscalizacion}</span>
                 </td>
                 <td className="px-4 py-2">
-                  {renderNumericCell(
-                    row.key,
-                    "totalPercibido",
-                    data.totalPercibido,
-                    rowIndex,
-                    1
-                  )}
+                  {renderNumericCell(row.key, "totalPercibido", data.totalPercibido, rowIndex, 1)}
                 </td>
                 <td className="px-4 py-2">
-                  {renderNumericCell(
-                    row.key,
-                    "totalTransferido",
-                    data.totalTransferido,
-                    rowIndex,
-                    2
-                  )}
+                  {renderNumericCell(row.key, "totalTransferido", data.totalTransferido, rowIndex, 2)}
                 </td>
                 <td className="px-4 py-2">
                   <TextInput
@@ -229,9 +206,7 @@ const TablaDemandas = ({
                       inputRefs.current[rowIndex][3] = el;
                     }}
                     value={data.observaciones}
-                    onChange={(newValue) =>
-                      handleCellChange(row.key, "observaciones", newValue)
-                    }
+                    onChange={(newValue) => handleCellChange(row.key, "observaciones", newValue)}
                     onEnter={() => handleEnter(rowIndex, 3)}
                     disabled={disabled}
                   />
@@ -244,24 +219,16 @@ const TablaDemandas = ({
               Total
             </td>
             <td className="px-4 py-2">
-              <span className="font-semibold">
-                $ {formatPesos(totals.facturacion)}
-              </span>
+              <span className="font-semibold">$ {formatPesos(totals.facturacion)}</span>
             </td>
             <td className="px-4 py-2">
-              <span className="font-semibold">
-                $ {formatPesos(totals.tasaFiscalizacion)}
-              </span>
+              <span className="font-semibold">$ {formatPesos(totals.tasaFiscalizacion)}</span>
             </td>
             <td className="px-4 py-2">
-              <span className="font-semibold">
-                $ {formatPesos(totals.totalPercibido)}
-              </span>
+              <span className="font-semibold">$ {formatPesos(totals.totalPercibido)}</span>
             </td>
             <td className="px-4 py-2">
-              <span className="font-semibold">
-                $ {formatPesos(totals.totalTransferido)}
-              </span>
+              <span className="font-semibold">$ {formatPesos(totals.totalTransferido)}</span>
             </td>
             <td className="px-4 py-2">{totals.observaciones}</td>
           </tr>

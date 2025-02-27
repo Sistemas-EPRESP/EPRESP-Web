@@ -41,38 +41,43 @@ const FileUpload = ({ onChange }) => {
     : "border-gray-300";
 
   return (
-    <div {...getRootProps({ className: `${baseClasses} ${borderClasses}` })}>
-      <input {...getInputProps()} />
-      {selectedFile ? (
-        <div className="flex flex-col items-center">
-          <div className="flex justify-between items-center w-full">
-            <span className="truncate">{selectedFile.name}</span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedFile(null);
-                onChange(null);
-              }}
-              className="ml-2 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-            >
-              Quitar
-            </button>
+    <>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        Subir Archivo Comprobante de Pago (PDF)
+      </h2>
+      <div {...getRootProps({ className: `${baseClasses} ${borderClasses}` })}>
+        <input {...getInputProps()} />
+        {selectedFile ? (
+          <div className="flex flex-col items-center">
+            <div className="flex justify-between items-center w-full">
+              <span className="truncate">{selectedFile.name}</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedFile(null);
+                  onChange(null);
+                }}
+                className="ml-2 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+              >
+                Quitar
+              </button>
+            </div>
+            {preview && (
+              <img
+                src={preview}
+                alt="Vista previa"
+                className="mt-2 max-h-64 object-contain"
+              />
+            )}
           </div>
-          {preview && (
-            <img
-              src={preview}
-              alt="Vista previa"
-              className="mt-2 max-h-64 object-contain"
-            />
-          )}
-        </div>
-      ) : (
-        <p className="text-gray-600">
-          Arrastra y suelta un archivo PDF o haz clic para seleccionarlo.
-        </p>
-      )}
-    </div>
+        ) : (
+          <p className="text-gray-600">
+            Arrastra y suelta un archivo PDF o haz clic para seleccionarlo.
+          </p>
+        )}
+      </div>
+    </>
   );
 };
 

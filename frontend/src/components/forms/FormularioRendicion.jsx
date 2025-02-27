@@ -8,10 +8,10 @@ import TextInput from "../ui/TextInput";
 import FileUpload from "../ui/FileUpload";
 import { AuthContext } from "../../context/AuthContext";
 import axiosInstance from "../../config/AxiosConfig";
-import { monthNames, getNombreMes } from "../../utils/dateUtils";
+import { monthNames } from "../../utils/dateUtils";
 import { formatCUIT } from "../../utils/formatCUIT";
 
-const FormularioRendicion = ({ setSelectedMonth }) => {
+const FormularioRendicion = ({ setMes }) => {
   // Contexto y parámetros de URL
   const { cooperativa } = useContext(AuthContext);
   const { id } = useParams();
@@ -19,10 +19,7 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
 
   // Variables de tiempo y opciones de año
   const currentYear = new Date().getFullYear();
-  const years = Array.from(
-    { length: currentYear - 2019 + 1 },
-    (_, index) => 2019 + index
-  );
+  const years = Array.from({ length: currentYear - 2019 + 1 }, (_, index) => 2019 + index);
 
   // Estados del componente
   const [pdfFile, setPdfFile] = useState(null);
@@ -33,7 +30,7 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
     total_tasa: "",
     total_transferencia_letras: "",
     total_transferencia: "",
-    periodo_anio: currentYear.toString(),
+    periodo_anio: currentYear,
   });
   const [demandas, setDemandas] = useState({});
   const [loading, setLoading] = useState(isEditMode);
@@ -67,12 +64,6 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
     return demandasArray || {};
   };
 
-  // Función auxiliar para obtener el mes anterior
-  const getPreviousMonth = (mes) => {
-    const m = parseInt(mes, 10);
-    return m === 1 ? 12 : m - 1;
-  };
-
   // Carga de datos en modo edición
   useEffect(() => {
     if (isEditMode) {
@@ -82,16 +73,12 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
           const data = response.data;
           setFormValues({
             fecha_transferencia: data.fecha_transferencia || "",
-            periodo_mes: data.periodo_mes
-              ? data.periodo_mes.toString().padStart(2, "0")
-              : "01",
+            periodo_mes: data.periodo_mes ? parseInt(data.periodo_mes, 10) : 1,
             total_tasa_letras: data.tasa_fiscalizacion_letras || "",
             total_tasa: data.tasa_fiscalizacion_numero || "",
             total_transferencia_letras: data.total_transferencia_letras || "",
             total_transferencia: data.total_transferencia_numero || "",
-            periodo_anio: data.periodo_anio
-              ? data.periodo_anio.toString()
-              : currentYear.toString(),
+            periodo_anio: data.periodo_anio ? parseInt(data.periodo_anio, 10) : currentYear,
           });
           setDemandas(transformarDemandas(data.Demandas));
           setLoading(false);
@@ -104,21 +91,28 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
     }
   }, [id, isEditMode, currentYear]);
 
-  // Si el valor de periodo_mes cambia (incluso al cargar datos en modo edición)
-  // actualizamos el estado en el componente padre.
+  // Al montar o al actualizar el periodo_mes, sincronizamos con el padre
   useEffect(() => {
-    setSelectedMonth(formValues.periodo_mes);
-  }, [formValues.periodo_mes, setSelectedMonth]);
+    setMes(formValues.periodo_mes);
+  }, [setMes, formValues.periodo_mes]);
 
-  // Manejo de cambios en los inputs controlados
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (name === "periodo_mes") {
+      // Convertimos el valor a número
+      const numericValue = parseInt(value, 10);
+      setFormValues({
+        ...formValues,
+        [name]: numericValue,
+      });
+      setMes(numericValue);
+    } else {
+      setFormValues({
+        ...formValues,
+        [name]: value,
+      });
+    }
   };
-
   // Manejo del envío del formulario
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -133,15 +127,12 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
     // Preparar payload de demandas
     const demandasPayload = {};
     Object.keys(demandas).forEach((categoria) => {
-      const key =
-        categoria === "grandesUsuarios" ? "grandes_usuarios" : categoria;
+      const key = categoria === "grandesUsuarios" ? "grandes_usuarios" : categoria;
       demandasPayload[key] = {
         facturacion: parseFloat(demandas[categoria].facturacion) || 0,
-        total_tasa_fiscalizacion:
-          (parseFloat(demandas[categoria].facturacion) || 0) * 0.01,
+        total_tasa_fiscalizacion: (parseFloat(demandas[categoria].facturacion) || 0) * 0.01,
         total_percibido: parseFloat(demandas[categoria].totalPercibido) || 0,
-        total_transferido:
-          parseFloat(demandas[categoria].totalTransferido) || 0,
+        total_transferido: parseFloat(demandas[categoria].totalTransferido) || 0,
         observaciones: demandas[categoria].observaciones || "Ninguna",
       };
     });
@@ -155,8 +146,7 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
       tasa_fiscalizacion_letras: formValues.total_tasa_letras,
       tasa_fiscalizacion_numero: parseFloat(formValues.total_tasa) || 0,
       total_transferencia_letras: formValues.total_transferencia_letras,
-      total_transferencia_numero:
-        parseFloat(formValues.total_transferencia) || 0,
+      total_transferencia_numero: parseFloat(formValues.total_transferencia) || 0,
       demandas: demandasPayload,
       // Por ahora no se envía el archivo, solo se visualiza
       // archivo: pdfFile
@@ -165,28 +155,20 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
     try {
       let response;
       if (isEditMode) {
-        response = await axiosInstance.put(
-          `/rendiciones/formulario-rendicion/${id}`,
-          { rendicion }
-        );
+        response = await axiosInstance.put(`/rendiciones/formulario-rendicion/${id}`, {
+          rendicion,
+        });
       } else {
-        response = await axiosInstance.post(
-          `/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`,
-          { rendicion }
-        );
+        response = await axiosInstance.post(`/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`, {
+          rendicion,
+        });
       }
       if (response.status === 200 || response.status === 201) {
-        setMensaje(
-          isEditMode
-            ? "Rendición actualizada correctamente."
-            : "Formulario enviado correctamente."
-        );
+        setMensaje(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
       }
     } catch (error) {
       console.error(error);
-      setMensaje(
-        error.response?.data?.message || "Error al enviar la rendición."
-      );
+      setMensaje(error.response?.data?.message || "Error al enviar la rendición.");
     }
   };
 
@@ -207,17 +189,12 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
   };
 
   // Cálculos derivados
-  const totalPercibido = Object.values(demandas).reduce(
-    (acc, cur) => acc + (parseFloat(cur.totalPercibido) || 0),
-    0
-  );
+  const totalPercibido = Object.values(demandas).reduce((acc, cur) => acc + (parseFloat(cur.totalPercibido) || 0), 0);
   const totalTransferido = Object.values(demandas).reduce(
     (acc, cur) => acc + (parseFloat(cur.totalTransferido) || 0),
     0
   );
   const shouldShowPrecauciones = totalTransferido < totalPercibido;
-  const previousMonthNumber = getPreviousMonth(formValues.periodo_mes);
-  const previousMonthName = getNombreMes(previousMonthNumber);
 
   // Muestra "Cargando..." en modo edición mientras se obtienen los datos
   if (isEditMode && loading) {
@@ -235,33 +212,22 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <h3 className="text-sm font-medium text-gray-500">Distribuidor</h3>
-            <p className="text-lg font-semibold text-gray-900">
-              {cooperativa.nombre}
-            </p>
+            <p className="text-lg font-semibold text-gray-900">{cooperativa.nombre}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-700">CUIT</h3>
-            <p className="text-lg font-semibold text-gray-900">
-              {formatCUIT(cooperativa.cuit)}
-            </p>
+            <p className="text-lg font-semibold text-gray-900">{formatCUIT(cooperativa.cuit)}</p>
           </div>
         </div>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        onKeyDown={handleFormKeyDown}
-        className="space-y-10"
-      >
+      <form onSubmit={handleSubmit} onKeyDown={handleFormKeyDown} className="space-y-10">
         {/* Sección de fechas y período */}
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {/* Fecha de rendición (deshabilitado) */}
             <div className="space-y-2">
-              <label
-                htmlFor="fecha_rendicion"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="fecha_rendicion" className="block text-sm font-medium text-gray-700">
                 Fecha de Rendición
               </label>
               <div className="relative">
@@ -277,10 +243,7 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
             </div>
             {/* Fecha de transferencia */}
             <div className="space-y-2">
-              <label
-                htmlFor="fecha_transferencia"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="fecha_transferencia" className="block text-sm font-medium text-gray-700">
                 Fecha de Transferencia
               </label>
               <div className="relative">
@@ -300,10 +263,7 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
           {/* Selección de mes y año */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <label
-                htmlFor="periodo_rendicion"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="periodo_rendicion" className="block text-sm font-medium text-gray-700">
                 Período de Rendición Mes
               </label>
               <select
@@ -315,7 +275,8 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
                 className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 {monthNames.map((nombre, index) => {
-                  const mesNumero = (index + 1).toString().padStart(2, "0");
+                  // El valor se maneja como número
+                  const mesNumero = index + 1;
                   return (
                     <option key={mesNumero} value={mesNumero}>
                       {nombre}
@@ -325,10 +286,7 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
               </select>
             </div>
             <div className="space-y-2">
-              <label
-                htmlFor="anio"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="anio" className="block text-sm font-medium text-gray-700">
                 Período de Rendición Año
               </label>
               <select
@@ -352,10 +310,7 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
         {/* Datos de la tasa de fiscalización */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label
-              htmlFor="total_tasa_letras"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="total_tasa_letras" className="block text-sm font-medium text-gray-700 mb-1">
               Total Tasa de Fiscalización y Control (Letras)
             </label>
             <TextInput
@@ -366,28 +321,19 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
               placeholder="Ej: Cien mil pesos"
             />
           </div>
+
           <div>
-            <label
-              htmlFor="total_tasa"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="total_tasa" className="block text-sm font-medium text-gray-700 mb-1">
               Monto (Número)
             </label>
-            <NumericInput
-              name="total_tasa"
-              value={formValues.total_tasa}
-              onChange={handleInputChange}
-            />
+            <NumericInput name="total_tasa" value={formValues.total_tasa} onChange={handleInputChange} />
           </div>
         </div>
 
         {/* Datos de la transferencia */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label
-              htmlFor="total_transferencia_letras"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="total_transferencia_letras" className="block text-sm font-medium text-gray-700 mb-1">
               Total Transferencia: Pesos (Letras)
             </label>
             <TextInput
@@ -399,10 +345,7 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
             />
           </div>
           <div>
-            <label
-              htmlFor="total_transferencia"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="total_transferencia" className="block text-sm font-medium text-gray-700 mb-1">
               Monto (Número)
             </label>
             <NumericInput
@@ -414,23 +357,16 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
         </div>
 
         {/* Integración de la Tabla de Demandas */}
-        <TablaDemandas
-          demandas={demandas}
-          setDemandas={setDemandas}
-          previousMonthName={previousMonthName}
-        />
+        <TablaDemandas demandas={demandas} setDemandas={setDemandas} selectedMonth={formValues.periodo_mes} />
 
         {/* Precauciones si el total transferido es menor que el total percibido */}
         {shouldShowPrecauciones && (
           <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
-            <h3 className="text-sm font-semibold text-yellow-800 mb-2">
-              Precauciones
-            </h3>
+            <h3 className="text-sm font-semibold text-yellow-800 mb-2">Precauciones</h3>
             <ul className="list-disc pl-5 text-yellow-800 text-sm">
               <li>
-                El total transferido no puede ser menor que el total percibido.
-                (Transferido: {totalTransferido.toFixed(2)} vs. Percibido:{" "}
-                {totalPercibido.toFixed(2)})
+                El total transferido no puede ser menor que el total percibido. (Transferido:{" "}
+                {totalTransferido.toFixed(2)} vs. Percibido: {totalPercibido.toFixed(2)})
               </li>
             </ul>
           </div>
@@ -460,8 +396,7 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
       )}
 
       <p className="mt-6 text-sm text-gray-500 italic">
-        La información suministrada en este formulario tiene carácter de
-        declaración jurada.
+        La información suministrada en este formulario tiene carácter de declaración jurada.
       </p>
     </div>
   );
