@@ -1,6 +1,42 @@
-const PeriodoRendiciones = () => {
+const PeriodoRendiciones = ({ selectedMonth }) => {
+  const rows = [
+    ["Enero", "1 a 31 de Diciembre", "1 a 31 de Enero", "1 a 10 de Febrero"],
+    ["Febrero", "1 a 31 de Enero", "1 a 28 de Febrero", "1 a 10 de Marzo"],
+    ["Marzo", "1 a 28 de Febrero", "1 a 31 de Marzo", "1 a 10 de Abril"],
+    ["Abril", "1 a 31 de Marzo", "1 a 30 de Abril", "1 a 10 de Mayo"],
+    ["Mayo", "1 a 30 de Abril", "1 a 31 de Mayo", "1 a 10 de Junio"],
+    ["Junio", "1 a 31 de Mayo", "1 a 30 de Junio", "1 a 10 de Julio"],
+    ["Julio", "1 a 30 de Junio", "1 a 31 de Julio", "1 a 10 de Agosto"],
+    ["Agosto", "1 a 31 de Julio", "1 a 31 de Agosto", "1 a 10 de Septiembre"],
+    [
+      "Septiembre",
+      "1 a 31 de Agosto",
+      "1 a 30 de Septiembre",
+      "1 a 10 de Octubre",
+    ],
+    [
+      "Octubre",
+      "1 a 30 de Septiembre",
+      "1 a 31 de Octubre",
+      "1 a 10 de Noviembre",
+    ],
+    [
+      "Noviembre",
+      "1 a 31 de Octubre",
+      "1 a 30 de Noviembre",
+      "1 a 10 de Diciembre",
+    ],
+    [
+      "Diciembre",
+      "1 a 30 de Noviembre",
+      "1 a 31 de Diciembre",
+      "1 a 10 de Enero",
+    ],
+  ];
+
   return (
     <div className="mt-12 space-y-8">
+      {/* Aclaraciones u otra info */}
       <div className="bg-gray-50 p-6 rounded-lg">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Aclaraciones
@@ -40,84 +76,37 @@ const PeriodoRendiciones = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {[
-              [
-                "Enero",
-                "1 a 31 de Diciembre",
-                "1 a 31 de Enero",
-                "1 a 10 de Febrero",
-              ],
-              [
-                "Febrero",
-                "1 a 31 de Enero",
-                "1 a 28 de Febrero",
-                "1 a 10 de Marzo",
-              ],
-              [
-                "Marzo",
-                "1 a 28 de Febrero",
-                "1 a 31 de Marzo",
-                "1 a 10 de Abril",
-              ],
-              ["Abril", "1 a 31 de Marzo", "1 a 30 de Abril", "1 a 10 de Mayo"],
-              ["Mayo", "1 a 30 de Abril", "1 a 31 de Mayo", "1 a 10 de Junio"],
-              ["Junio", "1 a 31 de Mayo", "1 a 30 de Junio", "1 a 10 de Julio"],
-              [
-                "Julio",
-                "1 a 30 de Junio",
-                "1 a 31 de Julio",
-                "1 a 10 de Agosto",
-              ],
-              [
-                "Agosto",
-                "1 a 31 de Julio",
-                "1 a 31 de Agosto",
-                "1 a 10 de Septiembre",
-              ],
-              [
-                "Septiembre",
-                "1 a 31 de Agosto",
-                "1 a 30 de Septiembre",
-                "1 a 10 de Octubre",
-              ],
-              [
-                "Octubre",
-                "1 a 30 de Septiembre",
-                "1 a 31 de Octubre",
-                "1 a 10 de Noviembre",
-              ],
-              [
-                "Noviembre",
-                "1 a 31 de Octubre",
-                "1 a 30 de Noviembre",
-                "1 a 10 de Diciembre",
-              ],
-              [
-                "Diciembre",
-                "1 a 30 de Noviembre",
-                "1 a 31 de Diciembre",
-                "1 a 10 de Enero",
-              ],
-            ].map((row, index) => (
-              <tr
-                key={index}
-                className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {row[0]}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {row[1]}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {row[2]}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {row[3]}
-                </td>
-              </tr>
-            ))}
+          <tbody className="divide-y divide-gray-200">
+            {rows.map((row, index) => {
+              // Convertimos el índice + 1 a formato "01", "02", etc.
+              const mesFila = (index + 1).toString().padStart(2, "0");
+              const isSelected = mesFila === selectedMonth;
+              return (
+                <tr
+                  key={index}
+                  className={
+                    isSelected
+                      ? "bg-blue-100"
+                      : index % 2 === 0
+                      ? "bg-white"
+                      : "bg-gray-50"
+                  }
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {row[0]}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {row[1]}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {row[2]}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {row[3]}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

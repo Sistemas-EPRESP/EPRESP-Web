@@ -3,7 +3,12 @@ import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
 import { formatPesos } from "../../utils/formatPesos";
 
-const TablaDemandas = ({ demandas, setDemandas, disabled = false }) => {
+const TablaDemandas = ({
+  demandas,
+  setDemandas,
+  disabled = false,
+  previousMonthName,
+}) => {
   // 1. Definir el orden y etiquetas fijas de las filas
   const rowOrder = useMemo(
     () => [
@@ -162,7 +167,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false }) => {
               Demandas
             </th>
             <th className="px-4 py-2 text-left font-semibold text-gray-700">
-              Facturación
+              Facturación <span className="">{previousMonthName}</span>
             </th>
             <th className="px-4 py-2 text-left font-semibold text-gray-700">
               Total de Tasa de Fiscalización y Control
@@ -178,6 +183,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false }) => {
             </th>
           </tr>
         </thead>
+
         <tbody>
           {rowOrder.map((row, rowIndex) => {
             const data =
