@@ -104,6 +104,12 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
     }
   }, [id, isEditMode, currentYear]);
 
+  // Si el valor de periodo_mes cambia (incluso al cargar datos en modo edición)
+  // actualizamos el estado en el componente padre.
+  useEffect(() => {
+    setSelectedMonth(formValues.periodo_mes);
+  }, [formValues.periodo_mes, setSelectedMonth]);
+
   // Manejo de cambios en los inputs controlados
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -111,11 +117,6 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
       ...prev,
       [name]: value,
     }));
-
-    // Si se cambia el mes, actualizamos también en el padre
-    if (name === "periodo_mes") {
-      setSelectedMonth(value);
-    }
   };
 
   // Manejo del envío del formulario
@@ -419,11 +420,6 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
           previousMonthName={previousMonthName}
         />
 
-        {/* Opción para subir comprobante de pago */}
-        <div className="mt-6">
-          <FileUpload onChange={(file) => setPdfFile(file)} />
-        </div>
-
         {/* Precauciones si el total transferido es menor que el total percibido */}
         {shouldShowPrecauciones && (
           <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
@@ -439,6 +435,11 @@ const FormularioRendicion = ({ setSelectedMonth }) => {
             </ul>
           </div>
         )}
+
+        {/* Opción para subir comprobante de pago */}
+        <div className="mt-6">
+          <FileUpload onChange={(file) => setPdfFile(file)} />
+        </div>
 
         {/* Botón de envío */}
         <div className="pt-6 border-t">
