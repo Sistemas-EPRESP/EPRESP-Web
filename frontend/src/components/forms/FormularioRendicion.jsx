@@ -213,7 +213,7 @@ const FormularioRendicion = () => {
       </h2>
 
       <div className="bg-gray-100 p-4 rounded-md mb-8">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <h3 className="text-sm font-medium text-gray-500">Distribuidor</h3>
             <p className="text-lg font-semibold text-gray-900">
