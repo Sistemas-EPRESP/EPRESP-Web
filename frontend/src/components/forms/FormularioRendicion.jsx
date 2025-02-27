@@ -9,6 +9,7 @@ import FileUpload from "../ui/FileUpload";
 import { AuthContext } from "../../context/AuthContext";
 import axiosInstance from "../../config/AxiosConfig";
 import { monthNames } from "../../utils/dateUtils";
+import { parsePesos } from "../../utils/formatPesos";
 import { formatCUIT } from "../../utils/formatCUIT";
 
 const FormularioRendicion = ({ setMes }) => {
@@ -36,7 +37,11 @@ const FormularioRendicion = ({ setMes }) => {
   const [loading, setLoading] = useState(isEditMode);
   const [mensaje, setMensaje] = useState("");
 
-  // Función auxiliar para transformar el array de demandas en un objeto
+  /* -------------------------------------------------------------------------- */
+  /*                           Funciones Auxiliares                             */
+  /* -------------------------------------------------------------------------- */
+
+  // Transforma el array de demandas en un objeto con claves definidas
   const transformarDemandas = (demandasArray) => {
     const mapeoTipos = {
       residencial: "residencial",
@@ -63,6 +68,10 @@ const FormularioRendicion = ({ setMes }) => {
     }
     return demandasArray || {};
   };
+
+  /* -------------------------------------------------------------------------- */
+  /*                           Efectos (useEffect)                              */
+  /* -------------------------------------------------------------------------- */
 
   // Carga de datos en modo edición
   useEffect(() => {
@@ -91,28 +100,27 @@ const FormularioRendicion = ({ setMes }) => {
     }
   }, [id, isEditMode, currentYear]);
 
-  // Al montar o al actualizar el periodo_mes, sincronizamos con el padre
+  // Sincroniza el mes seleccionado con el componente padre
   useEffect(() => {
     setMes(formValues.periodo_mes);
   }, [setMes, formValues.periodo_mes]);
 
+  /* -------------------------------------------------------------------------- */
+  /*                       Handlers y Funciones de Eventos                     */
+  /* -------------------------------------------------------------------------- */
+
+  // Manejo de cambios en los inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "periodo_mes") {
-      // Convertimos el valor a número
       const numericValue = parseInt(value, 10);
-      setFormValues({
-        ...formValues,
-        [name]: numericValue,
-      });
+      setFormValues({ ...formValues, [name]: numericValue });
       setMes(numericValue);
     } else {
-      setFormValues({
-        ...formValues,
-        [name]: value,
-      });
+      setFormValues({ ...formValues, [name]: value });
     }
   };
+
   // Manejo del envío del formulario
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -129,11 +137,10 @@ const FormularioRendicion = ({ setMes }) => {
     Object.keys(demandas).forEach((categoria) => {
       const key = categoria === "grandesUsuarios" ? "grandes_usuarios" : categoria;
       demandasPayload[key] = {
-        facturacion: parseFloat(demandas[categoria].facturacion) || 0,
-        total_tasa_fiscalizacion: (parseFloat(demandas[categoria].facturacion) || 0) * 0.01,
-        total_percibido: parseFloat(demandas[categoria].totalPercibido) || 0,
-        total_transferido: parseFloat(demandas[categoria].totalTransferido) || 0,
-        observaciones: demandas[categoria].observaciones || "Ninguna",
+        facturacion: parsePesos(demandas[categoria].facturacion) || 0,
+        total_percibido: parsePesos(demandas[categoria].totalPercibido) || 0,
+        total_transferido: parsePesos(demandas[categoria].totalTransferido) || 0,
+        observaciones: demandas[categoria].observaciones || "",
       };
     });
 
@@ -144,35 +151,33 @@ const FormularioRendicion = ({ setMes }) => {
       periodo_mes: parseInt(formValues.periodo_mes, 10),
       periodo_anio: parseInt(formValues.periodo_anio, 10),
       tasa_fiscalizacion_letras: formValues.total_tasa_letras,
-      tasa_fiscalizacion_numero: parseFloat(formValues.total_tasa) || 0,
+      tasa_fiscalizacion_numero: parsePesos(formValues.total_tasa) || 0,
       total_transferencia_letras: formValues.total_transferencia_letras,
-      total_transferencia_numero: parseFloat(formValues.total_transferencia) || 0,
+      total_transferencia_numero: parsePesos(formValues.total_transferencia) || 0,
       demandas: demandasPayload,
       // Por ahora no se envía el archivo, solo se visualiza
       // archivo: pdfFile
     };
 
     try {
-      let response;
-      if (isEditMode) {
-        response = await axiosInstance.put(`/rendiciones/formulario-rendicion/${id}`, {
-          rendicion,
-        });
-      } else {
-        response = await axiosInstance.post(`/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`, {
-          rendicion,
-        });
-      }
-      if (response.status === 200 || response.status === 201) {
-        setMensaje(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
-      }
+      // Aquí se podría enviar la rendición según el modo edición/creación
+      // let response;
+      // if (isEditMode) {
+      //   response = await axiosInstance.put(`/rendiciones/formulario-rendicion/${id}`, { rendicion });
+      // } else {
+      //   response = await axiosInstance.post(`/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`, { rendicion });
+      // }
+      // if (response.status === 200 || response.status === 201) {
+      //   setMensaje(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
+      // }
+      console.log(rendicion);
     } catch (error) {
       console.error(error);
       setMensaje(error.response?.data?.message || "Error al enviar la rendición.");
     }
   };
 
-  // Manejo de navegación de inputs al presionar Enter
+  // Manejo de navegación entre inputs al presionar la tecla Enter
   const handleFormKeyDown = (e) => {
     if (e.key === "Enter") {
       if (e.target.closest("table")) return;
@@ -188,7 +193,10 @@ const FormularioRendicion = ({ setMes }) => {
     }
   };
 
-  // Cálculos derivados
+  /* -------------------------------------------------------------------------- */
+  /*                        Cálculos Derivados y Condiciones                    */
+  /* -------------------------------------------------------------------------- */
+
   const totalPercibido = Object.values(demandas).reduce((acc, cur) => acc + (parseFloat(cur.totalPercibido) || 0), 0);
   const totalTransferido = Object.values(demandas).reduce(
     (acc, cur) => acc + (parseFloat(cur.totalTransferido) || 0),
@@ -200,6 +208,10 @@ const FormularioRendicion = ({ setMes }) => {
   if (isEditMode && loading) {
     return <div>Cargando...</div>;
   }
+
+  /* -------------------------------------------------------------------------- */
+  /*                                Renderizado                                 */
+  /* -------------------------------------------------------------------------- */
 
   return (
     <div>
@@ -275,7 +287,6 @@ const FormularioRendicion = ({ setMes }) => {
                 className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 {monthNames.map((nombre, index) => {
-                  // El valor se maneja como número
                   const mesNumero = index + 1;
                   return (
                     <option key={mesNumero} value={mesNumero}>
@@ -321,7 +332,6 @@ const FormularioRendicion = ({ setMes }) => {
               placeholder="Ej: Cien mil pesos"
             />
           </div>
-
           <div>
             <label htmlFor="total_tasa" className="block text-sm font-medium text-gray-700 mb-1">
               Monto (Número)
