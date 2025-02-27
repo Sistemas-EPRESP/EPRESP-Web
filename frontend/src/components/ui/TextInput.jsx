@@ -1,4 +1,3 @@
-// TextInput.js
 import { useState, useRef, useEffect, forwardRef } from "react";
 
 const TextInput = forwardRef(
@@ -9,6 +8,7 @@ const TextInput = forwardRef(
       onChange,
       disabled = false,
       maxLength,
+      placeholder = "",
       onEnter,
       ...rest
     },
@@ -57,6 +57,7 @@ const TextInput = forwardRef(
       <input
         ref={setRefs}
         type="text"
+        placeholder={placeholder}
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
