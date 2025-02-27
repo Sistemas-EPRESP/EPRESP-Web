@@ -16,12 +16,11 @@ const FileUpload = ({ onChange }) => {
     [onChange]
   );
 
-  const { getRootProps, getInputProps, isDragActive, isDragReject } =
-    useDropzone({
-      onDrop,
-      accept: { "application/pdf": [".pdf"], "image/*": [] },
-      multiple: false,
-    });
+  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+    onDrop,
+    accept: { "application/pdf": [".pdf"], "image/*": [] },
+    multiple: false,
+  });
 
   useEffect(() => {
     if (selectedFile && selectedFile.type.startsWith("image/")) {
@@ -32,19 +31,12 @@ const FileUpload = ({ onChange }) => {
     setPreview(null);
   }, [selectedFile]);
 
-  const baseClasses =
-    "border-2 border-dashed p-6 text-center cursor-pointer rounded-md transition-colors";
-  const borderClasses = isDragActive
-    ? "border-green-500"
-    : isDragReject
-    ? "border-red-500"
-    : "border-gray-300";
+  const baseClasses = "border-2 border-dashed p-6 text-center cursor-pointer rounded-md transition-colors";
+  const borderClasses = isDragActive ? "border-green-500" : isDragReject ? "border-red-500" : "border-gray-300";
 
   return (
     <>
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Subir Archivo Comprobante de Pago (PDF)
-      </h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Subir Archivo Comprobante de Pago (PDF)</h2>
       <div {...getRootProps({ className: `${baseClasses} ${borderClasses}` })}>
         <input {...getInputProps()} />
         {selectedFile ? (
@@ -58,23 +50,15 @@ const FileUpload = ({ onChange }) => {
                   setSelectedFile(null);
                   onChange(null);
                 }}
-                className="ml-2 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
               >
                 Quitar
               </button>
             </div>
-            {preview && (
-              <img
-                src={preview}
-                alt="Vista previa"
-                className="mt-2 max-h-64 object-contain"
-              />
-            )}
+            {preview && <img src={preview} alt="Vista previa" className="mt-2 max-h-64 object-contain" />}
           </div>
         ) : (
-          <p className="text-gray-600">
-            Arrastra y suelta un archivo PDF o haz clic para seleccionarlo.
-          </p>
+          <p className="text-gray-600">Arrastra y suelta un archivo PDF o haz clic para seleccionarlo.</p>
         )}
       </div>
     </>
