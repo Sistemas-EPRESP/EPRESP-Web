@@ -4,11 +4,11 @@ export const transformarDemandas = (demandasArray) => {
     }
 
     return demandasArray.reduce((acc, item) => {
-        acc[item.tipo] = { // Usamos directamente el "tipo" que ya manda el backend
-            facturacion: item.facturacion || "0.00",
-            tasaFiscalizacion: item.total_tasa_fiscalizacion || "0.00",
-            totalPercibido: item.total_percibido || "0.00",
-            totalTransferido: item.total_transferido || "0.00",
+        acc[item.tipo] = {
+            facturacion: item.facturacion || 0.0,
+            tasaFiscalizacion: item.total_tasa_fiscalizacion || 0.0,
+            totalPercibido: item.total_percibido || 0.0,
+            totalTransferido: item.total_transferido || 0.0,
             observaciones: item.observaciones || "",
             id: item.id,
         };

@@ -6,7 +6,6 @@ import TextInput from "../ui/TextInput";
 import FileUpload from "../ui/FileUpload";
 import { AuthContext } from "../../context/AuthContext";
 import MonthSelect from "../ui/MonthSelect";
-import { parsePesos } from "../../utils/formatPesos";
 import { formatCUIT } from "../../utils/formatCUIT";
 import { transformarDemandas } from "../../utils/transformarDemandas";
 import useRendicionData from "../../hooks/useRendicionData";
