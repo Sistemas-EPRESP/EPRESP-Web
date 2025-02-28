@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, forwardRef } from "react";
-import { formatPesos } from "../../utils/formatPesos";
 
 const NumericInput = forwardRef(({ name, value = "0.00", onChange, disabled = false, onEnter }, ref) => {
   const inputRef = useRef(null);
 
-  // Combina la ref interna con la ref pasada por forwardRef
+  // Combina la ref interna con la ref pasada por forwardRef.
   const setRefs = (el) => {
     inputRef.current = el;
     if (typeof ref === "function") {
@@ -14,14 +13,14 @@ const NumericInput = forwardRef(({ name, value = "0.00", onChange, disabled = fa
     }
   };
 
-  // Estado interno del valor
+  // Estado interno para el valor del input.
   const [internalValue, setInternalValue] = useState(value);
 
   useEffect(() => {
     setInternalValue(value);
   }, [value]);
 
-  // Función auxiliar para llamar a onChange de forma compatible
+  // Función auxiliar para llamar a onChange.
   const triggerOnChange = (newValue) => {
     if (onChange) {
       if (name !== undefined) {
@@ -32,12 +31,17 @@ const NumericInput = forwardRef(({ name, value = "0.00", onChange, disabled = fa
     }
   };
 
-  // Maneja el cambio mientras se escribe, permitiendo solo números y punto.
-  const handleChange = (event) => {
-    let newValue = event.target.value.replace(/[^0-9.]/g, ""); // Permite solo números y punto
-    if (newValue.startsWith(".")) newValue = "0" + newValue; // Corrige ".5" a "0.5"
+  // Función para formatear el valor a 2 decimales.
+  const formatValue = (val) => {
+    const numberValue = parseFloat(val);
+    return isNaN(numberValue) ? "0.00" : numberValue.toFixed(2);
+  };
 
-    // Limitar a 2 decimales si existe un punto
+  // Maneja el cambio permitiendo solo números y punto, limitando a 2 decimales.
+  const handleChange = (event) => {
+    let newValue = event.target.value.replace(/[^0-9.]/g, "");
+    if (newValue.startsWith(".")) newValue = "0" + newValue;
+
     const parts = newValue.split(".");
     if (parts.length > 1) {
       parts[1] = parts[1].slice(0, 2);
@@ -48,64 +52,44 @@ const NumericInput = forwardRef(({ name, value = "0.00", onChange, disabled = fa
     triggerOnChange(newValue);
   };
 
-  // Al enfocar, si el valor está formateado (contiene "$") se convierte al valor plano para facilitar la edición.
+  // Al enfocar, se selecciona el contenido del input.
   const handleFocus = (event) => {
-    if (internalValue.includes("$")) {
-      const plain = internalValue.replace("$", "").replace(/\./g, "").replace(",", ".");
-      setInternalValue(plain);
-    }
     event.target.select();
   };
 
-  // Al perder el foco, se formatea el número a pesos argentinos usando la función util.
+  // Al perder el foco, se formatea el valor a 2 decimales.
   const handleBlur = () => {
-    const numberValue = parseFloat(internalValue);
-    if (!isNaN(numberValue)) {
-      const formatted = formatPesos(numberValue);
-      setInternalValue(formatted);
-      triggerOnChange(formatted);
-    }
+    const formatted = formatValue(internalValue);
+    setInternalValue(formatted);
+    triggerOnChange(formatted);
   };
 
-  // Al presionar Enter se valida el valor y se formatea
+  // Al presionar Enter, se formatea el valor a 2 decimales y se llama onEnter.
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      let newVal = internalValue;
-      if (!newVal.includes(".")) {
-        newVal = newVal + ".00";
-        setInternalValue(newVal);
-        triggerOnChange(newVal);
-      }
+      const formatted = formatValue(internalValue);
+      setInternalValue(formatted);
+      triggerOnChange(formatted);
       onEnter && onEnter();
-
-      const numberValue = parseFloat(newVal);
-      if (!isNaN(numberValue)) {
-        const formatted = formatPesos(numberValue);
-        setInternalValue(formatted);
-        triggerOnChange(formatted);
-      }
     }
   };
 
   return (
-    <div className="relative w-full">
-      <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-      <input
-        ref={setRefs}
-        type="text"
-        name={name}
-        value={internalValue}
-        onChange={handleChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        disabled={disabled}
-        className={`w-full pl-5 pr-2 py-1 text-left rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
-          disabled ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""
-        }`}
-      />
-    </div>
+    <input
+      ref={setRefs}
+      type="text"
+      name={name}
+      value={internalValue}
+      onChange={handleChange}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      disabled={disabled}
+      className={`w-full pl-2 pr-2 py-1 text-left rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+        disabled ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""
+      }`}
+    />
   );
 });
 
