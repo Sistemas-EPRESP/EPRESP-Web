@@ -110,15 +110,11 @@ const FormularioRendicion = ({ setMes }) => {
   /* -------------------------------------------------------------------------- */
 
   // Manejo de cambios en los inputs
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "periodo_mes") {
-      const numericValue = parseInt(value, 10);
-      setFormValues({ ...formValues, [name]: numericValue });
-      setMes(numericValue);
-    } else {
-      setFormValues({ ...formValues, [name]: value });
-    }
+  const handleInputChange = ({ name, value }) => {
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   // Manejo del envío del formulario
@@ -326,6 +322,7 @@ const FormularioRendicion = ({ setMes }) => {
             </label>
             <TextInput
               name="total_tasa_letras"
+              returnEvent
               value={formValues.total_tasa_letras}
               onChange={handleInputChange}
               maxLength={100}
@@ -348,6 +345,7 @@ const FormularioRendicion = ({ setMes }) => {
             </label>
             <TextInput
               name="total_transferencia_letras"
+              returnEvent
               value={formValues.total_transferencia_letras}
               onChange={handleInputChange}
               maxLength={100}
