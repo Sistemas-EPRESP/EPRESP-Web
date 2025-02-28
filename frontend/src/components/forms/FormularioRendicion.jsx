@@ -1,113 +1,62 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-
-// Componentes y utilidades
 import TablaDemandas from "../tables/TablaDemandas";
 import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
 import FileUpload from "../ui/FileUpload";
 import { AuthContext } from "../../context/AuthContext";
-import axiosInstance from "../../config/AxiosConfig";
 import MonthSelect from "../ui/MonthSelect";
 import { parsePesos } from "../../utils/formatPesos";
 import { formatCUIT } from "../../utils/formatCUIT";
+import { transformarDemandas } from "../../utils/transformarDemandas";
+import useRendicionData from "../../hooks/useRendicionData";
+import { toast } from "react-toastify";
 
 const FormularioRendicion = ({ setMes }) => {
-  // Contexto y parámetros de URL
   const { cooperativa } = useContext(AuthContext);
   const { id } = useParams();
   const isEditMode = Boolean(id);
-
-  // Variables de tiempo y opciones de año
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 2019 + 1 }, (_, index) => 2019 + index);
 
-  // Estados del componente
-  const [pdfFile, setPdfFile] = useState(null);
+  // Estados locales
+  const [setPdfFile] = useState(null);
   const [formValues, setFormValues] = useState({
     fecha_transferencia: "",
     periodo_mes: 1,
     total_tasa_letras: "",
-    total_tasa: "",
+    total_tasa: 0.0,
     total_transferencia_letras: "",
-    total_transferencia: "",
+    total_transferencia: 0.0,
     periodo_anio: currentYear,
   });
   const [demandas, setDemandas] = useState({});
-  const [loading, setLoading] = useState(isEditMode);
   const [mensaje, setMensaje] = useState("");
 
-  /* -------------------------------------------------------------------------- */
-  /*                           Funciones Auxiliares                             */
-  /* -------------------------------------------------------------------------- */
+  const { rendicionData, loading, error } = useRendicionData(isEditMode ? id : null);
 
-  // Transforma el array de demandas en un objeto con claves definidas
-  const transformarDemandas = (demandasArray) => {
-    const mapeoTipos = {
-      residencial: "residencial",
-      comercial: "comercial",
-      industrial: "industrial",
-      grandes_usuarios: "grandesUsuarios",
-      contratos: "contratos",
-      otros: "otros",
-    };
-
-    if (Array.isArray(demandasArray)) {
-      return demandasArray.reduce((acc, item) => {
-        const key = mapeoTipos[item.tipo] || item.tipo;
-        acc[key] = {
-          facturacion: item.facturacion || "0.00",
-          tasaFiscalizacion: item.total_tasa_fiscalizacion || "0.00",
-          totalPercibido: item.total_percibido || "0.00",
-          totalTransferido: item.total_transferido || "0.00",
-          observaciones: item.observaciones || "",
-          id: item.id,
-        };
-        return acc;
-      }, {});
-    }
-    return demandasArray || {};
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /*                           Efectos (useEffect)                              */
-  /* -------------------------------------------------------------------------- */
-
-  // Carga de datos en modo edición
   useEffect(() => {
-    if (isEditMode) {
-      axiosInstance
-        .get(`/rendiciones/obtener-rendicion/${id}`)
-        .then((response) => {
-          const data = response.data;
-          setFormValues({
-            fecha_transferencia: data.fecha_transferencia || "",
-            periodo_mes: data.periodo_mes ? parseInt(data.periodo_mes, 10) : 1,
-            total_tasa_letras: data.tasa_fiscalizacion_letras || "",
-            total_tasa: data.tasa_fiscalizacion_numero || "",
-            total_transferencia_letras: data.total_transferencia_letras || "",
-            total_transferencia: data.total_transferencia_numero || "",
-            periodo_anio: data.periodo_anio ? parseInt(data.periodo_anio, 10) : currentYear,
-          });
-          setDemandas(transformarDemandas(data.Demandas));
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error(error);
-          setMensaje("Error al cargar los datos de la rendición.");
-          setLoading(false);
-        });
-    }
-  }, [id, isEditMode, currentYear]);
+    if (rendicionData) {
+      // console.log("Datos completos de la rendición:", rendicionData); // 👈 Para ver toda la respuesta
+      // console.log("Demandas recibidas:", rendicionData.Demandas); // 👈 Para ver solo las demandas
 
-  // Sincroniza el mes seleccionado con el componente padre
+      setFormValues({
+        fecha_transferencia: rendicionData.fecha_transferencia || "",
+        periodo_mes: rendicionData.periodo_mes ? parseInt(rendicionData.periodo_mes, 10) : 1,
+        total_tasa_letras: rendicionData.tasa_fiscalizacion_letras || "",
+        total_tasa: parseFloat(rendicionData.tasa_fiscalizacion_numero) || 0.0,
+        total_transferencia_letras: rendicionData.total_transferencia_letras || "",
+        total_transferencia: parseFloat(rendicionData.total_transferencia_numero) || 0.0,
+        periodo_anio: rendicionData.periodo_anio ? parseInt(rendicionData.periodo_anio, 10) : currentYear,
+      });
+      setDemandas(transformarDemandas(rendicionData.Demandas));
+    }
+  }, [rendicionData, currentYear]);
+
+  // Sincronización del mes seleccionado con el componente padre
   useEffect(() => {
     setMes(formValues.periodo_mes);
   }, [setMes, formValues.periodo_mes]);
-
-  /* -------------------------------------------------------------------------- */
-  /*                       Handlers y Funciones de Eventos                     */
-  /* -------------------------------------------------------------------------- */
 
   // Manejo de cambios en los inputs
   const handleInputChange = ({ name, value }) => {
@@ -131,11 +80,10 @@ const FormularioRendicion = ({ setMes }) => {
     // Preparar payload de demandas
     const demandasPayload = {};
     Object.keys(demandas).forEach((categoria) => {
-      const key = categoria === "grandesUsuarios" ? "grandes_usuarios" : categoria;
-      demandasPayload[key] = {
-        facturacion: parsePesos(demandas[categoria].facturacion) || 0,
-        total_percibido: parsePesos(demandas[categoria].totalPercibido) || 0,
-        total_transferido: parsePesos(demandas[categoria].totalTransferido) || 0,
+      demandasPayload[categoria] = {
+        facturacion: parseFloat(demandas[categoria].facturacion) || 0.0,
+        total_percibido: parseFloat(demandas[categoria].totalPercibido) || 0.0,
+        total_transferido: parseFloat(demandas[categoria].totalTransferido) || 0.0,
         observaciones: demandas[categoria].observaciones || "",
       };
     });
@@ -147,16 +95,14 @@ const FormularioRendicion = ({ setMes }) => {
       periodo_mes: parseInt(formValues.periodo_mes, 10),
       periodo_anio: parseInt(formValues.periodo_anio, 10),
       tasa_fiscalizacion_letras: formValues.total_tasa_letras,
-      tasa_fiscalizacion_numero: parsePesos(formValues.total_tasa) || 0,
+      tasa_fiscalizacion_numero: parseFloat(formValues.total_tasa) || 0.0,
       total_transferencia_letras: formValues.total_transferencia_letras,
-      total_transferencia_numero: parsePesos(formValues.total_transferencia) || 0,
+      total_transferencia_numero: parseFloat(formValues.total_transferencia) || 0.0,
       demandas: demandasPayload,
-      // Por ahora no se envía el archivo, solo se visualiza
-      // archivo: pdfFile
     };
 
     try {
-      // Aquí se podría enviar la rendición según el modo edición/creación
+      // Ejemplo de envío según modo (creación o edición)
       // let response;
       // if (isEditMode) {
       //   response = await axiosInstance.put(`/rendiciones/formulario-rendicion/${id}`, { rendicion });
@@ -167,13 +113,16 @@ const FormularioRendicion = ({ setMes }) => {
       //   setMensaje(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
       // }
       console.log(rendicion);
-    } catch (error) {
-      console.error(error);
-      setMensaje(error.response?.data?.message || "Error al enviar la rendición.");
+      toast.success(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
+    } catch (err) {
+      console.error(err);
+      const errorMsg = err.response?.data?.message || "Error al enviar la rendición.";
+      setMensaje(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
-  // Manejo de navegación entre inputs al presionar la tecla Enter
+  // Manejo de navegación entre inputs al presionar Enter
   const handleFormKeyDown = (e) => {
     if (e.key === "Enter") {
       if (e.target.closest("table")) return;
@@ -189,10 +138,7 @@ const FormularioRendicion = ({ setMes }) => {
     }
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                        Cálculos Derivados y Condiciones                    */
-  /* -------------------------------------------------------------------------- */
-
+  // Cálculos para precauciones
   const totalPercibido = Object.values(demandas).reduce((acc, cur) => acc + (parseFloat(cur.totalPercibido) || 0), 0);
   const totalTransferido = Object.values(demandas).reduce(
     (acc, cur) => acc + (parseFloat(cur.totalTransferido) || 0),
@@ -200,14 +146,12 @@ const FormularioRendicion = ({ setMes }) => {
   );
   const shouldShowPrecauciones = totalTransferido < totalPercibido;
 
-  // Muestra "Cargando..." en modo edición mientras se obtienen los datos
   if (isEditMode && loading) {
     return <div>Cargando...</div>;
   }
-
-  /* -------------------------------------------------------------------------- */
-  /*                                Renderizado                                 */
-  /* -------------------------------------------------------------------------- */
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div>
@@ -233,7 +177,7 @@ const FormularioRendicion = ({ setMes }) => {
         {/* Sección de fechas y período */}
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {/* Fecha de rendición (deshabilitado) */}
+            {/* Fecha de rendición (deshabilitada) */}
             <div className="space-y-2">
               <label htmlFor="fecha_rendicion" className="block text-sm font-medium text-gray-700">
                 Fecha de Rendición
@@ -351,7 +295,7 @@ const FormularioRendicion = ({ setMes }) => {
           </div>
         </div>
 
-        {/* Integración de la Tabla de Demandas */}
+        {/* Tabla de Demandas */}
         <TablaDemandas demandas={demandas} setDemandas={setDemandas} selectedMonth={formValues.periodo_mes} />
 
         {/* Precauciones si el total transferido es menor que el total percibido */}

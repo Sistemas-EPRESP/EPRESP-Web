@@ -18,14 +18,14 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     []
   );
 
-  // 2. Valores base para cada fila
+  // 2. Valores base para cada fila (almacenados como números)
   const getDefaultDemandas = () => {
     return rowOrder.reduce((acc, row) => {
       acc[row.key] = {
-        facturacion: "0.00",
-        tasaFiscalizacion: "0.00",
-        totalPercibido: "0.00",
-        totalTransferido: "0.00",
+        facturacion: 0,
+        tasaFiscalizacion: 0,
+        totalPercibido: 0,
+        totalTransferido: 0,
         observaciones: "",
       };
       return acc;
@@ -33,12 +33,19 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
   };
 
   // 3. Fusionar datos recibidos con valores por defecto
+  // Se convierte cada campo a número si es necesario
   const mergeDemandas = (data) => {
     const defaults = getDefaultDemandas();
     if (!data) return defaults;
     Object.keys(data).forEach((key) => {
       if (defaults[key]) {
-        defaults[key] = { ...defaults[key], ...data[key] };
+        defaults[key] = {
+          facturacion: parseFloat(data[key].facturacion) || defaults[key].facturacion,
+          tasaFiscalizacion: parseFloat(data[key].tasaFiscalizacion) || defaults[key].tasaFiscalizacion,
+          totalPercibido: parseFloat(data[key].totalPercibido) || defaults[key].totalPercibido,
+          totalTransferido: parseFloat(data[key].totalTransferido) || defaults[key].totalTransferido,
+          observaciones: data[key].observaciones || "",
+        };
       } else {
         defaults[key] = data[key];
       }
@@ -48,7 +55,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
 
   const mergedDemandas = useMemo(() => mergeDemandas(demandas), [demandas, rowOrder]);
 
-  // 4. Calcular totales usando parseFloat
+  // 4. Calcular totales usando directamente los valores numéricos
   const totals = useMemo(() => {
     const newTotals = {
       facturacion: 0,
@@ -59,33 +66,33 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
 
     rowOrder.forEach((row) => {
       const data = mergedDemandas[row.key] || {};
-      newTotals.facturacion += parseFloat(data.facturacion) || 0;
-      newTotals.tasaFiscalizacion += parseFloat(data.tasaFiscalizacion) || 0;
-      newTotals.totalPercibido += parseFloat(data.totalPercibido) || 0;
-      newTotals.totalTransferido += parseFloat(data.totalTransferido) || 0;
+      newTotals.facturacion += data.facturacion || 0;
+      newTotals.tasaFiscalizacion += data.tasaFiscalizacion || 0;
+      newTotals.totalPercibido += data.totalPercibido || 0;
+      newTotals.totalTransferido += data.totalTransferido || 0;
     });
 
     return {
       demandas: "Total",
-      facturacion: newTotals.facturacion.toFixed(2),
-      tasaFiscalizacion: newTotals.tasaFiscalizacion.toFixed(2),
-      totalPercibido: newTotals.totalPercibido.toFixed(2),
-      totalTransferido: newTotals.totalTransferido.toFixed(2),
+      facturacion: newTotals.facturacion,
+      tasaFiscalizacion: newTotals.tasaFiscalizacion,
+      totalPercibido: newTotals.totalPercibido,
+      totalTransferido: newTotals.totalTransferido,
       observaciones: "",
     };
   }, [mergedDemandas, rowOrder]);
 
-  // 5. Actualizar celdas (se mantiene el cálculo de tasa al modificar facturación)
+  // 5. Actualizar celdas usando números y recalcular la tasa cuando cambie facturación
   const handleCellChange = (rowKey, field, newValue) => {
     if (disabled || !setDemandas) return;
     setDemandas((prev) => {
+      const prevRow = prev[rowKey] || { ...getDefaultDemandas()[rowKey] };
       const updatedRow = {
-        ...getDefaultDemandas()[rowKey],
-        ...prev[rowKey],
+        ...prevRow,
         [field]: newValue,
       };
       if (field === "facturacion") {
-        updatedRow.tasaFiscalizacion = (parseFloat(newValue) * 0.01).toFixed(2);
+        updatedRow.tasaFiscalizacion = parseFloat((newValue * 0.01).toFixed(2));
       }
       return {
         ...prev,
@@ -94,23 +101,27 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     });
   };
 
-  // 6. Renderizado de celdas numéricas (ya sin manejo de foco)
+  // 6. Renderizado de celdas numéricas: se pasa el valor numérico directamente
   const renderNumericCell = (rowKey, field, value) => (
     <NumericInput
       value={value}
       disabled={disabled}
-      onChange={(newValue) => handleCellChange(rowKey, field, newValue)}
+      onChange={(e) => {
+        // Extraemos el valor numérico del evento
+        const newVal = e.target ? e.target.value : e;
+        handleCellChange(rowKey, field, newVal);
+      }}
     />
   );
 
   const handleChange =
     (categoria, fieldName) =>
-    ({ name, value }) => {
+    ({ target: { value } }) => {
       setDemandas((prev) => ({
         ...prev,
         [categoria]: {
           ...prev[categoria],
-          [fieldName]: value, // Ahora asignamos correctamente el valor
+          [fieldName]: value, // Para observaciones se mantiene como cadena
         },
       }));
     };
@@ -149,7 +160,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
                 </td>
                 <td className="px-4 py-2">{renderNumericCell(row.key, "facturacion", data.facturacion)}</td>
                 <td className="px-4 py-2">
-                  <span className="font-medium">{data.tasaFiscalizacion}</span>
+                  <span className="font-medium">{data.tasaFiscalizacion.toFixed(2)}</span>
                 </td>
                 <td className="px-4 py-2">{renderNumericCell(row.key, "totalPercibido", data.totalPercibido)}</td>
                 <td className="px-4 py-2">{renderNumericCell(row.key, "totalTransferido", data.totalTransferido)}</td>

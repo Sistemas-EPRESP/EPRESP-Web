@@ -1,27 +1,19 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import TablaDemandas from "../tables/TablaDemandas";
 import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
-import axios from "../../config/AxiosConfig";
 import { getNombreMes } from "../../utils/dateUtils";
 import { formatCUIT } from "../../utils/formatCUIT";
 import ComprobantePDF from "../ui/ComprobantePDF";
+import useRendicionData from "../../hooks/useRendicionData";
+import { transformarDemandas } from "../../utils/transformarDemandas";
 
 const FormularioRendicionAdmin = () => {
   const { id } = useParams();
-  const [rendicionData, setRendicionData] = useState(null);
+  const { rendicionData, loading, error } = useRendicionData(id);
 
-  useEffect(() => {
-    if (id) {
-      axios
-        .get(`/rendiciones/obtener-rendicion/${id}`)
-        .then((response) => setRendicionData(response.data))
-        .catch((error) => console.error(error));
-    }
-  }, [id]);
-
-  if (!rendicionData) return <div>Cargando...</div>;
+  if (loading) return <div>Cargando...</div>;
+  if (error) return <div>{error}</div>;
 
   const {
     Cooperativa,
@@ -31,32 +23,10 @@ const FormularioRendicionAdmin = () => {
     periodo_mes,
     tasa_fiscalizacion_letras,
     tasa_fiscalizacion_numero,
+    total_transferencia_letras,
+    total_transferencia_numero,
     Demandas,
   } = rendicionData;
-
-  const transformarDemandas = (demandasArray) => {
-    const mapeoTipos = {
-      residencial: "residencial",
-      comercial: "comercial",
-      industrial: "industrial",
-      grandes_usuarios: "grandesUsuarios",
-      contratos: "contratos",
-      otros: "otros",
-    };
-
-    return demandasArray.reduce((acc, item) => {
-      const key = mapeoTipos[item.tipo] || item.tipo;
-      acc[key] = {
-        facturacion: item.facturacion || "0.00",
-        tasaFiscalizacion: item.total_tasa_fiscalizacion || "0.00",
-        totalPercibido: item.total_percibido || "0.00",
-        totalTransferido: item.total_transferido || "0.00",
-        observaciones: item.observaciones || "",
-        id: item.id,
-      };
-      return acc;
-    }, {});
-  };
 
   const demandasTransformadas = transformarDemandas(Demandas);
 
@@ -154,20 +124,20 @@ const FormularioRendicionAdmin = () => {
                 <label htmlFor="transferenciaLetras" className="block text-sm font-medium text-gray-700 mb-1">
                   Total Transferencia: Pesos (Letras)
                 </label>
-                <TextInput value={tasa_fiscalizacion_letras} disabled onChange={() => {}} />
+                <TextInput value={total_transferencia_letras} disabled onChange={() => {}} />
               </div>
               <div>
                 <label htmlFor="transferenciaNumero" className="block text-sm font-medium text-gray-700 mb-1">
                   Monto (Número)
                 </label>
-                <NumericInput value={tasa_fiscalizacion_numero} disabled onChange={() => {}} />
+                <NumericInput value={total_transferencia_numero} disabled onChange={() => {}} />
               </div>
             </div>
           </div>
 
           <TablaDemandas demandas={demandasTransformadas} selectedMonth={periodo_mes} disabled />
 
-          {/* Campo para descargar comprobante de pago subido */}
+          {/* Comprobante PDF */}
           <ComprobantePDF />
         </div>
       </div>

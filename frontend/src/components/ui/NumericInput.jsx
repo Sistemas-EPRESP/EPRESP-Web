@@ -1,18 +1,24 @@
 import { useState, useEffect, forwardRef } from "react";
 
-const NumericInput = forwardRef(({ name, value = "0.00", onChange, disabled = false }, ref) => {
-  const [internalValue, setInternalValue] = useState(value);
+const NumericInput = forwardRef(({ name, value = 0, onChange, disabled = false }, ref) => {
+  // Si el valor es numérico, lo convertimos a cadena formateada; si no, lo usamos tal cual
+  const initialVal = typeof value === "number" ? value.toFixed(2) : value;
+  const [internalValue, setInternalValue] = useState(initialVal);
 
   useEffect(() => {
-    setInternalValue(value);
+    const formatted = typeof value === "number" ? value.toFixed(2) : value;
+    setInternalValue(formatted);
   }, [value]);
 
   const triggerOnChange = (newValue) => {
     if (onChange) {
+      // Convertir newValue a número para enviarlo al componente padre
+      const num = parseFloat(newValue);
+      const valueToSend = isNaN(num) ? 0 : num;
       if (name !== undefined) {
-        onChange({ target: { name, value: newValue } });
+        onChange({ target: { name, value: valueToSend } });
       } else {
-        onChange(newValue);
+        onChange(valueToSend);
       }
     }
   };
