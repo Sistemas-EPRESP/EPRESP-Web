@@ -8,7 +8,7 @@ import TextInput from "../ui/TextInput";
 import FileUpload from "../ui/FileUpload";
 import { AuthContext } from "../../context/AuthContext";
 import axiosInstance from "../../config/AxiosConfig";
-import { monthNames } from "../../utils/dateUtils";
+import MonthSelect from "../ui/MonthSelect";
 import { parsePesos } from "../../utils/formatPesos";
 import { formatCUIT } from "../../utils/formatCUIT";
 
@@ -274,23 +274,10 @@ const FormularioRendicion = ({ setMes }) => {
               <label htmlFor="periodo_rendicion" className="block text-sm font-medium text-gray-700">
                 Período de Rendición Mes
               </label>
-              <select
-                id="periodo_rendicion"
-                name="periodo_mes"
-                required
+              <MonthSelect
                 value={formValues.periodo_mes}
-                onChange={handleInputChange}
-                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              >
-                {monthNames.map((nombre, index) => {
-                  const mesNumero = index + 1;
-                  return (
-                    <option key={mesNumero} value={mesNumero}>
-                      {nombre}
-                    </option>
-                  );
-                })}
-              </select>
+                onChange={(newMonth) => setFormValues((prev) => ({ ...prev, periodo_mes: newMonth }))}
+              />
             </div>
             <div className="space-y-2">
               <label htmlFor="anio" className="block text-sm font-medium text-gray-700">
