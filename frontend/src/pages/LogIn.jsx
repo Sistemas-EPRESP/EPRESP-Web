@@ -1,14 +1,27 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-const LoginForm = () => {
+const LogIn = () => {
   const [cuit, setCuit] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { isAuthenticated, login, cooperativa } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (isAuthenticated && cooperativa) {
+      // Redirige según el rol del usuario
+      if (cooperativa.tipo === "administrador") {
+        navigate("/administrador/rendiciones");
+      } else if (cooperativa.tipo === "cooperativa") {
+        navigate("/rendiciones");
+      } else {
+        navigate("/"); // Ruta por defecto para otros roles
+      }
+    }
+  }, [isAuthenticated, cooperativa, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -24,15 +37,11 @@ const LoginForm = () => {
 
     try {
       const userData = await login(cuitWithoutDashes, password);
-      if (userData) {
-        if (userData.tipo === "cooperativa") {
-          navigate("/formulario/formulario_rendicion");
-        } else if (userData.tipo === "administrador") {
-          navigate("/rendiciones");
-        }
-      } else {
+
+      if (!userData) {
         setError("Credenciales inválidas. Por favor, intente nuevamente.");
       }
+      // La redirección se maneja en el useEffect basado en isAuthenticated
     } catch (err) {
       setError(
         "Ocurrió un error al iniciar sesión. Por favor, intente más tarde."
@@ -57,7 +66,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center h-full">
       <div className="px-8 py-6 mt-4 text-left bg-white shadow-lg rounded-lg w-full max-w-md">
         <h3 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Iniciar Sesión
@@ -99,7 +108,9 @@ const LoginForm = () => {
                 type="button"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 onClick={() => setShowPassword(!showPassword)}
-              ></button>
+              >
+                {/* Aquí puedes agregar un ícono para mostrar/ocultar la contraseña */}
+              </button>
             </div>
           </div>
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
@@ -117,4 +128,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default LogIn;
