@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  //baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: "/",
   withCredentials: true,
 });
 
@@ -12,18 +13,11 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     // Si la solicitud es a /auth/refresh o /auth/login, no se intenta refrescar
-    if (
-      originalRequest.url === "/auth/refresh" ||
-      originalRequest.url === "/auth/login"
-    ) {
+    if (originalRequest.url === "/auth/refresh" || originalRequest.url === "/auth/login") {
       return Promise.reject(error);
     }
 
-    if (
-      error.response &&
-      error.response.status === 401 &&
-      !originalRequest._retry
-    ) {
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         // Usamos POST para refrescar el token
