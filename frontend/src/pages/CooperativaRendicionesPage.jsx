@@ -11,7 +11,7 @@ const CooperativaRendicionesPage = () => {
 
   useEffect(() => {
     axios
-      .get(`/cooperativas/obtener-preformularios/${cooperativa.idCooperativa}`)
+      .get(`/api/cooperativas/obtener-preformularios/${cooperativa.idCooperativa}`)
       .then((response) => setRendiciones(response.data))
       .catch((error) => console.error("Error fetching renditions:", error));
   }, [cooperativa.idCooperativa]);
@@ -26,9 +26,7 @@ const CooperativaRendicionesPage = () => {
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          {cooperativa.nombre}
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{cooperativa.nombre}</h1>
         <button
           onClick={() => navigate("/formulario/rendicion")}
           className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 transition-colors"
@@ -45,9 +43,7 @@ const CooperativaRendicionesPage = () => {
         </div>
       ) : (
         <div className="text-center py-8 sm:py-12">
-          <p className="text-gray-500 text-sm sm:text-base">
-            No hay rendiciones disponibles
-          </p>
+          <p className="text-gray-500 text-sm sm:text-base">No hay rendiciones disponibles</p>
         </div>
       )}
     </>

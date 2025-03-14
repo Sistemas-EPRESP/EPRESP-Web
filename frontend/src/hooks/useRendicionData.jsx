@@ -10,7 +10,7 @@ const useRendicionData = (id) => {
     if (!id) return;
     setLoading(true);
     axiosInstance
-      .get(`/rendiciones/obtener-rendicion/${id}`)
+      .get(`/api/rendiciones/obtener-rendicion/${id}`)
       .then((response) => {
         setRendicionData(response.data);
         setLoading(false);

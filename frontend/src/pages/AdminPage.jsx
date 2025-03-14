@@ -10,7 +10,7 @@ const AdminPage = () => {
   useEffect(() => {
     // Obtener la lista de cooperativas del backend
     axios
-      .get("/cooperativas/obtener-cooperativas")
+      .get("api/cooperativas/obtener-cooperativas")
       .then((response) => setCooperativas(response.data))
       .catch((error) => console.error("Error fetching cooperatives:", error));
   }, []);
@@ -18,7 +18,7 @@ const AdminPage = () => {
   const fetchRenditions = () => {
     if (selectedCooperativa) {
       axios
-        .get(`/cooperativas/obtener-preformularios/${selectedCooperativa}`)
+        .get(`api/cooperativas/obtener-preformularios/${selectedCooperativa}`)
         .then((response) => setRendiciones(response.data))
         .catch((error) => console.error("Error fetching renditions:", error));
     } else {
@@ -35,14 +35,9 @@ const AdminPage = () => {
 
   return (
     <>
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-        Control de Rendiciones
-      </h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Control de Rendiciones</h1>
 
-      <label
-        htmlFor="cooperative"
-        className="block text-sm font-medium text-gray-700"
-      >
+      <label htmlFor="cooperative" className="block text-sm font-medium text-gray-700">
         Seleccionar Cooperativa
       </label>
       <div className="mb-6 sm:mb-8 flex items-center space-x-4">
@@ -75,9 +70,7 @@ const AdminPage = () => {
         </div>
       ) : (
         <div className="text-center py-8 sm:py-12">
-          <p className="text-gray-500 text-sm sm:text-base">
-            Seleccione una cooperativa para ver sus rendiciones
-          </p>
+          <p className="text-gray-500 text-sm sm:text-base">Seleccione una cooperativa para ver sus rendiciones</p>
         </div>
       )}
     </>

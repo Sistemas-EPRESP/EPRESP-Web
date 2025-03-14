@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import TablaDemandas from "../tables/TablaDemandas";
 import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
-import FileUpload from "../ui/FileUpload";
 import { AuthContext } from "../../context/AuthContext";
 import MonthSelect from "../ui/MonthSelect";
 import { formatCUIT } from "../../utils/formatCUIT";
@@ -19,7 +18,7 @@ const FormularioRendicion = ({ setMes }) => {
   const years = Array.from({ length: currentYear - 2019 + 1 }, (_, index) => 2019 + index);
 
   // Estados locales
-  const [setPdfFile] = useState(null);
+  // const [setPdfFile] = useState(null);
   const [formValues, setFormValues] = useState({
     fecha_transferencia: "",
     periodo_mes: 1,
@@ -311,9 +310,9 @@ const FormularioRendicion = ({ setMes }) => {
         )}
 
         {/* Opción para subir comprobante de pago */}
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <FileUpload onChange={(file) => setPdfFile(file)} />
-        </div>
+        </div> */}
 
         {/* Botón de envío */}
         <div className="pt-6 border-t">

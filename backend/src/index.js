@@ -29,9 +29,21 @@ app.use(
 
 // Rutas
 app.use('/api/auth', authRoutes);
-app.use('/api', usuarioRoutes);
-app.use('/api', rendicionRoutes);
-app.use('/api/cooperativas', coopRoutes);
+app.use(
+  '/api',
+  //verificarToken,
+  usuarioRoutes,
+);
+app.use(
+  '/api/rendiciones',
+  //verificarToken,
+  rendicionRoutes,
+);
+app.use(
+  '/api/cooperativas',
+  //verificarToken,
+  coopRoutes,
+);
 
 // Conectar con la base de datos
 sequelize

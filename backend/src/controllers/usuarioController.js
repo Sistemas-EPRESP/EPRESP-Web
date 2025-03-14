@@ -1,6 +1,7 @@
 const userServices = require('../services/userServices');
 const adminServices = require('../services/adminServices');
 const coopServices = require('../services/coopServices');
+const transporter = require('../services/emailServices');
 
 const createUser = async (req, res) => {
   const {
@@ -49,6 +50,31 @@ const createUser = async (req, res) => {
   }
 };
 
+const sendMail = async (req, res) => {
+  //const { email, subject, message } = req.body;
+  try {
+    // Opciones del correo
+    const mailOptions = {
+      from: 'areasistemas@eprespchubut.gob.ar', // Reemplaza con tu correo electrónico
+      to: 'cachigaliano1997@gmail.com', // Correo de prueba
+      subject: 'Mensaje de prueba',
+      text: 'Texto de prueba',
+    };
+
+    // Enviar correo
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      message: 'Correo enviado exitosamente',
+    });
+  } catch (error) {
+    res.status(404).json({
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createUser,
+  sendMail,
 };
