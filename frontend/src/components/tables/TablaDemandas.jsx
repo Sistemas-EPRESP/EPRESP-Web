@@ -167,6 +167,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
                 <td className="px-4 py-2">
                   <TextInput
                     name="observaciones"
+                    disabled={disabled}
                     value={data.observaciones}
                     onChange={handleChange(row.key, "observaciones")}
                   />

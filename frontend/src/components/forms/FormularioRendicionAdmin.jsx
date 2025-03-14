@@ -4,7 +4,6 @@ import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
 import { getNombreMes } from "../../utils/dateUtils";
 import { formatCUIT } from "../../utils/formatCUIT";
-import ComprobantePDF from "../ui/ComprobantePDF";
 import useRendicionData from "../../hooks/useRendicionData";
 import { transformarDemandas } from "../../utils/transformarDemandas";
 
@@ -138,7 +137,7 @@ const FormularioRendicionAdmin = () => {
           <TablaDemandas demandas={demandasTransformadas} selectedMonth={periodo_mes} disabled />
 
           {/* Comprobante PDF */}
-          <ComprobantePDF />
+          {/* <ComprobantePDF /> */}
         </div>
       </div>
     </div>

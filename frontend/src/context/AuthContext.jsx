@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
     const checkSession = async () => {
       try {
-        const response = await axios.post("/auth/refresh");
+        const response = await axios.post("api/auth/refresh");
 
         if (isMounted) {
           if (response.status === 200 && response.data) {
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (cuit, password) => {
     try {
-      const response = await axios.post("/auth/login", { cuit, password });
+      const response = await axios.post("api/auth/login", { cuit, password });
       if (response.status === 200 && response.data) {
         setIsAuthenticated(true);
         setCooperativa(response.data.userData);
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post("/auth/logout", {});
+      await axios.post("api/auth/logout", {});
     } catch (error) {
       // Manejo del error si es necesario
     }
@@ -92,9 +92,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider
-      value={{ isAuthenticated, cooperativa, login, logout, loading }}
-    >
+    <AuthContext.Provider value={{ isAuthenticated, cooperativa, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
