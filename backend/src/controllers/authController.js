@@ -40,7 +40,14 @@ const loginController = async (req, res) => {
 };
 
 const logoutController = async (req, res) => {
-  res.cookie('token', '', {
+  res.cookie('accessToken', '', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    expires: new Date(0), // Expirar la cookie inmediatamente
+  });
+
+  res.cookie('refreshToken', '', {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
@@ -49,7 +56,6 @@ const logoutController = async (req, res) => {
 
   return res.status(200).json({ message: 'Logout exitoso' });
 };
-
 // Endpoint para refrescar el Access Token
 const refreshTokenController = async (req, res) => {
   try {
