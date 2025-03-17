@@ -1,32 +1,29 @@
 import { useState, useEffect, forwardRef } from "react";
 
 const NumericInput = forwardRef(({ name, value = 0, onChange, disabled = false }, ref) => {
-  // Si el valor es numérico, lo convertimos a cadena formateada; si no, lo usamos tal cual
-  const initialVal = typeof value === "number" ? value.toFixed(2) : value;
-  const [internalValue, setInternalValue] = useState(initialVal);
-
-  useEffect(() => {
-    const formatted = typeof value === "number" ? value.toFixed(2) : value;
-    setInternalValue(formatted);
-  }, [value]);
-
-  const triggerOnChange = (newValue) => {
-    if (onChange) {
-      // Convertir newValue a número para enviarlo al componente padre
-      const num = parseFloat(newValue);
-      const valueToSend = isNaN(num) ? 0 : num;
-      if (name !== undefined) {
-        onChange({ target: { name, value: valueToSend } });
-      } else {
-        onChange(valueToSend);
-      }
-    }
+  // Se formatea el valor a 2 decimales si es numérico
+  const getFormattedValue = (val) => {
+    const parsed = parseFloat(val);
+    return !isNaN(parsed) ? parsed.toFixed(2) : "";
   };
 
-  // Formatea el valor a 2 decimales
-  const formatValue = (val) => {
-    const numberValue = parseFloat(val);
-    return isNaN(numberValue) ? "0.00" : numberValue.toFixed(2);
+  const [internalValue, setInternalValue] = useState(typeof value === "number" ? value.toFixed(2) : value);
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Actualizamos el valor interno solo si el input no está enfocado
+  useEffect(() => {
+    if (!isFocused) {
+      setInternalValue(typeof value === "number" ? value.toFixed(2) : value);
+    }
+  }, [value, isFocused]);
+
+  // Propaga el cambio al componente padre
+  const triggerOnChange = (newVal) => {
+    if (onChange) {
+      const num = parseFloat(newVal);
+      const valueToSend = isNaN(num) ? 0 : num;
+      onChange({ target: { name, value: valueToSend } });
+    }
   };
 
   const handleChange = (e) => {
@@ -41,19 +38,17 @@ const NumericInput = forwardRef(({ name, value = 0, onChange, disabled = false }
     triggerOnChange(newValue);
   };
 
-  const handleBlur = () => {
-    const formatted = formatValue(internalValue);
-    setInternalValue(formatted);
-    triggerOnChange(formatted);
+  // Al recibir foco, se selecciona todo el contenido
+  const handleFocus = (e) => {
+    setIsFocused(true);
+    e.target.select();
   };
 
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      const formatted = formatValue(internalValue);
-      setInternalValue(formatted);
-      triggerOnChange(formatted);
-    }
+  const handleBlur = () => {
+    const formatted = getFormattedValue(internalValue);
+    setInternalValue(formatted);
+    triggerOnChange(formatted);
+    setIsFocused(false);
   };
 
   return (
@@ -63,8 +58,8 @@ const NumericInput = forwardRef(({ name, value = 0, onChange, disabled = false }
       name={name}
       value={internalValue}
       onChange={handleChange}
+      onFocus={handleFocus}
       onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
       disabled={disabled}
       className={`w-full pl-2 pr-2 py-1 text-left rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
         disabled ? "bg-gray-100 cursor-not-allowed text-gray-500" : ""

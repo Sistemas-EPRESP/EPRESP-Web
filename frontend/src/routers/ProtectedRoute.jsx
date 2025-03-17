@@ -20,9 +20,6 @@ const ProtectedRoute = ({ allowedRoles }) => {
     return <Navigate to="/no-autorizado" replace />;
   }
 
-  // ProtectedRoute.jsx (fragmento de depuración)
-  console.log("isAuthenticated:", isAuthenticated);
-
   return <Outlet />;
 };
 
