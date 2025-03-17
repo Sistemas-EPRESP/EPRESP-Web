@@ -9,20 +9,27 @@ const router = express.Router();
 
 router.post(
   '/formulario-rendicion/:id',
-  //verificarCooperativa,
+  verificarCooperativa,
   rendicionController.createFormularioRendicion,
 );
 
 router.put(
   '/modificar-rendicion/:id',
-  //verificarCooperativa,
+  verificarToken,
+  verificarCooperativa,
   rendicionController.updateFormularioRendicion,
 );
 
-router.get('/obtener-rendicion/:id', rendicionController.obtenerRendicion);
+router.get(
+  '/obtener-rendicion/:id',
+  verificarToken,
+  verificarCooperativa,
+  rendicionController.obtenerRendicion,
+);
 router.post(
   '/aprobar-rendicion/:id',
-  //verificarAdmin,
+  verificarToken,
+  verificarAdmin,
   rendicionController.aprobarRendicion,
 );
 
