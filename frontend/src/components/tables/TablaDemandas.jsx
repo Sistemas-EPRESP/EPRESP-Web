@@ -1,11 +1,11 @@
 import { useMemo } from "react";
-import NumericInput from "../ui/NumericInput";
-import TextInput from "../ui/TextInput";
+import NumericInputTable from "../ui/NumericInputTable";
+import TextInputTable from "../ui/TextInputTable";
 import { formatPesos } from "../../utils/formatPesos";
 import { getNombreMes, getNombreMesAnterior } from "../../utils/dateUtils";
 
 const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth }) => {
-  // 1. Definir filas fijas
+  // Filas fijas
   const rowOrder = useMemo(
     () => [
       { key: "residencial", label: "Residencial" },
@@ -18,7 +18,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     []
   );
 
-  // 2. Valores base para cada fila (se almacenan como cadenas para evitar formateo automático)
+  // Valores por defecto para cada fila
   const getDefaultDemandas = () => {
     return rowOrder.reduce((acc, row) => {
       acc[row.key] = {
@@ -32,7 +32,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     }, {});
   };
 
-  // 3. Fusionar datos recibidos con valores por defecto, convirtiendo los valores numéricos a cadena
+  // Fusionar datos recibidos con valores por defecto
   const mergeDemandas = (data) => {
     const defaults = getDefaultDemandas();
     if (!data) return defaults;
@@ -54,7 +54,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
 
   const mergedDemandas = useMemo(() => mergeDemandas(demandas), [demandas, rowOrder]);
 
-  // 4. Calcular totales convirtiendo las cadenas a números
+  // Calcular totales de cada columna
   const totals = useMemo(() => {
     const newTotals = {
       facturacion: 0,
@@ -81,7 +81,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     };
   }, [mergedDemandas, rowOrder]);
 
-  // 5. Función para manejar el cambio de valor en cada celda
+  // Actualizar el valor de una celda
   const handleCellChange = (rowKey, field, newValue) => {
     if (disabled || !setDemandas) return;
     setDemandas((prev) => {
@@ -90,6 +90,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
         ...prevRow,
         [field]: newValue,
       };
+      // Actualizar la tasaFiscalizacion cuando se modifica la facturación
       if (field === "facturacion") {
         const parsed = parseFloat(newValue);
         updatedRow.tasaFiscalizacion = !isNaN(parsed) ? (parsed * 0.01).toFixed(2) : "";
@@ -101,11 +102,22 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     });
   };
 
-  // 6. Función para manejar el evento onKeyDown en cada input
+  // Actualizar observaciones
+  const handleObservacionesChange = (rowKey, newValue) => {
+    if (disabled || !setDemandas) return;
+    setDemandas((prev) => ({
+      ...prev,
+      [rowKey]: {
+        ...prev[rowKey],
+        observaciones: newValue,
+      },
+    }));
+  };
+
+  // Navegación entre inputs con Enter
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      // Selecciona todos los inputs de la tabla usando una clase común
       const inputs = document.querySelectorAll(".tabla-demandas-input");
       const index = Array.prototype.indexOf.call(inputs, e.target);
       if (index > -1 && index < inputs.length - 1) {
@@ -114,9 +126,9 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     }
   };
 
-  // 7. Renderizado de celdas numéricas: se pasa el valor sin formatear (cadena) para evitar el auto-formateo
+  // Renderizar celda numérica usando NumericInputTable
   const renderNumericCell = (rowKey, field, value) => (
-    <NumericInput
+    <NumericInputTable
       className="tabla-demandas-input"
       value={value}
       disabled={disabled}
@@ -128,19 +140,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     />
   );
 
-  const handleChange =
-    (categoria, fieldName) =>
-    ({ target: { value } }) => {
-      setDemandas((prev) => ({
-        ...prev,
-        [categoria]: {
-          ...prev[categoria],
-          [fieldName]: value,
-        },
-      }));
-    };
-
-  // 8. Nombres de meses para encabezados
+  // Nombres de meses para encabezados
   const facturacionMonthName = selectedMonth ? getNombreMesAnterior(selectedMonth) : "";
   const totalPercibidoMonthName = selectedMonth ? getNombreMes(selectedMonth) : "";
 
@@ -181,12 +181,12 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
                 <td className="px-4 py-2">{renderNumericCell(row.key, "totalPercibido", data.totalPercibido)}</td>
                 <td className="px-4 py-2">{renderNumericCell(row.key, "totalTransferido", data.totalTransferido)}</td>
                 <td className="px-4 py-2">
-                  <TextInput
+                  <TextInputTable
                     name="observaciones"
                     disabled={disabled}
                     className="tabla-demandas-input"
                     value={data.observaciones}
-                    onChange={handleChange(row.key, "observaciones")}
+                    onChange={(e) => handleObservacionesChange(row.key, e.target.value)}
                     onKeyDown={handleKeyDown}
                   />
                 </td>
