@@ -10,16 +10,15 @@ const coopController = require('../controllers/coopControllers');
 // Ruta para obtener todas las cooperativas
 router.get(
   '/obtener-cooperativas',
-  //verificarToken,
-  //verificarAdmin,
+  verificarToken,
+  verificarAdmin,
   coopController.obtenerCooperativas,
 );
 
 // Ruta para obtener datos previos a un formulario de una cooperativa por ID
 router.get(
   '/obtener-preformularios/:id',
-  //verificarToken,
-  //verificarAdmin,
+  verificarToken,
   coopController.obtenerPreFormularios,
 );
 
