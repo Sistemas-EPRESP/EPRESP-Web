@@ -9,6 +9,7 @@ import { formatCUIT } from "../../utils/formatCUIT";
 import { transformarDemandas } from "../../utils/transformarDemandas";
 import useRendicionData from "../../hooks/useRendicionData";
 import { toast } from "react-toastify";
+import axios from "../../config/AxiosConfig";
 
 const FormularioRendicion = ({ setMes }) => {
   const { cooperativa } = useContext(AuthContext);
@@ -17,8 +18,7 @@ const FormularioRendicion = ({ setMes }) => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 2019 + 1 }, (_, index) => 2019 + index);
 
-  // Estados locales
-  // const [setPdfFile] = useState(null);
+  // Estado para valores del formulario
   const [formValues, setFormValues] = useState({
     fecha_transferencia: "",
     periodo_mes: 1,
@@ -35,9 +35,6 @@ const FormularioRendicion = ({ setMes }) => {
 
   useEffect(() => {
     if (rendicionData) {
-      // console.log("Datos completos de la rendición:", rendicionData); // 👈 Para ver toda la respuesta
-      // console.log("Demandas recibidas:", rendicionData.Demandas); // 👈 Para ver solo las demandas
-
       setFormValues({
         fecha_transferencia: rendicionData.fecha_transferencia || "",
         periodo_mes: rendicionData.periodo_mes ? parseInt(rendicionData.periodo_mes, 10) : 1,
@@ -57,11 +54,10 @@ const FormularioRendicion = ({ setMes }) => {
   }, [setMes, formValues.periodo_mes]);
 
   // Manejo de cambios en los inputs
-  const handleInputChange = ({ name, value }) => {
-    setFormValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleInputChange = (e) => {
+    // Se reciben eventos nativos o bien objetos { name, value }
+    const { name, value } = e.target ? e.target : e;
+    setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
   // Manejo del envío del formulario
@@ -100,16 +96,17 @@ const FormularioRendicion = ({ setMes }) => {
     };
 
     try {
-      // Ejemplo de envío según modo (creación o edición)
-      // let response;
-      // if (isEditMode) {
-      //   response = await axiosInstance.put(`/rendiciones/formulario-rendicion/${id}`, { rendicion });
-      // } else {
-      //   response = await axiosInstance.post(`/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`, { rendicion });
-      // }
-      // if (response.status === 200 || response.status === 201) {
-      //   setMensaje(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
-      // }
+      let response;
+      if (isEditMode) {
+        response = await axios.put(`api/rendiciones/modificar-rendicion/${id}`, { rendicion });
+      } else {
+        response = await axios.post(`api/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`, {
+          rendicion,
+        });
+      }
+      if (response.status === 200 || response.status === 201) {
+        setMensaje(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
+      }
       console.log(rendicion);
       toast.success(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
     } catch (err) {
@@ -120,11 +117,11 @@ const FormularioRendicion = ({ setMes }) => {
     }
   };
 
-  // Manejo de navegación entre inputs al presionar Enter
+  // Manejo de navegación entre inputs al presionar Enter en el formulario
   const handleFormKeyDown = (e) => {
     if (e.key === "Enter") {
-      if (e.target.closest("table")) return;
       e.preventDefault();
+      // Se obtienen todos los elementos focusables dentro del formulario
       const form = e.target.form;
       const focusable = form.querySelectorAll(
         "input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])"
@@ -203,7 +200,7 @@ const FormularioRendicion = ({ setMes }) => {
                   name="fecha_transferencia"
                   required
                   value={formValues.fecha_transferencia}
-                  onChange={handleInputChange}
+                  onChange={(e) => handleInputChange({ name: e.target.name, value: e.target.value })}
                   className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -308,11 +305,6 @@ const FormularioRendicion = ({ setMes }) => {
             </ul>
           </div>
         )}
-
-        {/* Opción para subir comprobante de pago */}
-        {/* <div className="mt-6">
-          <FileUpload onChange={(file) => setPdfFile(file)} />
-        </div> */}
 
         {/* Botón de envío */}
         <div className="pt-6 border-t">
