@@ -123,7 +123,6 @@ const FormularioRendicion = ({ setMes }) => {
   // Manejo de navegación entre inputs al presionar Enter
   const handleFormKeyDown = (e) => {
     if (e.key === "Enter") {
-      if (e.target.closest("table")) return;
       e.preventDefault();
       const form = e.target.form;
       const focusable = form.querySelectorAll(
