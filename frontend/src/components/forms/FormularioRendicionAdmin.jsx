@@ -6,6 +6,8 @@ import { getNombreMes } from "../../utils/dateUtils";
 import { formatCUIT } from "../../utils/formatCUIT";
 import useRendicionData from "../../hooks/useRendicionData";
 import { transformarDemandas } from "../../utils/transformarDemandas";
+import IncumplimientosSanciones from "../IncumplimientosSanciones";
+import ComprobantePDF from "../ui/ComprobantePDF";
 
 const FormularioRendicionAdmin = () => {
   const { id } = useParams();
@@ -137,7 +139,16 @@ const FormularioRendicionAdmin = () => {
           <TablaDemandas demandas={demandasTransformadas} selectedMonth={periodo_mes} disabled />
 
           {/* Comprobante PDF */}
-          {/* <ComprobantePDF /> */}
+          <ComprobantePDF />
+
+          <IncumplimientosSanciones />
+
+          {/* Contenedor del botón alineado a la derecha */}
+          <div className="pt-6 border-t flex justify-end">
+            <button className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+              Revisar
+            </button>
+          </div>
         </div>
       </div>
     </div>
