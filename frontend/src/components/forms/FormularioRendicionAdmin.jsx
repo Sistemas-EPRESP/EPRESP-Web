@@ -139,7 +139,7 @@ const FormularioRendicionAdmin = () => {
           <TablaDemandas demandas={demandasTransformadas} selectedMonth={periodo_mes} disabled />
 
           {/* Comprobante PDF */}
-          <ComprobantePDF />
+          {/* <ComprobantePDF /> */}
 
           <IncumplimientosSanciones />
 
