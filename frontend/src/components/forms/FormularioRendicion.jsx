@@ -76,6 +76,7 @@ const FormularioRendicion = ({ setMes }) => {
     Object.keys(demandas).forEach((categoria) => {
       demandasPayload[categoria] = {
         facturacion: parseFloat(demandas[categoria].facturacion) || 0.0,
+        total_tasa_fiscalizacion: parseFloat(demandas[categoria].tasaFiscalizacion) || 0.0,
         total_percibido: parseFloat(demandas[categoria].totalPercibido) || 0.0,
         total_transferido: parseFloat(demandas[categoria].totalTransferido) || 0.0,
         observaciones: demandas[categoria].observaciones || "",
