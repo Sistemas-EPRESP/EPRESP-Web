@@ -11,6 +11,7 @@ import SancionesIncumplimientos from "../SancionesIncumplimientos";
 import useRendicionData from "../../hooks/useRendicionData";
 import { toast } from "react-toastify";
 import axios from "../../config/AxiosConfig";
+import { formatPesos } from "../../utils/formatPesos";
 
 const FormularioRendicion = ({ setMes }) => {
   const { cooperativa } = useContext(AuthContext);
@@ -297,14 +298,13 @@ const FormularioRendicion = ({ setMes }) => {
 
         {/* Precauciones si el total transferido es menor que el total percibido */}
         {shouldShowPrecauciones && (
-          <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
-            <h3 className="text-sm font-semibold text-yellow-800 mb-2">Precauciones</h3>
-            <ul className="list-disc pl-5 text-yellow-800 text-sm">
-              <li>
-                El total transferido no puede ser menor que el total percibido. (Transferido:{" "}
-                {totalTransferido.toFixed(2)} vs. Percibido: {totalPercibido.toFixed(2)})
-              </li>
-            </ul>
+          <div role="alert" className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
+            <h3 className="text-sm font-semibold text-yellow-800 mb-2">Advertencia</h3>
+            <p className="text-yellow-800 text-sm">
+              El monto transferido <strong>${formatPesos(totalTransferido)}</strong> es menor que el monto percibido{" "}
+              <strong>${formatPesos(totalPercibido)}</strong>. Por favor, verifica que los valores ingresados sean
+              correctos.
+            </p>
           </div>
         )}
 
