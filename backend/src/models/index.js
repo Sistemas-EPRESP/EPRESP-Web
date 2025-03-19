@@ -4,6 +4,7 @@ const Cooperativa = require('./Cooperativa');
 const Administrador = require('./Administrador');
 const Rendicion = require('./Rendicion');
 const Demanda = require('./Demanda');
+const Incumplimientos = require('./Incumplimientos');
 
 // Importamos las asociaciones
 require('./asociaciones');
@@ -15,4 +16,5 @@ module.exports = {
   Administrador,
   Rendicion,
   Demanda,
+  Incumplimientos,
 };

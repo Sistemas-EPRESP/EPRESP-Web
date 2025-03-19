@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.post(
   '/formulario-rendicion/:id',
+  verificarToken,
   verificarCooperativa,
   rendicionController.createFormularioRendicion,
 );
@@ -23,7 +24,6 @@ router.put(
 router.get(
   '/obtener-rendicion/:id',
   verificarToken,
-  verificarCooperativa,
   rendicionController.obtenerRendicion,
 );
 router.post(
