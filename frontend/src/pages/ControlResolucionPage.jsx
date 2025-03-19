@@ -63,12 +63,12 @@ const ControlResolucionPage = () => {
     demandas: demandasPayload,
   };
 
+  console.log("holi", rendicion);
+
   return (
     <div className="bg-white shadow-sm rounded-lg p-6 sm:p-8 mb-8">
       {!cooperativa ? (
-        <p>
-          No se encontró la cooperativa asociada o no se ha iniciado sesión.
-        </p>
+        <p>No se encontró la cooperativa asociada o no se ha iniciado sesión.</p>
       ) : (
         <>
           <FormularioRendicion

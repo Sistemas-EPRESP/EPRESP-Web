@@ -141,7 +141,7 @@ const FormularioRendicionAdmin = () => {
           {/* Comprobante PDF */}
           {/* <ComprobantePDF /> */}
 
-          <IncumplimientosSanciones />
+          <IncumplimientosSanciones incumplimientos={rendicionData.Incumplimientos} />
 
           {/* Contenedor del botón alineado a la derecha */}
           <div className="pt-6 border-t flex justify-end">

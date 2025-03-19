@@ -7,6 +7,7 @@ import { AuthContext } from "../../context/AuthContext";
 import MonthSelect from "../ui/MonthSelect";
 import { formatCUIT } from "../../utils/formatCUIT";
 import { transformarDemandas } from "../../utils/transformarDemandas";
+import SancionesIncumplimientos from "../SancionesIncumplimientos";
 import useRendicionData from "../../hooks/useRendicionData";
 import { toast } from "react-toastify";
 import axios from "../../config/AxiosConfig";
@@ -305,6 +306,10 @@ const FormularioRendicion = ({ setMes }) => {
               </li>
             </ul>
           </div>
+        )}
+
+        {isEditMode && rendicionData.Incumplimientos && rendicionData.Incumplimientos.length > 0 && (
+          <SancionesIncumplimientos incumplimientos={rendicionData.Incumplimientos} />
         )}
 
         {/* Botón de envío */}
