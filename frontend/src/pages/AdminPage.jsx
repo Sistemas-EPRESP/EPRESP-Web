@@ -34,12 +34,11 @@ const AdminPage = () => {
   }, [rendiciones]);
 
   return (
-    <>
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Control de Rendiciones</h1>
+    <section aria-labelledby="admin-page-title" className="py-6">
+      <h1 id="admin-page-title" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
+        Control de Rendiciones
+      </h1>
 
-      <label htmlFor="cooperative" className="block text-sm font-medium text-gray-700">
-        Seleccionar Cooperativa
-      </label>
       <div className="mb-6 sm:mb-8 flex items-center space-x-4">
         <select
           id="cooperative"
@@ -73,7 +72,7 @@ const AdminPage = () => {
           <p className="text-gray-500 text-sm sm:text-base">Seleccione una cooperativa para ver sus rendiciones</p>
         </div>
       )}
-    </>
+    </section>
   );
 };
 
