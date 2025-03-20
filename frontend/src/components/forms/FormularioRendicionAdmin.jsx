@@ -1,4 +1,6 @@
 import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axiosInstance from "../../config/AxiosConfig";
 import TablaDemandas from "../tables/TablaDemandas";
 import NumericInput from "../ui/NumericInput";
 import TextInput from "../ui/TextInput";
@@ -11,6 +13,14 @@ import IncumplimientosSanciones from "../IncumplimientosSanciones";
 const FormularioRendicionAdmin = () => {
   const { id } = useParams();
   const { rendicionData, loading, error } = useRendicionData(id);
+  const [incumplimientos, setIncumplimientos] = useState([]);
+
+  useEffect(() => {
+    if (rendicionData && rendicionData.incumplimientos) {
+      // Inicializa el estado con los incumplimientos recibidos
+      setIncumplimientos(rendicionData.incumplimientos);
+    }
+  }, [rendicionData]);
 
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
@@ -29,6 +39,14 @@ const FormularioRendicionAdmin = () => {
   } = rendicionData;
 
   const demandasTransformadas = transformarDemandas(Demandas);
+
+  // Función para enviar los datos de incumplimientos
+  const handleSubmit = () => {
+    axiosInstance.post(`/api/rendiciones/agregar-incumplimientos/${id}`, { incumplimientos }).catch((error) => {
+      console.error("Error al enviar datos:", error);
+      // Aquí maneja el error, mostrando un mensaje, por ejemplo
+    });
+  };
 
   return (
     <article className="bg-white rounded-lg shadow-sm p-6">
@@ -167,13 +185,17 @@ const FormularioRendicionAdmin = () => {
 
         {/* Sección de Incumplimientos y Sanciones */}
         <section className="mt-10">
-          <IncumplimientosSanciones incumplimientos={rendicionData.incumplimientos} />
+          {/* Se le pasan tanto los incumplimientos como la función para actualizarlos */}
+          <IncumplimientosSanciones incumplimientos={incumplimientos} setIncumplimientos={setIncumplimientos} />
         </section>
       </section>
 
       {/* Área de acción: Botón de revisión */}
       <footer className="pt-6 border-t flex justify-end">
-        <button className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <button
+          onClick={handleSubmit}
+          className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
           Revisar
         </button>
       </footer>
