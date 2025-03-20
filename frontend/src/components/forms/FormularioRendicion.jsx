@@ -57,7 +57,6 @@ const FormularioRendicion = ({ setMes }) => {
 
   // Manejo de cambios en los inputs
   const handleInputChange = (e) => {
-    // Se reciben eventos nativos o bien objetos { name, value }
     const { name, value } = e.target ? e.target : e;
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
@@ -103,9 +102,7 @@ const FormularioRendicion = ({ setMes }) => {
       if (isEditMode) {
         response = await axios.put(`api/rendiciones/modificar-rendicion/${id}`, { rendicion });
       } else {
-        response = await axios.post(`api/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`, {
-          rendicion,
-        });
+        response = await axios.post(`api/rendiciones/formulario-rendicion/${cooperativa.idCooperativa}`, { rendicion });
       }
       if (response.status === 200 || response.status === 201) {
         setMensaje(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
@@ -124,7 +121,6 @@ const FormularioRendicion = ({ setMes }) => {
   const handleFormKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      // Se obtienen todos los elementos focusables dentro del formulario
       const form = e.target.form;
       const focusable = form.querySelectorAll(
         "input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])"
@@ -152,188 +148,202 @@ const FormularioRendicion = ({ setMes }) => {
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-8 pb-2 border-b">
-        Formulario de Rendición de la Tasa de Fiscalización y Control
-      </h2>
+    <article className="space-y-10">
+      <header className="pb-2 border-b">
+        <h2 className="text-2xl font-semibold text-gray-900">
+          Formulario de Rendición de la Tasa de Fiscalización y Control
+        </h2>
+      </header>
 
-      {/* Información del distribuidor */}
-      <div className="bg-gray-100 p-4 rounded-md mb-8">
+      {/* Sección de información del distribuidor */}
+      <section aria-labelledby="distribuidor-info" className="bg-gray-100 p-4 rounded-md">
+        <header>
+          <h3 id="distribuidor-info" className="sr-only">
+            Información del Distribuidor
+          </h3>
+        </header>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Distribuidor</h3>
+            <p className="text-sm font-medium text-gray-500">Distribuidor</p>
             <p className="text-lg font-semibold text-gray-900">{cooperativa.nombre}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-700">CUIT</h3>
+            <p className="text-sm font-medium text-gray-700">CUIT</p>
             <p className="text-lg font-semibold text-gray-900">{formatCUIT(cooperativa.cuit)}</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <form onSubmit={handleSubmit} onKeyDown={handleFormKeyDown} className="space-y-10">
-        {/* Sección de fechas y período */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {/* Fecha de rendición (deshabilitada) */}
-            <div className="space-y-2">
-              <label htmlFor="fecha_rendicion" className="block text-sm font-medium text-gray-700">
-                Fecha de Rendición
-              </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  id="fecha_rendicion"
-                  name="fecha_rendicion"
-                  value={new Date().toISOString().split("T")[0]}
-                  disabled
-                  className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
-                />
+      {/* Sección del formulario */}
+      <section>
+        <form onSubmit={handleSubmit} onKeyDown={handleFormKeyDown} className="space-y-10">
+          {/* Grupo de fechas y período */}
+          <fieldset className="space-y-4">
+            <legend className="sr-only">Fechas y Período</legend>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {/* Fecha de rendición (deshabilitada) */}
+              <div className="space-y-2">
+                <label htmlFor="fecha_rendicion" className="block text-sm font-medium text-gray-700">
+                  Fecha de Rendición
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    id="fecha_rendicion"
+                    name="fecha_rendicion"
+                    value={new Date().toISOString().split("T")[0]}
+                    disabled
+                    className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
+                  />
+                </div>
+              </div>
+              {/* Fecha de transferencia */}
+              <div className="space-y-2">
+                <label htmlFor="fecha_transferencia" className="block text-sm font-medium text-gray-700">
+                  Fecha de Transferencia
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    id="fecha_transferencia"
+                    name="fecha_transferencia"
+                    required
+                    value={formValues.fecha_transferencia}
+                    onChange={(e) => handleInputChange({ name: e.target.name, value: e.target.value })}
+                    className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
               </div>
             </div>
-            {/* Fecha de transferencia */}
-            <div className="space-y-2">
-              <label htmlFor="fecha_transferencia" className="block text-sm font-medium text-gray-700">
-                Fecha de Transferencia
-              </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  id="fecha_transferencia"
-                  name="fecha_transferencia"
+
+            {/* Selección de mes y año */}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label htmlFor="periodo_rendicion" className="block text-sm font-medium text-gray-700">
+                  Período de Rendición Mes
+                </label>
+                <MonthSelect
+                  value={formValues.periodo_mes}
+                  onChange={(newMonth) => setFormValues((prev) => ({ ...prev, periodo_mes: newMonth }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="anio" className="block text-sm font-medium text-gray-700">
+                  Período de Rendición Año
+                </label>
+                <select
+                  id="anio"
+                  name="periodo_anio"
                   required
-                  value={formValues.fecha_transferencia}
-                  onChange={(e) => handleInputChange({ name: e.target.name, value: e.target.value })}
+                  value={formValues.periodo_anio}
+                  onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
+                >
+                  {years.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-          </div>
+          </fieldset>
 
-          {/* Selección de mes y año */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
-              <label htmlFor="periodo_rendicion" className="block text-sm font-medium text-gray-700">
-                Período de Rendición Mes
+          {/* Grupo de datos de la tasa de fiscalización */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="total_tasa_letras" className="block text-sm font-medium text-gray-700 mb-1">
+                Total Tasa de Fiscalización y Control (Letras)
               </label>
-              <MonthSelect
-                value={formValues.periodo_mes}
-                onChange={(newMonth) => setFormValues((prev) => ({ ...prev, periodo_mes: newMonth }))}
+              <TextInput
+                name="total_tasa_letras"
+                returnEvent
+                value={formValues.total_tasa_letras}
+                onChange={handleInputChange}
+                maxLength={100}
+                placeholder="Ej: Cien mil pesos"
               />
             </div>
-            <div className="space-y-2">
-              <label htmlFor="anio" className="block text-sm font-medium text-gray-700">
-                Período de Rendición Año
+            <div>
+              <label htmlFor="total_tasa" className="block text-sm font-medium text-gray-700 mb-1">
+                Monto (Número)
               </label>
-              <select
-                id="anio"
-                name="periodo_anio"
-                required
-                value={formValues.periodo_anio}
-                onChange={handleInputChange}
-                className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              >
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+              <NumericInput name="total_tasa" value={formValues.total_tasa} onChange={handleInputChange} />
             </div>
           </div>
-        </div>
 
-        {/* Datos de la tasa de fiscalización */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="total_tasa_letras" className="block text-sm font-medium text-gray-700 mb-1">
-              Total Tasa de Fiscalización y Control (Letras)
-            </label>
-            <TextInput
-              name="total_tasa_letras"
-              returnEvent
-              value={formValues.total_tasa_letras}
-              onChange={handleInputChange}
-              maxLength={100}
-              placeholder="Ej: Cien mil pesos"
-            />
+          {/* Grupo de datos de la transferencia */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="total_transferencia_letras" className="block text-sm font-medium text-gray-700 mb-1">
+                Total Transferencia: Pesos (Letras)
+              </label>
+              <TextInput
+                name="total_transferencia_letras"
+                returnEvent
+                value={formValues.total_transferencia_letras}
+                onChange={handleInputChange}
+                maxLength={100}
+                placeholder="Ej: Cien mil pesos"
+              />
+            </div>
+            <div>
+              <label htmlFor="total_transferencia" className="block text-sm font-medium text-gray-700 mb-1">
+                Monto (Número)
+              </label>
+              <NumericInput
+                name="total_transferencia"
+                value={formValues.total_transferencia}
+                onChange={handleInputChange}
+              />
+            </div>
           </div>
-          <div>
-            <label htmlFor="total_tasa" className="block text-sm font-medium text-gray-700 mb-1">
-              Monto (Número)
-            </label>
-            <NumericInput name="total_tasa" value={formValues.total_tasa} onChange={handleInputChange} />
+
+          {/* Tabla de Demandas */}
+          <TablaDemandas demandas={demandas} setDemandas={setDemandas} selectedMonth={formValues.periodo_mes} />
+
+          {/* Precauciones si el total transferido es menor que el total percibido */}
+          {shouldShowPrecauciones && (
+            <div role="alert" className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
+              <h3 className="text-sm font-semibold text-yellow-800 mb-2">Advertencia</h3>
+              <p className="text-yellow-800 text-sm">
+                El monto transferido <strong>${formatPesos(totalTransferido)}</strong> es menor que el monto percibido{" "}
+                <strong>${formatPesos(totalPercibido)}</strong>. Por favor, verifica que los valores ingresados sean
+                correctos.
+              </p>
+            </div>
+          )}
+
+          {/* Sección de sanciones/incumplimientos (si aplica) */}
+          {isEditMode && rendicionData.incumplimientos && rendicionData.incumplimientos.length > 0 && (
+            <SancionesIncumplimientos incumplimientos={rendicionData.incumplimientos} />
+          )}
+
+          {/* Botón de envío */}
+          <div className="pt-6 border-t">
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              {isEditMode ? "Actualizar Rendición" : "Enviar Formulario"}
+            </button>
           </div>
-        </div>
-
-        {/* Datos de la transferencia */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="total_transferencia_letras" className="block text-sm font-medium text-gray-700 mb-1">
-              Total Transferencia: Pesos (Letras)
-            </label>
-            <TextInput
-              name="total_transferencia_letras"
-              returnEvent
-              value={formValues.total_transferencia_letras}
-              onChange={handleInputChange}
-              maxLength={100}
-              placeholder="Ej: Cien mil pesos"
-            />
-          </div>
-          <div>
-            <label htmlFor="total_transferencia" className="block text-sm font-medium text-gray-700 mb-1">
-              Monto (Número)
-            </label>
-            <NumericInput
-              name="total_transferencia"
-              value={formValues.total_transferencia}
-              onChange={handleInputChange}
-            />
-          </div>
-        </div>
-
-        {/* Tabla de Demandas */}
-        <TablaDemandas demandas={demandas} setDemandas={setDemandas} selectedMonth={formValues.periodo_mes} />
-
-        {/* Precauciones si el total transferido es menor que el total percibido */}
-        {shouldShowPrecauciones && (
-          <div role="alert" className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
-            <h3 className="text-sm font-semibold text-yellow-800 mb-2">Advertencia</h3>
-            <p className="text-yellow-800 text-sm">
-              El monto transferido <strong>${formatPesos(totalTransferido)}</strong> es menor que el monto percibido{" "}
-              <strong>${formatPesos(totalPercibido)}</strong>. Por favor, verifica que los valores ingresados sean
-              correctos.
-            </p>
-          </div>
-        )}
-
-        {isEditMode && rendicionData.Incumplimientos && rendicionData.Incumplimientos.length > 0 && (
-          <SancionesIncumplimientos incumplimientos={rendicionData.Incumplimientos} />
-        )}
-
-        {/* Botón de envío */}
-        <div className="pt-6 border-t">
-          <button
-            type="submit"
-            className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            {isEditMode ? "Actualizar Rendición" : "Enviar Formulario"}
-          </button>
-        </div>
-      </form>
+        </form>
+      </section>
 
       {/* Mensajes de respuesta */}
       {mensaje && (
-        <div className="mt-6 p-4 bg-green-50 rounded-md">
+        <section aria-live="polite" className="mt-6 p-4 bg-green-50 rounded-md">
           <p className="text-green-700">{mensaje}</p>
-        </div>
+        </section>
       )}
 
-      <p className="mt-6 text-sm text-gray-500 italic">
-        La información suministrada en este formulario tiene carácter de declaración jurada.
-      </p>
-    </div>
+      <footer>
+        <p className="mt-6 text-sm text-gray-500 italic">
+          La información suministrada en este formulario tiene carácter de declaración jurada.
+        </p>
+      </footer>
+    </article>
   );
 };
 
