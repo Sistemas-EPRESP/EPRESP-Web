@@ -5,7 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Header() {
-  const { logout, isAuthenticated } = useContext(AuthContext);
+  const { logout, isAuthenticated, cooperativa } = useContext(AuthContext);
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -22,13 +22,18 @@ export default function Header() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [cooperativa]);
 
   // Función que ejecuta el logout y redirige a /iniciar_sesion
   const handleLogout = async () => {
+    setDropdownOpen(false);
     await logout();
     navigate("/iniciar_sesion");
   };
+
+  // Define la letra del avatar según el tipo de cooperativa:
+  // Si es "administrador" muestra "A", de lo contrario muestra "C"
+  const avatarLetter = cooperativa && cooperativa.tipo === "administrador" ? "A" : "C";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
@@ -45,9 +50,9 @@ export default function Header() {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={toggleDropdown}
-              className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-xl font-bold"
+              className="w-10 h-10 rounded-full border-2 border-gray-200 bg-gray-100 flex items-center justify-center text-xl font-bold"
             >
-              C
+              {avatarLetter}
             </button>
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg">
