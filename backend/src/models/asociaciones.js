@@ -21,8 +21,8 @@ Rendicion.belongsTo(Cooperativa, { foreignKey: 'cooperativaId' });
 Rendicion.hasMany(Demanda, { foreignKey: 'rendicionId' });
 Demanda.belongsTo(Rendicion, { foreignKey: 'rendicionId' });
 
-// Relacion Rendicion - Incumplimientos (Uno a Muchos)
-Rendicion.hasMany(Incumplimientos, { foreignKey: 'rendicionId' });
-Incumplimientos.belongsTo(Rendicion, { foreignKey: 'rendicionId' });
+// Relacion Cooperativa - Incumplimientos (Uno a Muchos)
+Cooperativa.hasMany(Incumplimientos, { foreignKey: 'cooperativaId' });
+Incumplimientos.belongsTo(Cooperativa, { foreignKey: 'cooperativaId' });
 
 module.exports = { Usuario, Cooperativa, Administrador, Rendicion, Demanda };

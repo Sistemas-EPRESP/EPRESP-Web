@@ -16,6 +16,10 @@ const Incumplimientos = sequelize.define(
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
+    periodo: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     timestamps: true,

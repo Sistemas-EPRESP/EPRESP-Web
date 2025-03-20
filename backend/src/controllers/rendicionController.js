@@ -55,9 +55,24 @@ const aprobarRendicion = async (req, res) => {
   }
 };
 
+const agregarIncumplimientos = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const incumplimientos = req.body.incumplimientos;
+    await rendicionServices.agregarIncumplimientos(incumplimientos, id);
+
+    return res
+      .status(201)
+      .json({ message: 'Incumplimientos agregados correctamente' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createFormularioRendicion,
   updateFormularioRendicion,
   obtenerRendicion,
   aprobarRendicion,
+  agregarIncumplimientos,
 };

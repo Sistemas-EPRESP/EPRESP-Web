@@ -1,4 +1,9 @@
-const { Rendicion, Demanda, Cooperativa } = require('../models');
+const {
+  Rendicion,
+  Demanda,
+  Cooperativa,
+  Incumplimientos,
+} = require('../models');
 const { Op } = require('sequelize');
 
 const agregarFormulario = async (formulario, idCooperativa) => {
@@ -178,7 +183,10 @@ const obtenerPreRendiciones = async (id) => {
 
 const obtenerRendicion = async (id) => {
   try {
-    await verificarFormularioExistenteById(id);
+    // Verificar que el formulario exista
+    const formulario = await verificarFormularioExistenteById(id);
+
+    // Buscar la rendición con el ID proporcionado
     const rendicion = await Rendicion.findOne({
       where: { id },
       attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
@@ -188,9 +196,28 @@ const obtenerRendicion = async (id) => {
           as: 'Demandas',
           attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
         },
-        { model: Cooperativa, attributes: ['nombre', 'cuit'] },
+        {
+          model: Cooperativa,
+          attributes: ['nombre', 'cuit'],
+        },
       ],
     });
+
+    if (!rendicion) {
+      throw new Error(`No se encontró una rendición con el ID ${id}.`);
+    }
+
+    // Buscar los incumplimientos asociados a la cooperativa y el periodo
+    const incumplimientos = await Incumplimientos.findAll({
+      where: {
+        cooperativaId: formulario.cooperativaId,
+        periodo: formulario.codigo_seguimiento, // Usar el código de seguimiento como periodo
+      },
+      attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
+    });
+
+    // Agregar los incumplimientos al objeto rendición
+    rendicion.dataValues.incumplimientos = incumplimientos;
 
     return rendicion;
   } catch (error) {
@@ -215,10 +242,54 @@ const verificarFormularioExistenteById = async (id) => {
   return formularioExistente;
 };
 
+const agregarIncumplimientos = async (incumplimientos, id) => {
+  try {
+    const formulario = await verificarFormularioExistenteById(id);
+
+    // Mapear los incumplimientos y agregar los campos adicionales
+    for (const incumplimiento of incumplimientos) {
+      const { tipo, aprobado } = incumplimiento;
+
+      // Verificar si ya existe un incumplimiento del mismo tipo, periodo y cooperativa
+      const incumplimientoExistente = await Incumplimientos.findOne({
+        where: {
+          tipo,
+          periodo: formulario.codigo_seguimiento, // Código de seguimiento del formulario
+          cooperativaId: formulario.cooperativaId, // ID de la cooperativa asociada
+        },
+      });
+
+      if (incumplimientoExistente) {
+        // Si existe, actualizar el valor de "aprobado"
+        await Incumplimientos.update(
+          { aprobado },
+          {
+            where: {
+              id: incumplimientoExistente.id,
+            },
+          },
+        );
+      } else {
+        // Si no existe, crear un nuevo incumplimiento
+        await Incumplimientos.create({
+          ...incumplimiento,
+          periodo: formulario.codigo_seguimiento,
+          cooperativaId: formulario.cooperativaId,
+        });
+      }
+    }
+
+    return { message: 'Incumplimientos procesados exitosamente' };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 module.exports = {
   agregarFormulario,
   modificarFormulario,
   obtenerPreRendiciones,
   obtenerRendicion,
   aprobarRendicion,
+  agregarIncumplimientos,
 };
