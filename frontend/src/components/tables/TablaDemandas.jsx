@@ -148,20 +148,28 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     <div className="overflow-x-auto">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Tabla de Demandas</h2>
       <table className="w-full border-collapse">
+        {/* Caption oculto para accesibilidad */}
+        <caption className="sr-only">Tabla de Demandas</caption>
         <thead>
           <tr className="bg-gray-50">
-            <th className="px-4 py-2 text-left font-semibold text-gray-700">Demandas</th>
-            <th className="px-4 py-2 text-left font-semibold text-gray-700">
+            <th scope="col" className="px-4 py-2 text-left font-semibold text-gray-700">
+              Demandas
+            </th>
+            <th scope="col" className="px-4 py-2 text-left font-semibold text-gray-700">
               Facturación <span>{facturacionMonthName}</span>
             </th>
-            <th className="px-4 py-2 text-left font-semibold text-gray-700">
+            <th scope="col" className="px-4 py-2 text-left font-semibold text-gray-700">
               Total de Tasa de Fiscalización y Control
             </th>
-            <th className="px-4 py-2 text-left font-semibold text-gray-700">
+            <th scope="col" className="px-4 py-2 text-left font-semibold text-gray-700">
               Total Percibido <span>{totalPercibidoMonthName}</span>
             </th>
-            <th className="px-4 py-2 text-left font-semibold text-gray-700">Total Transferido</th>
-            <th className="px-4 py-2 text-left font-semibold text-gray-700">Observaciones</th>
+            <th scope="col" className="px-4 py-2 text-left font-semibold text-gray-700">
+              Total Transferido
+            </th>
+            <th scope="col" className="px-4 py-2 text-left font-semibold text-gray-700">
+              Observaciones
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -193,8 +201,10 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
               </tr>
             );
           })}
-          <tr className="bg-gray-50">
-            <td className="px-4 py-2 font-semibold" title="Total">
+        </tbody>
+        <tfoot className="bg-gray-50">
+          <tr>
+            <td scope="row" className="px-4 py-2 font-semibold" title="Total">
               Total
             </td>
             <td className="px-4 py-2">
@@ -211,7 +221,7 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
             </td>
             <td className="px-4 py-2">{totals.observaciones}</td>
           </tr>
-        </tbody>
+        </tfoot>
       </table>
     </div>
   );

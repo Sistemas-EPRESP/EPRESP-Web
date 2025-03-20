@@ -38,9 +38,7 @@ const YearGrid = ({ year, rendiciones = [] }) => {
         <div className="mt-4 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
           {months.map((month) => {
             // Buscar la rendición correspondiente para ese mes y año
-            const rendition = rendiciones.find(
-              (r) => r.periodo_mes === month && r.periodo_anio === year
-            );
+            const rendition = rendiciones.find((r) => r.periodo_mes === month && r.periodo_anio === year);
             return (
               <MonthCard
                 key={month}

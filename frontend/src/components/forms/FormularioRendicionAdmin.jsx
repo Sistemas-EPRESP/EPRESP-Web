@@ -7,7 +7,6 @@ import { formatCUIT } from "../../utils/formatCUIT";
 import useRendicionData from "../../hooks/useRendicionData";
 import { transformarDemandas } from "../../utils/transformarDemandas";
 import IncumplimientosSanciones from "../IncumplimientosSanciones";
-import ComprobantePDF from "../ui/ComprobantePDF";
 
 const FormularioRendicionAdmin = () => {
   const { id } = useParams();
@@ -32,25 +31,36 @@ const FormularioRendicionAdmin = () => {
   const demandasTransformadas = transformarDemandas(Demandas);
 
   return (
-    <div className="max-w-7xl mx-auto bg-gray-50 min-h-screen py-8 px-4">
-      <div className="bg-white rounded-lg shadow-sm p-6">
+    <article className="bg-white rounded-lg shadow-sm p-6">
+      <header>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Vista Administrador: Rendición</h1>
+      </header>
 
-        <div className="bg-gray-50 rounded-lg shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <h2 className="text-sm font-medium text-gray-500">Cooperativa</h2>
-              <p className="text-lg font-semibold text-gray-900">{Cooperativa.nombre}</p>
-            </div>
-            <div>
-              <h2 className="text-sm font-medium text-gray-500">CUIT</h2>
-              <p className="text-lg font-semibold text-gray-900">{formatCUIT(Cooperativa.cuit)}</p>
-            </div>
+      {/* Sección de información de la Cooperativa */}
+      <section className="bg-gray-50 rounded-lg shadow-sm p-6 mb-8" aria-labelledby="cooperativa-info">
+        <header>
+          <h2 id="cooperativa-info" className="sr-only">
+            Información de la Cooperativa
+          </h2>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Cooperativa</h3>
+            <p className="text-lg font-semibold text-gray-900">{Cooperativa.nombre}</p>
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">CUIT</h3>
+            <p className="text-lg font-semibold text-gray-900">{formatCUIT(Cooperativa.cuit)}</p>
           </div>
         </div>
+      </section>
 
-        <div className="space-y-10">
-          <div className="space-y-4">
+      {/* Formulario de datos de rendición */}
+      <section className="space-y-10">
+        <form className="space-y-10">
+          {/* Grupo de Fechas */}
+          <fieldset className="space-y-4">
+            <legend className="sr-only">Fechas de Rendición y Transferencia</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="fechaRendicion" className="block text-sm font-medium text-gray-700 mb-1">
@@ -77,7 +87,11 @@ const FormularioRendicionAdmin = () => {
                 />
               </div>
             </div>
+          </fieldset>
 
+          {/* Grupo de Período de Rendición */}
+          <fieldset className="space-y-4">
+            <legend className="sr-only">Período de Rendición</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="periodoMes" className="block text-sm font-medium text-gray-700 mb-1">
@@ -104,7 +118,11 @@ const FormularioRendicionAdmin = () => {
                 />
               </div>
             </div>
+          </fieldset>
 
+          {/* Grupo de Datos de Tasa y Transferencia */}
+          <fieldset className="space-y-4">
+            <legend className="sr-only">Datos de Tasa y Transferencia</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="tasaLetras" className="block text-sm font-medium text-gray-700 mb-1">
@@ -134,24 +152,32 @@ const FormularioRendicionAdmin = () => {
                 <NumericInput value={total_transferencia_numero} disabled onChange={() => {}} />
               </div>
             </div>
-          </div>
+          </fieldset>
+        </form>
 
+        {/* Sección de Tabla de Demandas */}
+        <section className="mt-10" aria-labelledby="tabla-demandas-title">
+          <header>
+            <h2 id="tabla-demandas-title" className="text-lg font-semibold text-gray-900 mb-4">
+              Tabla de Demandas
+            </h2>
+          </header>
           <TablaDemandas demandas={demandasTransformadas} selectedMonth={periodo_mes} disabled />
+        </section>
 
-          {/* Comprobante PDF */}
-          {/* <ComprobantePDF /> */}
+        {/* Sección de Incumplimientos y Sanciones */}
+        <section className="mt-10">
+          <IncumplimientosSanciones incumplimientos={rendicionData.incumplimientos} />
+        </section>
+      </section>
 
-          <IncumplimientosSanciones incumplimientos={rendicionData.Incumplimientos} />
-
-          {/* Contenedor del botón alineado a la derecha */}
-          <div className="pt-6 border-t flex justify-end">
-            <button className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-              Revisar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* Área de acción: Botón de revisión */}
+      <footer className="pt-6 border-t flex justify-end">
+        <button className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          Revisar
+        </button>
+      </footer>
+    </article>
   );
 };
 
