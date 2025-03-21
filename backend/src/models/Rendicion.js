@@ -25,7 +25,7 @@ const Rendicion = sequelize.define(
       allowNull: false,
     },
     tasa_fiscalizacion_numero: {
-      type: DataTypes.DECIMAL(10, 2), // Garantiza dos decimales
+      type: DataTypes.DECIMAL(15, 2), // Garantiza dos decimales
       allowNull: false,
     },
     total_transferencia_letras: {
@@ -33,7 +33,7 @@ const Rendicion = sequelize.define(
       allowNull: false,
     },
     total_transferencia_numero: {
-      type: DataTypes.DECIMAL(10, 2), // Garantiza dos decimales
+      type: DataTypes.DECIMAL(15, 2), // Garantiza dos decimales
       allowNull: false,
     },
     codigo_seguimiento: {

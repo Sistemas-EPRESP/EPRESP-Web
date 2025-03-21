@@ -285,6 +285,49 @@ const agregarIncumplimientos = async (incumplimientos, id) => {
   }
 };
 
+const verificarFormulariosCooperativas = async () => {
+  try {
+    const hoy = new Date();
+    const mesAnterior = hoy.getMonth() === 0 ? 12 : hoy.getMonth();
+    const anioAnterior =
+      hoy.getMonth() === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear();
+
+    // Obtener todas las cooperativas
+    const cooperativas = await Cooperativa.findAll();
+    console.log(mesAnterior, ' ', anioAnterior);
+
+    let cooperativasSinRendicion = [];
+
+    for (const cooperativa of cooperativas) {
+      const rendicion = await Rendicion.findOne({
+        where: {
+          cooperativaId: cooperativa.id,
+          periodo_mes: mesAnterior,
+          periodo_anio: anioAnterior,
+        },
+      });
+
+      if (!rendicion) {
+        cooperativasSinRendicion.push(cooperativa.id);
+      }
+    }
+
+    if (cooperativasSinRendicion.length > 0) {
+      console.log(
+        'Cooperativas sin rendición presentada:',
+        cooperativasSinRendicion,
+      );
+      // Aquí podríamos registrar el incumplimiento en la base de datos
+    } else {
+      console.log(
+        'Todas las cooperativas presentaron su rendición correctamente.',
+      );
+    }
+  } catch (error) {
+    console.error('Error al verificar formularios de cooperativas:', error);
+  }
+};
+
 module.exports = {
   agregarFormulario,
   modificarFormulario,
@@ -292,4 +335,5 @@ module.exports = {
   obtenerRendicion,
   aprobarRendicion,
   agregarIncumplimientos,
+  verificarFormulariosCooperativas,
 };

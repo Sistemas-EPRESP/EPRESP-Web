@@ -26,7 +26,7 @@ router.put(
 // Ruta que devuelve un formulario de rendición
 router.get(
   '/obtener-rendicion/:id',
-  verificarToken,
+  //verificarToken,
   rendicionController.obtenerRendicion,
 );
 

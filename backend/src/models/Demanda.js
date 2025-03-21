@@ -9,19 +9,19 @@ const Demanda = sequelize.define(
       allowNull: false, // residencial, comercial, etc.
     },
     facturacion: {
-      type: DataTypes.DECIMAL(10, 2), // Garantiza dos decimales
+      type: DataTypes.DECIMAL(15, 2), // Garantiza dos decimales
       allowNull: false,
     },
     total_tasa_fiscalizacion: {
-      type: DataTypes.DECIMAL(10, 2), // Garantiza dos decimales
+      type: DataTypes.DECIMAL(15, 2), // Garantiza dos decimales
       allowNull: false,
     },
     total_percibido: {
-      type: DataTypes.DECIMAL(10, 2), // Garantiza dos decimales
+      type: DataTypes.DECIMAL(15, 2), // Garantiza dos decimales
       allowNull: false,
     },
     total_transferido: {
-      type: DataTypes.DECIMAL(10, 2), // Garantiza dos decimales
+      type: DataTypes.DECIMAL(15, 2), // Garantiza dos decimales
       allowNull: false,
     },
     observaciones: {

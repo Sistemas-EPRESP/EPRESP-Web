@@ -34,7 +34,7 @@ const obtenerRendicion = async (req, res) => {
     const { id } = req.params;
 
     const rendicion = await rendicionServices.obtenerRendicion(id);
-
+    rendicion.dataValues.actualizable = false;
     return res.status(200).json(rendicion);
   } catch (error) {
     res.status(400).json({ message: error.message });

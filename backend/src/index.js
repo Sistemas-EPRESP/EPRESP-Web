@@ -6,6 +6,7 @@ const usuarioRoutes = require('./routes/usuarioRoutes');
 const rendicionRoutes = require('./routes/rendicionRoutes');
 const coopRoutes = require('./routes/coopRoutes');
 const cors = require('cors');
+//require('./services/cronJobs');
 require('dotenv').config(); // Cargar variables de entorno
 
 const app = express();
