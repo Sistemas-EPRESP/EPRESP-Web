@@ -19,7 +19,10 @@ const AdminPage = () => {
     if (selectedCooperativa) {
       axios
         .get(`api/cooperativas/obtener-preformularios/${selectedCooperativa}`)
-        .then((response) => setRendiciones(response.data))
+        .then((response) => {
+          console.log(response.data);
+          setRendiciones(response.data);
+        })
         .catch((error) => console.error("Error fetching renditions:", error));
     } else {
       setRendiciones([]);

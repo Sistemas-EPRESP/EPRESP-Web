@@ -12,9 +12,12 @@ const CooperativaRendicionesPage = () => {
   useEffect(() => {
     axios
       .get(`/api/cooperativas/obtener-preformularios/${cooperativa.idCooperativa}`)
-      .then((response) => setRendiciones(response.data))
+      .then((response) => {
+        console.log("Fetched renditions:", response.data);
+        setRendiciones(response.data);
+      })
       .catch((error) => console.error("Error fetching renditions:", error));
-  }, [cooperativa.idCooperativa]);
+  }, [cooperativa.idCooperativa, cooperativa]);
 
   // Extraer los años únicos usando la propiedad 'periodo_anio'
   const years = useMemo(() => {
@@ -25,14 +28,20 @@ const CooperativaRendicionesPage = () => {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{cooperativa.nombre}</h1>
-        <button
-          onClick={() => navigate("/formulario/rendicion")}
-          className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 transition-colors"
-        >
-          Nueva Rendición
-        </button>
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div className="flex flex-col gap-6">
+          <div className="w-full">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{cooperativa.nombre}</h1>
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={() => navigate("/formulario/rendicion")}
+              className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 transition-all duration-200 ease-in-out transform hover:scale-105 min-w-[200px] text-center"
+            >
+              Nueva Rendición
+            </button>
+          </div>
+        </div>
       </div>
 
       {rendiciones.length > 0 ? (
