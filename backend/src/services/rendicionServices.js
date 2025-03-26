@@ -174,7 +174,7 @@ const obtenerPreRendiciones = async (id) => {
   try {
     const rendiciones = await Rendicion.findAll({
       where: { cooperativaId: id },
-      attributes: ['id', 'periodo_mes', 'periodo_anio', 'aprobado'],
+      attributes: ['id', 'periodo_mes', 'periodo_anio', 'estado'],
     });
     return rendiciones;
   } catch (error) {
