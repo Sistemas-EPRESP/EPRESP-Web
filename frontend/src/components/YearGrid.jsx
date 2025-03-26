@@ -43,7 +43,7 @@ const YearGrid = ({ year, rendiciones = [] }) => {
               <MonthCard
                 key={month}
                 month={month}
-                approved={rendition?.aprobado || false}
+                status={rendition?.estado || "Pendiente"}
                 submitted={!!rendition}
                 idRendicion={rendition?.id}
               />
