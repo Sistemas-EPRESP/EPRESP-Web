@@ -42,7 +42,7 @@ const FormularioRendicionAdmin = () => {
 
   // Función para enviar los datos de incumplimientos
   const handleSubmit = () => {
-    axiosInstance.post(`/api/rendiciones/agregar-incumplimientos/${id}`, { incumplimientos }).catch((error) => {
+    axiosInstance.post(`/api/rendiciones/revision/${id}`, { incumplimientos }).catch((error) => {
       console.error("Error al enviar datos:", error);
       // Aquí maneja el error, mostrando un mensaje, por ejemplo
     });
