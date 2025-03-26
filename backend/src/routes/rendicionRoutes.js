@@ -39,9 +39,9 @@ router.post(
 );
 
 router.post(
-  '/agregar-incumplimientos/:id',
+  '/revision/:id',
   //verificarToken,
   //verificarAdmin,
-  rendicionController.agregarIncumplimientos,
+  rendicionController.revision,
 );
 module.exports = router;

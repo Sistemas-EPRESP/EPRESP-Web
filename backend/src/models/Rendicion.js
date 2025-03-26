@@ -41,9 +41,15 @@ const Rendicion = sequelize.define(
       allowNull: false,
       unique: true,
     },
-    aprobado: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+    estado: {
+      type: DataTypes.ENUM(
+        'Pendiente',
+        'Aprobado',
+        'Pendiente de Pago',
+        'Falta de Presentacion',
+        'Incumplimientos',
+      ),
+      defaultValue: 'Pendiente',
     },
   },
   {

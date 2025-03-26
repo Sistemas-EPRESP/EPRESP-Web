@@ -41,6 +41,7 @@ const login = async (cuit, password) => {
       idUsuario: usuario.id,
       idCooperativa: cooperativa?.id || null,
       nombre: cooperativa?.nombre || null,
+      ciudad: cooperativa?.ciudad || null,
       cuit: usuario.cuit,
       email: cooperativa.email, // Asumiendo que tienes un campo email en la tabla Usuario
       tipo: usuario.tipo,

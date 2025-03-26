@@ -3,6 +3,7 @@ const {
   Demanda,
   Cooperativa,
   Incumplimientos,
+  Pago,
 } = require('../models');
 const { Op } = require('sequelize');
 
@@ -219,16 +220,86 @@ const obtenerRendicion = async (id) => {
     // Agregar los incumplimientos al objeto rendición
     rendicion.dataValues.incumplimientos = incumplimientos;
 
+    // Determinar si la rendición es actualizable
+    rendicion.dataValues.actualizable = verificarActualizable(
+      rendicion.fecha_rendicion,
+    );
+
     return rendicion;
   } catch (error) {
     throw new Error(error.message);
   }
 };
 
-const aprobarRendicion = async (id) => {
+const verificarEstado = async (id, aprobado) => {
+  try {
+    // Verificar que el formulario exista
+    const formulario = await verificarFormularioExistenteById(id);
+
+    // Obtener los incumplimientos asociados al formulario
+    const incumplimientos = await Incumplimientos.findAll({
+      where: {
+        cooperativaId: formulario.cooperativaId,
+        periodo: formulario.codigo_seguimiento, // Usar el código de seguimiento como periodo
+        aprobado: true, // Solo incumplimientos aprobados
+      },
+    });
+
+    // Inicializar variables para verificar los estados
+    let tieneFaltaDePresentacion = false;
+    let tienePendienteDePago = false;
+    let tieneOtrosIncumplimientos = false;
+
+    // Verificar los tipos de incumplimientos
+    for (const incumplimiento of incumplimientos) {
+      if (incumplimiento.tipo === 'Falta de Presentacion') {
+        tieneFaltaDePresentacion = true;
+      } else if (incumplimiento.tipo === 'Pendiente de Pago') {
+        tienePendienteDePago = true;
+      } else {
+        tieneOtrosIncumplimientos = true;
+      }
+    }
+
+    // Determinar el estado de la rendición
+    let estado;
+    if (!aprobado) {
+      if (tieneFaltaDePresentacion && tienePendienteDePago) {
+        estado = 'Incumplimientos';
+      } else if (tieneFaltaDePresentacion) {
+        estado = 'Falta de Presentacion';
+      } else if (tienePendienteDePago) {
+        estado = 'Pendiente de Pago';
+      } else if (tieneOtrosIncumplimientos) {
+        estado = 'Incumplimientos';
+      } else {
+        estado = 'Pendiente';
+      }
+    } else {
+      estado = 'Aprobado';
+    }
+
+    // Actualizar el estado de la rendición
+    await Rendicion.update(
+      { estado },
+      {
+        where: { id },
+      },
+    );
+
+    return { message: `Estado actualizado a: ${estado}` };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const agregarPago = async (id, monto) => {
   try {
     await verificarFormularioExistenteById(id);
-    await Rendicion.update({ aprobado: true }, { where: { id } });
+    await Pago.create({
+      monto,
+      rendicionId: id,
+    });
   } catch (error) {
     throw new Error(error.message);
   }
@@ -328,12 +399,40 @@ const verificarFormulariosCooperativas = async () => {
   }
 };
 
+const verificarActualizable = (fecha_rendicion) => {
+  const fechaRendicion = new Date(fecha_rendicion); // Fecha en la que se creó el formulario
+  const fechaActual = new Date(); // Fecha actual
+
+  // Calcular la fecha límite (día 10 del mes siguiente o del mismo mes)
+  let fechaLimite;
+  if (fechaRendicion.getDate() <= 10) {
+    // Si la fecha de rendición es antes o el mismo día 10, la fecha límite es el día 10 del mismo mes
+    fechaLimite = new Date(
+      fechaRendicion.getFullYear(),
+      fechaRendicion.getMonth(),
+      10,
+    );
+  } else {
+    // Si la fecha de rendición es después del día 10, la fecha límite es el día 10 del mes siguiente
+    fechaLimite = new Date(
+      fechaRendicion.getFullYear(),
+      fechaRendicion.getMonth() + 1,
+      10,
+    );
+  }
+
+  // Comparar la fecha actual con la fecha límite
+  return fechaActual <= fechaLimite; // Devuelve true si la fecha actual está dentro del rango permitido
+};
+
 module.exports = {
   agregarFormulario,
   modificarFormulario,
   obtenerPreRendiciones,
   obtenerRendicion,
-  aprobarRendicion,
+  agregarPago,
+  verificarEstado,
+  //aprobarRendicion,
   agregarIncumplimientos,
   verificarFormulariosCooperativas,
 };

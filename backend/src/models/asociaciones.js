@@ -4,6 +4,7 @@ const Administrador = require('./Administrador');
 const Rendicion = require('./Rendicion');
 const Demanda = require('./Demanda');
 const Incumplimientos = require('./Incumplimientos');
+const Pago = require('./Pago');
 
 // 🔗 Relación Cooperativa - Usuario (Uno a Uno)
 Cooperativa.belongsTo(Usuario, { foreignKey: 'usuarioId' });
@@ -24,5 +25,8 @@ Demanda.belongsTo(Rendicion, { foreignKey: 'rendicionId' });
 // Relacion Cooperativa - Incumplimientos (Uno a Muchos)
 Cooperativa.hasMany(Incumplimientos, { foreignKey: 'cooperativaId' });
 Incumplimientos.belongsTo(Cooperativa, { foreignKey: 'cooperativaId' });
+
+Rendicion.hasMany(Pago, { foreignKey: 'rendicionId' });
+Pago.belongsTo(Rendicion, { foreignKey: 'rendicionId' });
 
 module.exports = { Usuario, Cooperativa, Administrador, Rendicion, Demanda };
