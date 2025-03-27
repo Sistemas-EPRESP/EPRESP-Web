@@ -13,7 +13,6 @@ const CooperativaRendicionesPage = () => {
     axios
       .get(`/api/cooperativas/obtener-preformularios/${cooperativa.idCooperativa}`)
       .then((response) => {
-        console.log("Fetched renditions:", response.data);
         setRendiciones(response.data);
       })
       .catch((error) => console.error("Error fetching renditions:", error));

@@ -63,8 +63,6 @@ const ControlResolucionPage = () => {
     demandas: demandasPayload,
   };
 
-  console.log("holi", rendicion);
-
   return (
     <div className="bg-white shadow-sm rounded-lg p-6 sm:p-8 mb-8">
       {!cooperativa ? (

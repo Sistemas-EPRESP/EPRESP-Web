@@ -20,7 +20,6 @@ const AdminPage = () => {
       axios
         .get(`api/cooperativas/obtener-preformularios/${selectedCooperativa}`)
         .then((response) => {
-          console.log(response.data);
           setRendiciones(response.data);
         })
         .catch((error) => console.error("Error fetching renditions:", error));
