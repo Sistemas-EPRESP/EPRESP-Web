@@ -18,14 +18,14 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
     []
   );
 
-  // Valores por defecto para cada fila
+  // Valores por defecto para cada fila (campos numéricos inician en "0")
   const getDefaultDemandas = () => {
     return rowOrder.reduce((acc, row) => {
       acc[row.key] = {
-        facturacion: "",
-        tasaFiscalizacion: "",
-        totalPercibido: "",
-        totalTransferido: "",
+        facturacion: "0", // valor numérico por defecto
+        tasaFiscalizacion: "0", // valor numérico por defecto
+        totalPercibido: "0", // valor numérico por defecto
+        totalTransferido: "0", // valor numérico por defecto
         observaciones: "",
       };
       return acc;
@@ -36,18 +36,27 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
   const mergeDemandas = (data) => {
     const defaults = getDefaultDemandas();
     if (!data) return defaults;
-    Object.keys(data).forEach((key) => {
-      if (defaults[key]) {
-        defaults[key] = {
-          facturacion: data[key].facturacion?.toString() || "",
-          tasaFiscalizacion: data[key].tasaFiscalizacion?.toString() || "",
-          totalPercibido: data[key].totalPercibido?.toString() || "",
-          totalTransferido: data[key].totalTransferido?.toString() || "",
-          observaciones: data[key].observaciones || "",
-        };
-      } else {
-        defaults[key] = data[key];
-      }
+    Object.keys(defaults).forEach((key) => {
+      // Verificar si el dato existe, incluso si es 0 (por eso se usa una comprobación estricta)
+      defaults[key] = {
+        facturacion:
+          data[key]?.facturacion !== undefined && data[key]?.facturacion !== null
+            ? data[key].facturacion.toString()
+            : "0",
+        tasaFiscalizacion:
+          data[key]?.tasaFiscalizacion !== undefined && data[key]?.tasaFiscalizacion !== null
+            ? data[key].tasaFiscalizacion.toString()
+            : "0",
+        totalPercibido:
+          data[key]?.totalPercibido !== undefined && data[key]?.totalPercibido !== null
+            ? data[key].totalPercibido.toString()
+            : "0",
+        totalTransferido:
+          data[key]?.totalTransferido !== undefined && data[key]?.totalTransferido !== null
+            ? data[key].totalTransferido.toString()
+            : "0",
+        observaciones: data[key]?.observaciones || "",
+      };
     });
     return defaults;
   };
@@ -93,7 +102,8 @@ const TablaDemandas = ({ demandas, setDemandas, disabled = false, selectedMonth 
       // Actualizar la tasaFiscalizacion cuando se modifica la facturación
       if (field === "facturacion") {
         const parsed = parseFloat(newValue);
-        updatedRow.tasaFiscalizacion = !isNaN(parsed) ? (parsed * 0.01).toFixed(2) : "";
+        // Si el valor no es numérico se asigna "0"
+        updatedRow.tasaFiscalizacion = isNaN(parsed) ? "0" : (parsed * 0.01).toFixed(2);
       }
       return {
         ...prev,

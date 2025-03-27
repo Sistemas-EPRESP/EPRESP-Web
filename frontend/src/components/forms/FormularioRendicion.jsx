@@ -1,3 +1,4 @@
+// FormularioRendicion.jsx
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import TablaDemandas from "../tables/TablaDemandas";
@@ -6,13 +7,13 @@ import TextInput from "../ui/TextInput";
 import { AuthContext } from "../../context/AuthContext";
 import MonthSelect from "../ui/MonthSelect";
 import { formatCUIT } from "../../utils/formatCUIT";
-import { transformarDemandas } from "../../utils/transformarDemandas";
 import SancionesIncumplimientos from "../SancionesIncumplimientos";
 import useRendicionData from "../../hooks/useRendicionData";
 import { toast } from "react-toastify";
 import axios from "../../config/AxiosConfig";
 import { formatPesos } from "../../utils/formatPesos";
-import NotificationMessage from "../ui/NotificationMessage"; // Ajusta la ruta según la estructura de tu proyecto
+import NotificationMessage from "../ui/NotificationMessage";
+import { getDefaultDemandas, transformDemandasPayload } from "../../utils/demandUtils"; // Importar utilidades
 
 const FormularioRendicion = ({ setMes }) => {
   const { cooperativa } = useContext(AuthContext);
@@ -31,7 +32,8 @@ const FormularioRendicion = ({ setMes }) => {
     total_transferencia: 0.0,
     periodo_anio: currentYear,
   });
-  const [demandas, setDemandas] = useState({});
+  // Inicializar demandas con valores por defecto
+  const [demandas, setDemandas] = useState(getDefaultDemandas());
   // Estados para mensaje y su tipo ("success" o "error")
   const [mensaje, setMensaje] = useState("");
   const [mensajeTipo, setMensajeTipo] = useState("");
@@ -49,7 +51,8 @@ const FormularioRendicion = ({ setMes }) => {
         total_transferencia: parseFloat(rendicionData.total_transferencia_numero) || 0.0,
         periodo_anio: rendicionData.periodo_anio ? parseInt(rendicionData.periodo_anio, 10) : currentYear,
       });
-      setDemandas(transformarDemandas(rendicionData.Demandas));
+      // Se asume que transformarDemandas ya adapta la data recibida a la estructura que espera TablaDemandas
+      setDemandas(rendicionData.Demandas ? rendicionData.Demandas : getDefaultDemandas());
     }
   }, [rendicionData, currentYear]);
 
@@ -76,17 +79,8 @@ const FormularioRendicion = ({ setMes }) => {
 
     const fechaActual = new Date().toISOString().split("T")[0];
 
-    // Preparar payload de demandas
-    const demandasPayload = {};
-    Object.keys(demandas).forEach((categoria) => {
-      demandasPayload[categoria] = {
-        facturacion: parseFloat(demandas[categoria].facturacion) || 0.0,
-        total_tasa_fiscalizacion: parseFloat(demandas[categoria].tasaFiscalizacion) || 0.0,
-        total_percibido: parseFloat(demandas[categoria].totalPercibido) || 0.0,
-        total_transferido: parseFloat(demandas[categoria].totalTransferido) || 0.0,
-        observaciones: demandas[categoria].observaciones || "",
-      };
-    });
+    // Transformar las demandas usando la función utilitaria
+    const demandasPayload = transformDemandasPayload(demandas);
 
     // Preparar objeto rendición
     const rendicion = {
@@ -113,6 +107,7 @@ const FormularioRendicion = ({ setMes }) => {
         setMensajeTipo("success");
         toast.success(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
       }
+      console.log(rendicion);
     } catch (err) {
       console.error(err);
       const errorMsg = err.response?.data?.message || "Error al enviar la rendición.";
