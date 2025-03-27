@@ -367,8 +367,9 @@ const verificarFormulariosCooperativas = async () => {
       hoy.getMonth() === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear();
 
     // Obtener todas las cooperativas
-    const cooperativas = await Cooperativa.findAll();
-    console.log(mesAnterior, ' ', anioAnterior);
+    const cooperativas = await Cooperativa.findAll({
+      attributes: ['id', 'email'], // Incluir el correo electrónico
+    });
 
     let cooperativasSinRendicion = [];
 
@@ -382,7 +383,7 @@ const verificarFormulariosCooperativas = async () => {
       });
 
       if (!rendicion) {
-        cooperativasSinRendicion.push(cooperativa.id);
+        cooperativasSinRendicion.push(cooperativa.email); // Agregar el correo de la cooperativa
       }
     }
 
@@ -391,15 +392,18 @@ const verificarFormulariosCooperativas = async () => {
         'Cooperativas sin rendición presentada:',
         cooperativasSinRendicion,
       );
-      // Aquí podríamos registrar el incumplimiento en la base de datos
     } else {
       console.log(
         'Todas las cooperativas presentaron su rendición correctamente.',
       );
     }
-    console.log(cooperativasSinRendicion);
+
+    return cooperativasSinRendicion; // Devolver los correos de las cooperativas sin rendición
   } catch (error) {
     console.error('Error al verificar formularios de cooperativas:', error);
+    throw new Error(
+      `Error al verificar formularios de cooperativas: ${error.message}`,
+    );
   }
 };
 

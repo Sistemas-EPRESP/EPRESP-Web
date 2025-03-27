@@ -59,7 +59,8 @@ cron.schedule('* * * * *', async () => {
 
     if (esDiaHabil10(hoy)) {
       console.log('✅ Hoy es el día de verificación. Ejecutando lógica...');
-      await verificarFormulariosCooperativas();
+      const cooperativas = await verificarFormulariosCooperativas();
+      await enviarMails(cooperativas);
     } else {
       console.log('❌ Hoy NO es el día de verificación.');
     }
