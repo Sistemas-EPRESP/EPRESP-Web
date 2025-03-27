@@ -3,8 +3,9 @@ const {
   Demanda,
   Cooperativa,
   Incumplimientos,
-  Pago,
 } = require('../models');
+
+const Pago = require('../models/Pago');
 const { Op } = require('sequelize');
 
 const agregarFormulario = async (formulario, idCooperativa) => {
@@ -235,7 +236,6 @@ const verificarEstado = async (id, aprobado) => {
   try {
     // Verificar que el formulario exista
     const formulario = await verificarFormularioExistenteById(id);
-
     // Obtener los incumplimientos asociados al formulario
     const incumplimientos = await Incumplimientos.findAll({
       where: {
@@ -244,18 +244,17 @@ const verificarEstado = async (id, aprobado) => {
         aprobado: true, // Solo incumplimientos aprobados
       },
     });
-
     // Inicializar variables para verificar los estados
     let tieneFaltaDePresentacion = false;
-    let tienePendienteDePago = false;
+    let tieneOmisionDePago = false;
     let tieneOtrosIncumplimientos = false;
 
     // Verificar los tipos de incumplimientos
     for (const incumplimiento of incumplimientos) {
-      if (incumplimiento.tipo === 'Falta de Presentacion') {
+      if (incumplimiento.tipo === 'Falta de presentación del FR') {
         tieneFaltaDePresentacion = true;
-      } else if (incumplimiento.tipo === 'Pendiente de Pago') {
-        tienePendienteDePago = true;
+      } else if (incumplimiento.tipo === 'Omisión de Pago') {
+        tieneOmisionDePago = true;
       } else {
         tieneOtrosIncumplimientos = true;
       }
@@ -263,13 +262,14 @@ const verificarEstado = async (id, aprobado) => {
 
     // Determinar el estado de la rendición
     let estado;
+
     if (!aprobado) {
-      if (tieneFaltaDePresentacion && tienePendienteDePago) {
+      if (tieneFaltaDePresentacion && tieneOmisionDePago) {
         estado = 'Incumplimientos';
       } else if (tieneFaltaDePresentacion) {
-        estado = 'Falta de Presentacion';
-      } else if (tienePendienteDePago) {
-        estado = 'Pendiente de Pago';
+        estado = 'Falta de presentación del FR';
+      } else if (tieneOmisionDePago) {
+        estado = 'Omisión de Pago';
       } else if (tieneOtrosIncumplimientos) {
         estado = 'Incumplimientos';
       } else {
@@ -296,11 +296,14 @@ const verificarEstado = async (id, aprobado) => {
 const agregarPago = async (id, monto) => {
   try {
     await verificarFormularioExistenteById(id);
+
     await Pago.create({
       monto,
+      fecha: new Date(),
       rendicionId: id,
     });
   } catch (error) {
+    console.error('Error al agregar pago:', error);
     throw new Error(error.message);
   }
 };
@@ -394,6 +397,7 @@ const verificarFormulariosCooperativas = async () => {
         'Todas las cooperativas presentaron su rendición correctamente.',
       );
     }
+    console.log(cooperativasSinRendicion);
   } catch (error) {
     console.error('Error al verificar formularios de cooperativas:', error);
   }

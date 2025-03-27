@@ -45,8 +45,8 @@ const Rendicion = sequelize.define(
       type: DataTypes.ENUM(
         'Pendiente',
         'Aprobado',
-        'Pendiente de Pago',
-        'Falta de Presentacion',
+        'Omisión de Pago',
+        'Falta de presentación del FR',
         'Incumplimientos',
       ),
       defaultValue: 'Pendiente',

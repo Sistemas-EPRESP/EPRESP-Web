@@ -7,9 +7,6 @@ const Pago = sequelize.define(
     monto: {
       type: DataTypes.DECIMAL(15, 2),
       allowNull: false,
-      validate: {
-        isDecimal: true,
-      },
     },
     fecha: {
       type: DataTypes.DATE,

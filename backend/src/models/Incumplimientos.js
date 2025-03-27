@@ -5,7 +5,7 @@ const Incumplimientos = sequelize.define(
   'Incumplimientos',
   {
     tipo: {
-      type: DataTypes.ENUM('Omisión de pago', 'Falta de presentacion del FR'),
+      type: DataTypes.ENUM('Omisión de Pago', 'Falta de presentación del FR'),
       allowNull: false,
     },
     descripcion: {

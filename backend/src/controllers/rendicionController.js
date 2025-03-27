@@ -57,14 +57,15 @@ const revision = async (req, res) => {
   try {
     const { id } = req.params;
     const { incumplimientos, aprobado, monto } = req.body.revision;
+
+    //console.log(incumplimientos, aprobado, monto);
     await rendicionServices.agregarIncumplimientos(incumplimientos, id);
+
     if (monto > 0) {
       await rendicionServices.agregarPago(id, monto);
     }
     await rendicionServices.verificarEstado(id, aprobado);
-    return res
-      .status(201)
-      .json({ message: 'Incumplimientos agregados correctamente' });
+    return res.status(201).json({ message: 'Revision agregada correctamente' });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
