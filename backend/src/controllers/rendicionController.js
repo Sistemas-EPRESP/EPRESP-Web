@@ -57,8 +57,6 @@ const revision = async (req, res) => {
   try {
     const { id } = req.params;
     const { incumplimientos, aprobado, monto } = req.body.revision;
-
-    //console.log(incumplimientos, aprobado, monto);
     await rendicionServices.agregarIncumplimientos(incumplimientos, id);
 
     if (monto > 0) {

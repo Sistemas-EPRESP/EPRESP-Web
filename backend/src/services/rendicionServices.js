@@ -52,6 +52,7 @@ const agregarFormulario = async (formulario, idCooperativa) => {
       observaciones: data.observaciones,
       rendicionId: nuevaRendicion.id,
     }));
+    await verificarFormularioFueraDeTermino(nuevaRendicion);
 
     await Demanda.bulkCreate(arrayDemandas);
   }
@@ -352,7 +353,6 @@ const agregarIncumplimientos = async (incumplimientos, id) => {
         });
       }
     }
-
     return { message: 'Incumplimientos procesados exitosamente' };
   } catch (error) {
     throw new Error(error.message);
@@ -429,6 +429,48 @@ const verificarActualizable = (fecha_rendicion) => {
   return fechaActual <= fechaLimite; // Devuelve true si la fecha actual está dentro del rango permitido
 };
 
+const verificarFormularioFueraDeTermino = async (formularioCreado) => {
+  try {
+    const { periodo_mes, periodo_anio } = formularioCreado;
+
+    // Obtener el mes y año actual
+    const fechaActual = new Date();
+    const mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript son 0-11
+    const anioActual = fechaActual.getFullYear();
+
+    // Calcular el mes y año anterior
+    const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
+    const anioAnterior = mesActual === 1 ? anioActual - 1 : anioActual;
+
+    // Verificar si el formulario no corresponde al mes anterior
+    const esFueraDeTermino =
+      periodo_anio !== anioAnterior || periodo_mes !== mesAnterior;
+
+    if (esFueraDeTermino) {
+      // Crear los incumplimientos por declaración fuera de término
+      const incumplimientos = [
+        {
+          tipo: 'Falta de presentación del FR',
+          aprobado: true,
+        },
+        {
+          tipo: 'Omisión de Pago',
+          aprobado: true,
+        },
+      ];
+
+      // Llamar a la función agregarIncumplimientos con el ID del formulario creado
+      await agregarIncumplimientos(incumplimientos, formularioCreado.id);
+      await verificarEstado(formularioCreado.id, false);
+    }
+    return esFueraDeTermino;
+  } catch (error) {
+    throw new Error(
+      `Error al verificar formulario fuera de término: ${error.message}`,
+    );
+  }
+};
+
 module.exports = {
   agregarFormulario,
   modificarFormulario,
@@ -436,7 +478,6 @@ module.exports = {
   obtenerRendicion,
   agregarPago,
   verificarEstado,
-  //aprobarRendicion,
   agregarIncumplimientos,
   verificarFormulariosCooperativas,
 };
