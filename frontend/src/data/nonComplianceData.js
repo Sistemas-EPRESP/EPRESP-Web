@@ -5,7 +5,7 @@
 const nonComplianceData = [
     {
         id: "omision-pago",
-        tipo: "Omisión de pago", // Valor que debe coincidir con el backend
+        tipo: "Omisión de Pago", // Valor que debe coincidir con el backend
         label: "Omisión de pago",
         sanctions: [
             {
@@ -22,7 +22,7 @@ const nonComplianceData = [
     },
     {
         id: "falta-presentacion-fr",
-        tipo: "Falta de presentacion del FR", // Valor que debe coincidir con el backend
+        tipo: "Falta de presentación del FR", // Valor que debe coincidir con el backend
         label: "Falta de presentación de FR",
         sanctions: [
             {

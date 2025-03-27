@@ -9,11 +9,20 @@ import { formatCUIT } from "../../utils/formatCUIT";
 import useRendicionData from "../../hooks/useRendicionData";
 import { transformarDemandas } from "../../utils/transformarDemandas";
 import IncumplimientosSanciones from "../IncumplimientosSanciones";
+import NotificationMessage from "../ui/NotificationMessage"; // Ajustar la ruta según la estructura de tu proyecto
 
 const FormularioRendicionAdmin = () => {
   const { id } = useParams();
   const { rendicionData, loading, error } = useRendicionData(id);
   const [incumplimientos, setIncumplimientos] = useState([]);
+
+  // Estados para aprobación
+  const [approvalChecked, setApprovalChecked] = useState(false);
+  const [approvalValue, setApprovalValue] = useState("");
+
+  // Estados para mensajes
+  const [mensaje, setMensaje] = useState("");
+  const [mensajeTipo, setMensajeTipo] = useState(""); // "success" o "error"
 
   useEffect(() => {
     if (rendicionData && rendicionData.incumplimientos) {
@@ -40,12 +49,29 @@ const FormularioRendicionAdmin = () => {
 
   const demandasTransformadas = transformarDemandas(Demandas);
 
-  // Función para enviar los datos de incumplimientos
+  // Función para enviar los datos, incluyendo aprobación y monto numérico
   const handleSubmit = () => {
-    axiosInstance.post(`/api/rendiciones/revision/${id}`, { incumplimientos }).catch((error) => {
-      console.error("Error al enviar datos:", error);
-      // Aquí maneja el error, mostrando un mensaje, por ejemplo
-    });
+    const revision = {
+      incumplimientos,
+      aprobado: approvalChecked,
+      monto: approvalChecked ? approvalValue : 0,
+    };
+    axiosInstance
+      .post(`/api/rendiciones/revision/${id}`, { revision })
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          setMensaje("Formulario enviado correctamente.");
+          setMensajeTipo("success");
+        } else {
+          setMensaje("Ocurrió un error al enviar los datos.");
+          setMensajeTipo("error");
+        }
+      })
+      .catch((error) => {
+        const errorMsg = error.response?.data?.message || "Error al enviar datos.";
+        setMensaje(errorMsg);
+        setMensajeTipo("error");
+      });
   };
 
   return (
@@ -185,8 +211,28 @@ const FormularioRendicionAdmin = () => {
 
         {/* Sección de Incumplimientos y Sanciones */}
         <section className="mt-10">
-          {/* Se le pasan tanto los incumplimientos como la función para actualizarlos */}
           <IncumplimientosSanciones incumplimientos={incumplimientos} setIncumplimientos={setIncumplimientos} />
+        </section>
+
+        {/* Sección de Aprobación */}
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Aprobación</h2>
+          <div className="flex items-center space-x-2">
+            {/* Checkbox para aprobar */}
+            <input
+              type="checkbox"
+              checked={approvalChecked}
+              onChange={() => setApprovalChecked(!approvalChecked)}
+              className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+            />
+            <label className="text-sm text-gray-700">Aprobar</label>
+          </div>
+          {approvalChecked && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ingrese el monto numérico</label>
+              <NumericInput value={approvalValue} onChange={(e) => setApprovalValue(e.target.value)} />
+            </div>
+          )}
         </section>
       </section>
 
@@ -199,6 +245,9 @@ const FormularioRendicionAdmin = () => {
           Revisar
         </button>
       </footer>
+
+      {/* Uso del componente NotificationMessage para mostrar el mensaje */}
+      {mensaje && <NotificationMessage message={mensaje} type={mensajeTipo} />}
     </article>
   );
 };

@@ -12,6 +12,7 @@ import useRendicionData from "../../hooks/useRendicionData";
 import { toast } from "react-toastify";
 import axios from "../../config/AxiosConfig";
 import { formatPesos } from "../../utils/formatPesos";
+import NotificationMessage from "../ui/NotificationMessage"; // Ajusta la ruta según la estructura de tu proyecto
 
 const FormularioRendicion = ({ setMes }) => {
   const { cooperativa } = useContext(AuthContext);
@@ -31,7 +32,9 @@ const FormularioRendicion = ({ setMes }) => {
     periodo_anio: currentYear,
   });
   const [demandas, setDemandas] = useState({});
+  // Estados para mensaje y su tipo ("success" o "error")
   const [mensaje, setMensaje] = useState("");
+  const [mensajeTipo, setMensajeTipo] = useState("");
 
   const { rendicionData, loading, error } = useRendicionData(isEditMode ? id : null);
 
@@ -67,6 +70,7 @@ const FormularioRendicion = ({ setMes }) => {
 
     if (!cooperativa || !cooperativa.idCooperativa) {
       setMensaje("Error: No se encontró la cooperativa.");
+      setMensajeTipo("error");
       return;
     }
 
@@ -106,13 +110,14 @@ const FormularioRendicion = ({ setMes }) => {
       }
       if (response.status === 200 || response.status === 201) {
         setMensaje(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
+        setMensajeTipo("success");
+        toast.success(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
       }
-      console.log(rendicion);
-      toast.success(isEditMode ? "Rendición actualizada correctamente." : "Formulario enviado correctamente.");
     } catch (err) {
       console.error(err);
       const errorMsg = err.response?.data?.message || "Error al enviar la rendición.";
       setMensaje(errorMsg);
+      setMensajeTipo("error");
       toast.error(errorMsg);
     }
   };
@@ -331,12 +336,8 @@ const FormularioRendicion = ({ setMes }) => {
         </form>
       </section>
 
-      {/* Mensajes de respuesta */}
-      {mensaje && (
-        <section aria-live="polite" className="mt-6 p-4 bg-green-50 rounded-md">
-          <p className="text-green-700">{mensaje}</p>
-        </section>
-      )}
+      {/* Uso del componente NotificationMessage para mostrar el mensaje */}
+      {mensaje && <NotificationMessage message={mensaje} type={mensajeTipo} />}
 
       <footer>
         <p className="mt-6 text-sm text-gray-500 italic">
