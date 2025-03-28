@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import MonthCard from "./MonthCard";
 
 const YearGrid = ({ year, rendiciones = [] }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Si el año es el año actual, isExpanded inicia en true
+  const [isExpanded, setIsExpanded] = useState(() => year === new Date().getFullYear());
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   const stats = useMemo(() => {
