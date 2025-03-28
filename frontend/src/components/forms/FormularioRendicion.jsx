@@ -147,7 +147,7 @@ const FormularioRendicion = ({ setMes }) => {
   }
 
   // Extraemos el valor del campo "actualizable" de la rendición (en modo edición)
-  const isEditable = !rendicionData?.actualizable;
+  const isEditable = rendicionData?.actualizable;
 
   return (
     <article className="space-y-10">
