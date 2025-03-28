@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const { verificarFormulariosCooperativas } = require('./rendicionServices');
+const { notificar } = require('./excelServices');
 
 /**
  * Programar la tarea para que corra todos los días a las 23:59
@@ -60,7 +61,7 @@ cron.schedule('* * * * *', async () => {
     if (esDiaHabil10(hoy)) {
       console.log('✅ Hoy es el día de verificación. Ejecutando lógica...');
       const cooperativas = await verificarFormulariosCooperativas();
-      await enviarMails(cooperativas);
+      await notificar(cooperativas);
     } else {
       console.log('❌ Hoy NO es el día de verificación.');
     }

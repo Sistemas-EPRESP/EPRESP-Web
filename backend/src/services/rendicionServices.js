@@ -383,21 +383,9 @@ const verificarFormulariosCooperativas = async () => {
       });
 
       if (!rendicion) {
-        cooperativasSinRendicion.push(cooperativa.email); // Agregar el correo de la cooperativa
+        cooperativasSinRendicion.push(cooperativa.dataValues); // Agregar el correo de la cooperativa
       }
     }
-
-    if (cooperativasSinRendicion.length > 0) {
-      console.log(
-        'Cooperativas sin rendición presentada:',
-        cooperativasSinRendicion,
-      );
-    } else {
-      console.log(
-        'Todas las cooperativas presentaron su rendición correctamente.',
-      );
-    }
-
     return cooperativasSinRendicion; // Devolver los correos de las cooperativas sin rendición
   } catch (error) {
     console.error('Error al verificar formularios de cooperativas:', error);

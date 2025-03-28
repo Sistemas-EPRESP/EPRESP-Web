@@ -69,17 +69,6 @@ const login = async (cuit, password) => {
   };
 };
 
-// // Verificar y renovar Access Token con Refresh Token
-// const refreshAccessToken = (refreshToken) => {
-//   try {
-//     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-//     const nuevoAccessToken = generarAccessToken({ id: decoded.id });
-//     return nuevoAccessToken;
-//   } catch (error) {
-//     throw new Error('Refresh Token inválido o expirado', error);
-//   }
-// };
-
 const refreshAccessToken = async (refreshToken) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
@@ -99,6 +88,7 @@ const refreshAccessToken = async (refreshToken) => {
         idUsuario: usuario.id,
         idCooperativa: cooperativa?.id || null,
         nombre: cooperativa?.nombre || null,
+        ciudad: cooperativa?.ciudad || null,
         cuit: usuario.cuit,
         email: cooperativa.email, // Asumiendo que tienes un campo email en la tabla Usuario
         tipo: usuario.tipo,
