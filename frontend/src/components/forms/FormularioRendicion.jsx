@@ -187,11 +187,12 @@ const FormularioRendicion = ({ setMes }) => {
       {/* Sección del formulario */}
       <section>
         <form onSubmit={handleSubmit} onKeyDown={handleFormKeyDown} className="space-y-10">
-          {/* Grupo de fechas y período */}
-          <fieldset className="space-y-4">
-            <legend className="sr-only">Fechas y Período</legend>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {/* Fecha de rendición (deshabilitada siempre) */}
+          <fieldset>
+            <legend className="sr-only">Datos de Rendición y Transferencia</legend>
+
+            {/* Fila 1: Fechas (Rendición y Transferencia) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              {/* Fecha de rendición (deshabilitada) */}
               <div className="space-y-2">
                 <label htmlFor="fecha_rendicion" className="block text-sm font-medium text-gray-700">
                   Fecha de Rendición
@@ -207,6 +208,7 @@ const FormularioRendicion = ({ setMes }) => {
                   />
                 </div>
               </div>
+
               {/* Fecha de transferencia */}
               <div className="space-y-2">
                 <label htmlFor="fecha_transferencia" className="block text-sm font-medium text-gray-700">
@@ -219,7 +221,12 @@ const FormularioRendicion = ({ setMes }) => {
                     name="fecha_transferencia"
                     required
                     value={formValues.fecha_transferencia}
-                    onChange={(e) => handleInputChange({ name: e.target.name, value: e.target.value })}
+                    onChange={(e) =>
+                      handleInputChange({
+                        name: e.target.name,
+                        value: e.target.value,
+                      })
+                    }
                     disabled={!isEditable}
                     className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   />
@@ -227,98 +234,108 @@ const FormularioRendicion = ({ setMes }) => {
               </div>
             </div>
 
-            {/* Selección de mes y año */}
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {/* Fila 2: Período de Rendición (Mes y Año) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              {/* Mes */}
               <div className="space-y-2">
                 <label htmlFor="periodo_rendicion" className="block text-sm font-medium text-gray-700">
                   Período de Rendición Mes
                 </label>
-                <MonthSelect
-                  value={formValues.periodo_mes}
-                  onChange={(newMonth) => setFormValues((prev) => ({ ...prev, periodo_mes: newMonth }))}
-                  disabled={!isEditable}
-                />
+                <div className="relative">
+                  <MonthSelect
+                    value={formValues.periodo_mes}
+                    onChange={(newMonth) => setFormValues((prev) => ({ ...prev, periodo_mes: newMonth }))}
+                    disabled={!isEditable}
+                  />
+                </div>
               </div>
+              {/* Año */}
               <div className="space-y-2">
                 <label htmlFor="anio" className="block text-sm font-medium text-gray-700">
                   Período de Rendición Año
                 </label>
-                <select
-                  id="anio"
-                  name="periodo_anio"
-                  required
-                  value={formValues.periodo_anio}
+                <div className="relative">
+                  <select
+                    id="anio"
+                    name="periodo_anio"
+                    required
+                    value={formValues.periodo_anio}
+                    onChange={handleInputChange}
+                    disabled={!isEditable}
+                    className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Fila 3: Tasa de Fiscalización (Letra y Número) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              {/* Tasa en letras */}
+              <div className="space-y-2">
+                <label htmlFor="total_tasa_letras" className="block text-sm font-medium text-gray-700">
+                  Total Tasa de Fiscalización y Control (Letras)
+                </label>
+                <TextInput
+                  name="total_tasa_letras"
+                  returnEvent
+                  value={formValues.total_tasa_letras}
+                  onChange={handleInputChange}
+                  maxLength={100}
+                  placeholder="Ej: Cien mil pesos"
+                  disabled={!isEditable}
+                />
+              </div>
+              {/* Tasa en número */}
+              <div className="space-y-2">
+                <label htmlFor="total_tasa" className="block text-sm font-medium text-gray-700">
+                  Monto (Número)
+                </label>
+                <NumericInput
+                  name="total_tasa"
+                  value={formValues.total_tasa}
                   onChange={handleInputChange}
                   disabled={!isEditable}
-                  className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                />
+              </div>
+            </div>
+
+            {/* Fila 4: Total Transferencia (Letra y Número) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Transferencia en letras */}
+              <div className="space-y-2">
+                <label htmlFor="total_transferencia_letras" className="block text-sm font-medium text-gray-700">
+                  Total Transferencia: Pesos (Letras)
+                </label>
+                <TextInput
+                  name="total_transferencia_letras"
+                  returnEvent
+                  value={formValues.total_transferencia_letras}
+                  onChange={handleInputChange}
+                  maxLength={100}
+                  placeholder="Ej: Cien mil pesos"
+                  disabled={!isEditable}
+                />
+              </div>
+              {/* Transferencia en número */}
+              <div className="space-y-2">
+                <label htmlFor="total_transferencia" className="block text-sm font-medium text-gray-700">
+                  Monto (Número)
+                </label>
+                <NumericInput
+                  name="total_transferencia"
+                  value={formValues.total_transferencia}
+                  onChange={handleInputChange}
+                  disabled={!isEditable}
+                />
               </div>
             </div>
           </fieldset>
-
-          {/* Grupo de datos de la tasa de fiscalización */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="total_tasa_letras" className="block text-sm font-medium text-gray-700 mb-1">
-                Total Tasa de Fiscalización y Control (Letras)
-              </label>
-              <TextInput
-                name="total_tasa_letras"
-                returnEvent
-                value={formValues.total_tasa_letras}
-                onChange={handleInputChange}
-                maxLength={100}
-                placeholder="Ej: Cien mil pesos"
-                disabled={!isEditable}
-              />
-            </div>
-            <div>
-              <label htmlFor="total_tasa" className="block text-sm font-medium text-gray-700 mb-1">
-                Monto (Número)
-              </label>
-              <NumericInput
-                name="total_tasa"
-                value={formValues.total_tasa}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-              />
-            </div>
-          </div>
-
-          {/* Grupo de datos de la transferencia */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="total_transferencia_letras" className="block text-sm font-medium text-gray-700 mb-1">
-                Total Transferencia: Pesos (Letras)
-              </label>
-              <TextInput
-                name="total_transferencia_letras"
-                returnEvent
-                value={formValues.total_transferencia_letras}
-                onChange={handleInputChange}
-                maxLength={100}
-                placeholder="Ej: Cien mil pesos"
-                disabled={!isEditable}
-              />
-            </div>
-            <div>
-              <label htmlFor="total_transferencia" className="block text-sm font-medium text-gray-700 mb-1">
-                Monto (Número)
-              </label>
-              <NumericInput
-                name="total_transferencia"
-                value={formValues.total_transferencia}
-                onChange={handleInputChange}
-                disabled={!isEditable}
-              />
-            </div>
-          </div>
 
           {/* Tabla de Demandas */}
           <TablaDemandas

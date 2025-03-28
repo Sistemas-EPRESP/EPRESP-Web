@@ -116,144 +116,153 @@ const FormularioRendicionAdmin = () => {
       </section>
 
       {/* Formulario de datos de rendición */}
-      <section className="space-y-10">
+      <section>
         <form className="space-y-10">
-          {/* Grupo de Fechas */}
-          <fieldset className="space-y-4">
-            <legend className="sr-only">Fechas de Rendición y Transferencia</legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="fechaRendicion" className="block text-sm font-medium text-gray-700 mb-1">
+          {/* Fieldset que agrupa Fechas y Período */}
+          <fieldset>
+            <legend className="sr-only">Datos de Rendición y Transferencia</legend>
+
+            {/* Fila 1: Fechas (Rendición y Transferencia) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              {/* Fecha de Rendición */}
+              <div className="space-y-2">
+                <label htmlFor="fechaRendicion" className="block text-sm font-medium text-gray-700">
                   Fecha de Rendición
                 </label>
-                <input
-                  type="date"
-                  id="fechaRendicion"
-                  value={fecha_rendicion}
-                  disabled
-                  className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
-                />
+                <div className="relative">
+                  <input
+                    type="date"
+                    id="fechaRendicion"
+                    value={fecha_rendicion}
+                    disabled
+                    className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
+                  />
+                </div>
               </div>
-              <div>
-                <label htmlFor="fechaTransferencia" className="block text-sm font-medium text-gray-700 mb-1">
+              {/* Fecha de Transferencia */}
+              <div className="space-y-2">
+                <label htmlFor="fechaTransferencia" className="block text-sm font-medium text-gray-700">
                   Fecha de Transferencia
                 </label>
-                <input
-                  type="date"
-                  id="fechaTransferencia"
-                  value={fecha_transferencia}
-                  disabled
-                  className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
-                />
+                <div className="relative">
+                  <input
+                    type="date"
+                    id="fechaTransferencia"
+                    value={fecha_transferencia}
+                    disabled
+                    className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
               </div>
             </div>
-          </fieldset>
 
-          {/* Grupo de Período de Rendición */}
-          <fieldset className="space-y-4">
-            <legend className="sr-only">Período de Rendición</legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="periodoMes" className="block text-sm font-medium text-gray-700 mb-1">
+            {/* Fila 2: Período de Rendición (Mes y Año) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              {/* Mes */}
+              <div className="space-y-2">
+                <label htmlFor="periodoMes" className="block text-sm font-medium text-gray-700">
                   Período de Rendición Mes
                 </label>
-                <input
-                  type="text"
-                  id="periodoMes"
-                  value={getNombreMes(periodo_mes)}
-                  disabled
-                  className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="periodoMes"
+                    value={getNombreMes(periodo_mes)}
+                    disabled
+                    className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
+                  />
+                </div>
               </div>
-              <div>
-                <label htmlFor="periodoAnio" className="block text-sm font-medium text-gray-700 mb-1">
+              {/* Año */}
+              <div className="space-y-2">
+                <label htmlFor="periodoAnio" className="block text-sm font-medium text-gray-700">
                   Período de Rendición Año
                 </label>
-                <input
-                  type="text"
-                  id="periodoAnio"
-                  value={periodo_anio}
-                  disabled
-                  className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-500"
-                />
+                <div className="relative">
+                  <select
+                    id="periodoAnio"
+                    disabled
+                    className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option>{periodo_anio}</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </fieldset>
 
-          {/* Grupo de Datos de Tasa y Transferencia */}
-          <fieldset className="space-y-4">
-            <legend className="sr-only">Datos de Tasa y Transferencia</legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="tasaLetras" className="block text-sm font-medium text-gray-700 mb-1">
+            {/* Fila 3: Datos de Tasa de Fiscalización (Letras y Número) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              {/* Total Tasa de Fiscalización y Control (Letras) */}
+              <div className="space-y-2">
+                <label htmlFor="tasaLetras" className="block text-sm font-medium text-gray-700">
                   Total Tasa de Fiscalización y Control (Letras)
                 </label>
                 <TextInput value={tasa_fiscalizacion_letras} disabled onChange={() => {}} />
               </div>
-              <div>
-                <label htmlFor="tasaNumero" className="block text-sm font-medium text-gray-700 mb-1">
+              {/* Monto (Número) */}
+              <div className="space-y-2">
+                <label htmlFor="tasaNumero" className="block text-sm font-medium text-gray-700">
                   Monto (Número)
                 </label>
                 <NumericInput value={tasa_fiscalizacion_numero} disabled onChange={() => {}} />
               </div>
             </div>
 
+            {/* Fila 4: Datos de Transferencia (Letras y Número) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="transferenciaLetras" className="block text-sm font-medium text-gray-700 mb-1">
+              {/* Total Transferencia: Pesos (Letras) */}
+              <div className="space-y-2">
+                <label htmlFor="transferenciaLetras" className="block text-sm font-medium text-gray-700">
                   Total Transferencia: Pesos (Letras)
                 </label>
                 <TextInput value={total_transferencia_letras} disabled onChange={() => {}} />
               </div>
-              <div>
-                <label htmlFor="transferenciaNumero" className="block text-sm font-medium text-gray-700 mb-1">
+              {/* Monto (Número) */}
+              <div className="space-y-2">
+                <label htmlFor="transferenciaNumero" className="block text-sm font-medium text-gray-700">
                   Monto (Número)
                 </label>
                 <NumericInput value={total_transferencia_numero} disabled onChange={() => {}} />
               </div>
             </div>
           </fieldset>
-        </form>
 
-        {/* Sección de Tabla de Demandas */}
-        <section className="mt-10" aria-labelledby="tabla-demandas-title">
+          {/* Tabla de Demandas */}
           <TablaDemandas demandas={demandasTransformadas} selectedMonth={periodo_mes} disabled />
-        </section>
 
-        {/* Sección de Incumplimientos y Sanciones */}
-        <section className="mt-10">
+          {/* Incumplimientos y Sanciones */}
           <IncumplimientosSanciones
             incumplimientos={incumplimientos}
             setIncumplimientos={setIncumplimientos}
             disabled={isActualizable} // Se deshabilita en periodo de actualización
           />
-        </section>
 
-        {/* Sección de Aprobación */}
-        <section className="mt-10">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Aprobación</h2>
-          <div className="flex items-center space-x-2">
-            {/* Checkbox para aprobar */}
-            <input
-              type="checkbox"
-              checked={approvalChecked}
-              onChange={() => setApprovalChecked(!approvalChecked)}
-              disabled={isActualizable}
-              className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
-            />
-            <label className="text-sm text-gray-700">Aprobar</label>
-          </div>
-          {approvalChecked && (
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Ingrese el monto numérico</label>
-              <NumericInput
-                value={approvalValue}
-                onChange={(e) => setApprovalValue(e.target.value)}
+          {/* Sección de Aprobación */}
+          <div className="pt-6 border-t">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Aprobación</h2>
+            <div className="flex items-center space-x-2">
+              {/* Checkbox para aprobar */}
+              <input
+                type="checkbox"
+                checked={approvalChecked}
+                onChange={() => setApprovalChecked(!approvalChecked)}
                 disabled={isActualizable}
+                className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
               />
+              <label className="text-sm text-gray-700">Aprobar</label>
             </div>
-          )}
-        </section>
+            {approvalChecked && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700">Ingrese el monto numérico</label>
+                <NumericInput
+                  value={approvalValue}
+                  onChange={(e) => setApprovalValue(e.target.value)}
+                  disabled={isActualizable}
+                />
+              </div>
+            )}
+          </div>
+        </form>
       </section>
 
       {/* Área de acción: Botón de revisión */}
