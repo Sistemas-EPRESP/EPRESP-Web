@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
-export default function UserMenu({ isAuthenticated, cooperativa, onLogout }) {
+export default function UserMenu() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { logout, isAuthenticated, cooperativa } = useContext(AuthContext);
   const navigate = useNavigate();
 
   // Alterna el despliegue del menú
@@ -20,12 +22,13 @@ export default function UserMenu({ isAuthenticated, cooperativa, onLogout }) {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [cooperativa]);
+    // Nota: La dependencia cooperativa se removió porque no afecta el evento
+  }, []);
 
   // Función que ejecuta el logout y redirige a /iniciar_sesion
   const handleLogout = async () => {
     setDropdownOpen(false);
-    await onLogout();
+    await logout();
     navigate("/iniciar_sesion");
   };
 
@@ -34,8 +37,8 @@ export default function UserMenu({ isAuthenticated, cooperativa, onLogout }) {
     return null;
   }
 
-  // Determinar el texto a mostrar junto al icono
-  const displayText = cooperativa?.tipo === "administrador" ? "Administrador" : cooperativa?.ciudad || "";
+  // Determinar el texto a mostrar junto al icono, con fallback si ciudad no está definida
+  const displayText = cooperativa?.tipo === "administrador" ? "Administrador" : cooperativa?.ciudad || "Usuario";
 
   return (
     <div className="relative" ref={dropdownRef}>
