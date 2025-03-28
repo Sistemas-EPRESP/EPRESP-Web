@@ -166,7 +166,7 @@ const FormularioRendicion = ({ setMes }) => {
       )}
 
       {/* Sección de información del distribuidor */}
-      <section aria-labelledby="distribuidor-info" className="bg-gray-100 p-4 rounded-md">
+      <section aria-labelledby="distribuidor-info" className="bg-gray-100 p-4 rounded-md mb-6">
         <header>
           <h3 id="distribuidor-info" className="sr-only">
             Información del Distribuidor
@@ -177,7 +177,7 @@ const FormularioRendicion = ({ setMes }) => {
             <p className="text-sm font-medium text-gray-500">Distribuidor</p>
             <p className="text-lg font-semibold text-gray-900">{cooperativa.nombre}</p>
           </div>
-          <div>
+          <div className="sm:border-l sm:pl-4">
             <p className="text-sm font-medium text-gray-700">CUIT</p>
             <p className="text-lg font-semibold text-gray-900">{formatCUIT(cooperativa.cuit)}</p>
           </div>

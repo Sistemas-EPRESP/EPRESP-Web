@@ -97,19 +97,19 @@ const FormularioRendicionAdmin = () => {
       )}
 
       {/* Sección de información de la Cooperativa */}
-      <section className="bg-gray-50 rounded-lg shadow-sm p-6 mb-8" aria-labelledby="cooperativa-info">
+      <section aria-labelledby="distribuidor-info" className="bg-gray-100 p-4 rounded-md mb-6">
         <header>
-          <h2 id="cooperativa-info" className="sr-only">
-            Información de la Cooperativa
-          </h2>
+          <h3 id="distribuidor-info" className="sr-only">
+            Información del Distribuidor
+          </h3>
         </header>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Cooperativa</h3>
+            <p className="text-sm font-medium text-gray-500">Distribuidor</p>
             <p className="text-lg font-semibold text-gray-900">{Cooperativa.nombre}</p>
           </div>
-          <div>
-            <h3 className="text-sm font-medium text-gray-500">CUIT</h3>
+          <div className="sm:border-l sm:pl-4">
+            <p className="text-sm font-medium text-gray-700">CUIT</p>
             <p className="text-lg font-semibold text-gray-900">{formatCUIT(Cooperativa.cuit)}</p>
           </div>
         </div>
