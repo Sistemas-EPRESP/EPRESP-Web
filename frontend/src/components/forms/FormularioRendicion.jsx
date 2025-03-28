@@ -1,4 +1,3 @@
-// FormularioRendicion.jsx
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import TablaDemandas from "../tables/TablaDemandas";
@@ -13,7 +12,7 @@ import { toast } from "react-toastify";
 import axios from "../../config/AxiosConfig";
 import { formatPesos } from "../../utils/formatPesos";
 import NotificationMessage from "../ui/NotificationMessage";
-import { getDefaultDemandas, transformDemandasPayload } from "../../utils/demandUtils"; // Importar utilidades
+import { getDefaultDemandas, transformDemandasPayload } from "../../utils/demandUtils";
 
 const FormularioRendicion = ({ setMes }) => {
   const { cooperativa } = useContext(AuthContext);
@@ -51,7 +50,7 @@ const FormularioRendicion = ({ setMes }) => {
         total_transferencia: parseFloat(rendicionData.total_transferencia_numero) || 0.0,
         periodo_anio: rendicionData.periodo_anio ? parseInt(rendicionData.periodo_anio, 10) : currentYear,
       });
-      // Se asume que transformarDemandas ya adapta la data recibida a la estructura que espera TablaDemandas
+      // Se asume que la data de Demandas se adapta a la estructura que espera TablaDemandas
       setDemandas(rendicionData.Demandas ? rendicionData.Demandas : getDefaultDemandas());
     }
   }, [rendicionData, currentYear]);
@@ -77,12 +76,12 @@ const FormularioRendicion = ({ setMes }) => {
       return;
     }
 
-    const fechaActual = new Date().toISOString().split("T")[0];
+    // Si no es editable, no se envía nada
+    if (!isEditable) return;
 
-    // Transformar las demandas usando la función utilitaria
+    const fechaActual = new Date().toISOString().split("T")[0];
     const demandasPayload = transformDemandasPayload(demandas);
 
-    // Preparar objeto rendición
     const rendicion = {
       fecha_rendicion: fechaActual,
       fecha_transferencia: formValues.fecha_transferencia,
@@ -147,6 +146,9 @@ const FormularioRendicion = ({ setMes }) => {
     return <div>{error}</div>;
   }
 
+  // Extraemos el valor del campo "actualizable" de la rendición (en modo edición)
+  const isEditable = !rendicionData?.actualizable;
+
   return (
     <article className="space-y-10">
       <header className="pb-2 border-b">
@@ -154,6 +156,14 @@ const FormularioRendicion = ({ setMes }) => {
           Formulario de Rendición de la Tasa de Fiscalización y Control
         </h2>
       </header>
+
+      {/* Mensaje indicando que el plazo de actualización se venció y la rendición está en revisión */}
+      {rendicionData && isEditable === false && (
+        <NotificationMessage
+          message="El plazo de actualización se venció y la rendición se encuentra en revisión."
+          type="error"
+        />
+      )}
 
       {/* Sección de información del distribuidor */}
       <section aria-labelledby="distribuidor-info" className="bg-gray-100 p-4 rounded-md">
@@ -181,7 +191,7 @@ const FormularioRendicion = ({ setMes }) => {
           <fieldset className="space-y-4">
             <legend className="sr-only">Fechas y Período</legend>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {/* Fecha de rendición (deshabilitada) */}
+              {/* Fecha de rendición (deshabilitada siempre) */}
               <div className="space-y-2">
                 <label htmlFor="fecha_rendicion" className="block text-sm font-medium text-gray-700">
                   Fecha de Rendición
@@ -210,6 +220,7 @@ const FormularioRendicion = ({ setMes }) => {
                     required
                     value={formValues.fecha_transferencia}
                     onChange={(e) => handleInputChange({ name: e.target.name, value: e.target.value })}
+                    disabled={!isEditable}
                     className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -225,6 +236,7 @@ const FormularioRendicion = ({ setMes }) => {
                 <MonthSelect
                   value={formValues.periodo_mes}
                   onChange={(newMonth) => setFormValues((prev) => ({ ...prev, periodo_mes: newMonth }))}
+                  disabled={!isEditable}
                 />
               </div>
               <div className="space-y-2">
@@ -237,6 +249,7 @@ const FormularioRendicion = ({ setMes }) => {
                   required
                   value={formValues.periodo_anio}
                   onChange={handleInputChange}
+                  disabled={!isEditable}
                   className="w-full px-2 py-1 rounded border border-gray-300 shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 >
                   {years.map((year) => (
@@ -262,13 +275,19 @@ const FormularioRendicion = ({ setMes }) => {
                 onChange={handleInputChange}
                 maxLength={100}
                 placeholder="Ej: Cien mil pesos"
+                disabled={!isEditable}
               />
             </div>
             <div>
               <label htmlFor="total_tasa" className="block text-sm font-medium text-gray-700 mb-1">
                 Monto (Número)
               </label>
-              <NumericInput name="total_tasa" value={formValues.total_tasa} onChange={handleInputChange} />
+              <NumericInput
+                name="total_tasa"
+                value={formValues.total_tasa}
+                onChange={handleInputChange}
+                disabled={!isEditable}
+              />
             </div>
           </div>
 
@@ -285,6 +304,7 @@ const FormularioRendicion = ({ setMes }) => {
                 onChange={handleInputChange}
                 maxLength={100}
                 placeholder="Ej: Cien mil pesos"
+                disabled={!isEditable}
               />
             </div>
             <div>
@@ -295,12 +315,18 @@ const FormularioRendicion = ({ setMes }) => {
                 name="total_transferencia"
                 value={formValues.total_transferencia}
                 onChange={handleInputChange}
+                disabled={!isEditable}
               />
             </div>
           </div>
 
           {/* Tabla de Demandas */}
-          <TablaDemandas demandas={demandas} setDemandas={setDemandas} selectedMonth={formValues.periodo_mes} />
+          <TablaDemandas
+            demandas={demandas}
+            setDemandas={setDemandas}
+            selectedMonth={formValues.periodo_mes}
+            disabled={!isEditable} // Se deshabilita la edición de la tabla
+          />
 
           {/* Precauciones si el total transferido es menor que el total percibido */}
           {shouldShowPrecauciones && (
@@ -323,7 +349,8 @@ const FormularioRendicion = ({ setMes }) => {
           <div className="pt-6 border-t">
             <button
               type="submit"
-              className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              disabled={!isEditable}
+              className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             >
               {isEditMode ? "Actualizar Rendición" : "Enviar Formulario"}
             </button>

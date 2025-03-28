@@ -34,6 +34,7 @@ const FormularioRendicionAdmin = () => {
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
 
+  // Extraemos el campo actualizable
   const {
     Cooperativa,
     fecha_rendicion,
@@ -45,12 +46,19 @@ const FormularioRendicionAdmin = () => {
     total_transferencia_letras,
     total_transferencia_numero,
     Demandas,
+    actualizable, // <-- nuevo campo
   } = rendicionData;
+
+  // Variable para determinar si se debe deshabilitar la edición
+  const isActualizable = actualizable;
 
   const demandasTransformadas = transformarDemandas(Demandas);
 
   // Función para enviar los datos, incluyendo aprobación y monto numérico
   const handleSubmit = () => {
+    // No se envían datos si la rendición está en periodo de actualización
+    if (isActualizable) return;
+
     const revision = {
       incumplimientos,
       aprobado: approvalChecked,
@@ -79,6 +87,14 @@ const FormularioRendicionAdmin = () => {
       <header>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Vista Administrador: Rendición</h1>
       </header>
+
+      {/* Mensaje de actualización si la rendición está en periodo de actualización */}
+      {isActualizable && (
+        <NotificationMessage
+          message="La cooperativa todavia está en periodo de actualización de la rendición"
+          type="error" // Se muestra como error
+        />
+      )}
 
       {/* Sección de información de la Cooperativa */}
       <section className="bg-gray-50 rounded-lg shadow-sm p-6 mb-8" aria-labelledby="cooperativa-info">
@@ -201,17 +217,16 @@ const FormularioRendicionAdmin = () => {
 
         {/* Sección de Tabla de Demandas */}
         <section className="mt-10" aria-labelledby="tabla-demandas-title">
-          <header>
-            <h2 id="tabla-demandas-title" className="text-lg font-semibold text-gray-900 mb-4">
-              Tabla de Demandas
-            </h2>
-          </header>
           <TablaDemandas demandas={demandasTransformadas} selectedMonth={periodo_mes} disabled />
         </section>
 
         {/* Sección de Incumplimientos y Sanciones */}
         <section className="mt-10">
-          <IncumplimientosSanciones incumplimientos={incumplimientos} setIncumplimientos={setIncumplimientos} />
+          <IncumplimientosSanciones
+            incumplimientos={incumplimientos}
+            setIncumplimientos={setIncumplimientos}
+            disabled={isActualizable} // Se deshabilita en periodo de actualización
+          />
         </section>
 
         {/* Sección de Aprobación */}
@@ -223,6 +238,7 @@ const FormularioRendicionAdmin = () => {
               type="checkbox"
               checked={approvalChecked}
               onChange={() => setApprovalChecked(!approvalChecked)}
+              disabled={isActualizable}
               className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
             />
             <label className="text-sm text-gray-700">Aprobar</label>
@@ -230,7 +246,11 @@ const FormularioRendicionAdmin = () => {
           {approvalChecked && (
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">Ingrese el monto numérico</label>
-              <NumericInput value={approvalValue} onChange={(e) => setApprovalValue(e.target.value)} />
+              <NumericInput
+                value={approvalValue}
+                onChange={(e) => setApprovalValue(e.target.value)}
+                disabled={isActualizable}
+              />
             </div>
           )}
         </section>
@@ -240,7 +260,8 @@ const FormularioRendicionAdmin = () => {
       <footer className="pt-6 border-t flex justify-end">
         <button
           onClick={handleSubmit}
-          className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          disabled={isActualizable}
+          className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
         >
           Revisar
         </button>
