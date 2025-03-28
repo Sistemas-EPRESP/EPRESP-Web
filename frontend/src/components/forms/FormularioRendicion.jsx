@@ -160,7 +160,7 @@ const FormularioRendicion = ({ setMes }) => {
       {/* Mensaje indicando que el plazo de actualización se venció y la rendición está en revisión */}
       {rendicionData && isEditable === false && (
         <NotificationMessage
-          message="El plazo de actualización se venció y la rendición se encuentra en revisión."
+          message="El período de actualización ha finalizado y la rendición está en proceso de revisión."
           type="error"
         />
       )}

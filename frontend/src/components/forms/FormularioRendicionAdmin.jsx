@@ -91,8 +91,8 @@ const FormularioRendicionAdmin = () => {
       {/* Mensaje de actualización si la rendición está en periodo de actualización */}
       {isActualizable && (
         <NotificationMessage
-          message="La cooperativa todavia está en periodo de actualización de la rendición"
-          type="error" // Se muestra como error
+          message="La cooperativa se encuentra actualmente dentro del período de actualización de la rendición."
+          type="error"
         />
       )}
 
